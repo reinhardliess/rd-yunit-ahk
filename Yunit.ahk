@@ -95,4 +95,26 @@ class Yunit
     return v1.Message = v2.Message
   }
 
+  Class Util {
+    IsNumber(var) {
+      return this.isInteger(var) || this.isFloat(var)
+    }
+
+    isInteger(var) {
+      if var is integer
+      {
+        return true
+      }
+      return false
+    }
+
+    isFloat(var) {
+      if var is float
+      {
+        return true
+      }
+      return false
+    }
+
+  }
 }
