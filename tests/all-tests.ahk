@@ -21,14 +21,15 @@ Class TestClass {
 }
 
 test_Yunit_Util() {
-  assert.label("should determine the correct type for numbers")
-  assert.true(Yunit.Util.isInteger(5))
-  assert.true(Yunit.Util.isNumber(5))
-  assert.true(Yunit.Util.isFloat(5.0))
-  assert.true(Yunit.Util.isNumber(5.0))
-  
-  assert.label("GetType should return the correct variable type")
   u := Yunit.Util
+  assert.label("should determine the correct type for numbers")
+  assert.true(u.isInteger(5))
+  assert.true(u.isNumber(5))
+  assert.true(u.isFloat(5.0))
+  assert.true(u.isNumber(5.0))
+  
+  ;; GetType()
+  assert.label("GetType() should return the correct variable type")
   assert.test(u.GetType(5), "integer")
   assert.test(u.GetType(5.0), "float")
   assert.test(u.GetType("green"), "string")
@@ -36,8 +37,30 @@ test_Yunit_Util() {
   assert.test(u.GetType(new TestClass()), "TestClass")
   assert.test(u.GetType(TestClass), "class")
 
-  assert.label("isFunction should determine whether an object is callable")
+  ;; IsFunction()
+  assert.label("IsFunction() should determine whether an object is callable")
   assert.true(u.IsFunction(Func("Substr")))
   assert.true(u.IsFunction(Func("Substr").bind()))
   assert.false(u.IsFunction("Substr"))
+  
+  ;; Print()
+  assert.label("Print() should stringify the contents of a variable correctly")
+  assert.test(u.Print(33), 33)
+  assert.test(u.Print([1, 2, 3]), "1:1, 2:2, 3:3")
+  
+  actualValue := {name: "Zoe", age: 20, address: { street: "Jardin des Roses"} }
+  expected =  
+  ( ltrim
+  "address":["street":"Jardin des Roses"], "age":20, "name":"Zoe"
+  )
+  assert.test(u.Print(actualValue), expected)
+  
+  actualValue := [{type: 1, value: "abc"}, {type: 2, value: "def"}]
+  expected = 
+  ( ltrim
+  1:["type":1, "value":"abc"], 2:["type":2, "value":"def"]
+  )
+  assert.test(u.Print(actualValue), expected)
+  assert.test(u.Print({ a: 1, fn: Func("Instr")}), """a"":1")
+  
 }

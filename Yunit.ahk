@@ -100,7 +100,7 @@ class Yunit
       return this.isInteger(var) || this.isFloat(var)
     }
 
-    isInteger(var) {
+    IsInteger(var) {
       if var is integer
       {
         return true
@@ -108,18 +108,18 @@ class Yunit
       return false
     }
 
-    isFloat(var) {
+    IsFloat(var) {
       if var is float
       {
         return true
       }
       return false
     }
-    
+
     /**
     * Returns the type of the variable
-    * @param {*} var - variable to check 
-    * @returns {string} 
+    * @param {*} var - variable to check
+    * @returns {string}
     */
     GetType(var) {
       switch {
@@ -135,13 +135,13 @@ class Yunit
           return "string"
       }
     }
-    
+
     /**
     * Checks whether an object is callable
     * @param {object} obj - object to check
-    * @returns {boolean} 
+    * @returns {boolean}
     */
-    isFunction(obj) {
+    IsFunction(obj) {
       if (!isObject(obj)) {
         return false
       }
@@ -149,5 +149,45 @@ class Yunit
       return (isFunc(obj) || (numGet(&obj, "ptr") = funcReference))
     }
 
+    /**
+    * Stringifies variable
+    * @param {*} value - variable to stringify 
+    * @returns {string} 
+    */
+    Print(value) {
+      out := (isObject(value) ? this._stringify(value) : value)
+      return out
+    }
+
+    _stringify(param_value) {
+      output := ""
+
+      for key, value in param_value {
+        
+        ; skip callable objects
+        if (this.IsFunction(value)) {
+          continue
+        }
+        
+        switch {
+          case this.IsNumber(key):
+            output .= key . ":"
+          default:
+            output .= """" . key . """:"
+        }
+
+        switch {
+          case IsObject(value):
+            output .= "[" . this._stringify(value) . "]"
+          case this.IsNumber(value):
+            output .= value
+          default:
+            output .= """" . value . """"
+        }
+        output .= ", "
+      }
+
+      return subStr(output, 1, -2)
+    }
   }
 }
