@@ -115,6 +115,26 @@ class Yunit
       }
       return false
     }
-
+    
+    /**
+    * Returns the type of the variable
+    * @param {*} var - variable to check 
+    * @returns {string} 
+    */
+    GetType(var) {
+      switch {
+        case isObject(var) && className := var.__class:
+          return (var.base.__class = className) ? className : "class"
+        case isObject(var):
+          return "object"
+        case this.IsInteger(var):
+          return "integer"
+        case this.IsFloat(var):
+          return "float"
+        default:
+          return "string"
+      }
+    }
+    
   }
 }
