@@ -95,4 +95,103 @@ class Yunit
       return False
     return v1.Message = v2.Message
   }
+
+  Class Util {
+    static IsNumber(var) {
+      return this.isInteger(var) || this.isFloat(var)
+    }
+
+    static IsInteger(var) {
+      if var is integer
+      {
+        return true
+      }
+      return false
+    }
+
+    static IsFloat(var) {
+      if var is float
+      {
+        return true
+      }
+      return false
+    }
+
+    /**
+    * Returns the type of the variable
+    * @param {*} var - variable to check
+    * @returns {string}
+    */
+    static GetType(var) {
+      return Type(var)
+    }
+
+    /**
+    * Checks whether an object is callable
+    * @param {object} obj - object to check
+    * @returns {boolean}
+    */
+    static IsFunction(obj) {
+      return HasMethod(obj) 
+    }
+
+    /**
+    * Stringifies variable
+    * @param {*} value - variable to stringify 
+    * @returns {string} 
+    */
+    static Print(value) {
+
+      if (!IsObject(value)) {
+        return value
+      }
+  
+      return this._stringify(value)
+    }
+  
+    static _stringify(param_value) {
+      if (!isObject(param_value)) {
+        return '"' param_value '"'
+      }
+      
+      output := ""
+      iterator := (param_value is Array || param_value is Map) 
+        ? param_value 
+        : param_value.OwnProps()
+  
+      for key, value in iterator {
+        output .= this._stringifyGenerate(key, value)
+      }
+      output := subStr(output, 1, -2)
+      return output
+    }
+  
+    static _stringifyGenerate(key, value) {
+      output := ""
+  
+      switch {
+        case IsObject(key):
+          ; Skip map elements with object references as keys
+          return ""
+        case key is number:
+          output .= key . ":"
+        default:
+          output .= '"' . key . '":'
+      }
+  
+      switch {
+        case IsObject(value) && value.HasMethod():
+          ; Skip callable objects
+          return ""
+        case IsObject(value):
+          output .= "[" . this._stringify(value) . "]"
+        case value is number:
+          output .= value
+        default:
+          output .= '"' . value . '"'
+      }
+  
+      return output .= ", "
+    }
+  }
 }
