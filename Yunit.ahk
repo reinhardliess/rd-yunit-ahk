@@ -136,5 +136,18 @@ class Yunit
       }
     }
     
+    /**
+    * Checks whether an object is callable
+    * @param {object} obj - object to check
+    * @returns {boolean} 
+    */
+    isFunction(obj) {
+      if (!isObject(obj)) {
+        return false
+      }
+      funcReference := numGet(&(_ := Func("inStr").bind()), "ptr")
+      return (isFunc(obj) || (numGet(&obj, "ptr") = funcReference))
+    }
+
   }
 }

@@ -36,3 +36,8 @@ test_Yunit_Util() {
   assert.test(u.GetType(new TestClass()), "TestClass")
   assert.test(u.GetType(TestClass), "class")
 
+  assert.label("isFunction should determine whether an object is callable")
+  assert.true(u.IsFunction(Func("Substr")))
+  assert.true(u.IsFunction(Func("Substr").bind()))
+  assert.false(u.IsFunction("Substr"))
+}
