@@ -218,7 +218,7 @@ class Yunit
       ret.matcherType := methodName
       OutputDebug, % Yunit.Util.Print(ret)
       if (!ret.hasPassedTest) {
-        ; throw Error
+        throw new Yunit.AssertionError("Assertion error", -2, , ret)
       }
       return ret
     }
@@ -248,6 +248,7 @@ class Yunit
   
   ;; Class Matchers
   Class Matchers {
+    
     ToBe(actual, expected) {
       info := {actual: actual, expected: expected}
       info.hasPassedTest := (actual == expected) 
@@ -255,5 +256,16 @@ class Yunit
         : false
       return info
     }
+  }
+  
+  ;; Class AssertionError
+  Class AssertionError {
+    __New(message, what := -1, extra :="", matcherInfo := "") {
+      err := Exception(message, what, extra)
+      for key, value in err {
+        this[key] := value
+      }
+      this.matcherInfo := matcherInfo
+    }  
   }
 }

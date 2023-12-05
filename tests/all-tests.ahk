@@ -10,7 +10,10 @@ global assert := new unittesting()
 assert.group("Yunit.Util class")
 test_Yunit_Util()
 
-assert.group("Expect() matchers")
+assert.group("Yunit.AssertionError class")
+test_AssertionError()
+
+assert.group("Expect()")
 test_Expect()
 
 ; wrap up
@@ -68,9 +71,31 @@ test_Yunit_Util() {
   
 }
 
-test_Expect() {
+test_AssertionError() {
+  assert.label("should create an assertion error with all necessary properties")
+  err := new Yunit.AssertionError("message", "what", "extra", {hasPassedTest: false})
   
+  assert.test(err.message, "message")
+  assert.test(err.what, "what")
+  assert.test(err.extra, "extra")
+  assert.test(err.matcherInfo, {hasPassedTest: false})
+}
+
+expectAssertionError() {
   Yunit.expect(5).toBe(6)
-  Yunit.expect(5).toBe(5)
-  ; ret := Yunit.expect(5).toBeZero()
+}
+
+expectWrongMatcher() {
+  Yunit.expect(0).toBeZero()
+}
+
+test_Expect() {
+  assert.label("if the expectation fails, expect should throw a Yunit.AssertionError")
+  err := assert.toThrow(func("expectAssertionError"), Yunit.AssertionError)
+  
+  assert.label("if the expectation fails, the error object should contain the correct matchinfo object")
+  assert.test(err.matcherInfo, {actual: 5, expected: 6, hasPassedTest: 0, matcherType: "toBe"})
+  
+  assert.label("if a matcher is used, that doesn't exist, expect should throw an error")
+  assert.toThrow(func("expectWrongMatcher"))
 }
