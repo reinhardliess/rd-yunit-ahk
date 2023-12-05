@@ -218,12 +218,11 @@ class Yunit
         Throw MethodError(format("The matcher '{1}' doesn't exist.", methodName))
       }
       
-      ; ret := Yunit["Matchers"][methodName](this.actualValue, params*)
       ret := Yunit.Matchers.%methodName%(this.actualValue, params*)
       ret.matcherType := methodName
       OutputDebug(Yunit.Util.Print(ret))
       if (!ret.hasPassedTest) {
-        ; throw Error
+        throw Yunit.AssertionError("Assertion error", -2, , ret)
       }
       return ret
     }
@@ -253,6 +252,7 @@ class Yunit
   
   ;; Class Matchers
   Class Matchers {
+    
     static ToBe(actual, expected) {
       info := {actual: actual, expected: expected}
       info.hasPassedTest := (actual == expected) 
@@ -260,5 +260,13 @@ class Yunit
         : false
       return info
     }
+  }
+  
+  ;; Class AssertionError
+  Class AssertionError extends Error {
+    __New(message, what := -1, extra :="", matcherInfo := "") {
+      super.__New(message, what, extra)
+      this.matcherInfo := matcherInfo
+    }  
   }
 }
