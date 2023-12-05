@@ -1,5 +1,6 @@
 ;#NoEnv
 
+;; Class Yunit
 class Yunit
 {
   class Tester extends Yunit
@@ -95,6 +96,11 @@ class Yunit
     return v1.Message = v2.Message
   }
 
+  Expect(actualValue) {
+    return new Yunit._Expect(actualValue)
+  }
+  
+  ;; Class Util
   Class Util {
     IsNumber(var) {
       return this.isInteger(var) || this.isFloat(var)
@@ -124,15 +130,15 @@ class Yunit
     GetType(var) {
       switch {
         case isObject(var) && className := var.__class:
-          return (var.base.__class = className) ? className : "class"
+          return (var.base.__class = className) ? className : "Class"
         case isObject(var):
-          return "object"
+          return "Object"
         case this.IsInteger(var):
-          return "integer"
+          return "Integer"
         case this.IsFloat(var):
-          return "float"
+          return "Float"
         default:
-          return "string"
+          return "String"
       }
     }
 
@@ -188,6 +194,66 @@ class Yunit
       }
 
       return subStr(output, 1, -2)
+    }
+  }
+  
+  ;; Class _ExpectBase
+  Class _ExpectBase {
+    
+    matchers := ["toBe", "toEqual"]
+        
+    /**
+    * Meta function: routes matcher to Yunit.Matchers
+    * @param {string} methodName - method name of matcher 
+    * @param {any} params - arguments passed to matcher
+    * @returns {object} matcher info 
+    */
+    __Call(methodName, params*) {
+      OutputDebug, % methodname ", " Yunit.Util.Print(params)
+      if (!this._findMatcher(methodName)) {  
+        Throw Exception(format("The matcher '{1}' doesn't exist.", methodName))
+      }
+      
+      ret := Yunit["Matchers"][methodName](this.actualValue, params*)
+      ret.matcherType := methodName
+      OutputDebug, % Yunit.Util.Print(ret)
+      if (!ret.hasPassedTest) {
+        ; throw Error
+      }
+      return ret
+    }
+  }
+  
+  ;; Class Expect
+  Class _Expect extends Yunit._ExpectBase {
+    
+    __New(Value) {
+      this.actualValue := value
+    }
+    
+    /**
+    * Checks whether a matcher exists
+    * @param {string} name - name of matcher to check
+    * @returns {boolean} 
+    */
+    _findMatcher(name) {
+      for _, value in this.matchers {
+        if (value = name) {
+          return true
+        }
+      }
+      return false
+    }
+  }
+  
+  ;; Class Matchers
+  Class Matchers {
+    ToBe(actual, expected) {
+      info := {actual: actual, expected: expected}
+      info.hasPassedTest := (actual == expected) 
+        ? true
+        : false
+      return info
     }
   }
 }

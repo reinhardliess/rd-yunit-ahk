@@ -10,6 +10,9 @@ global assert := new unittesting()
 assert.group("Yunit.Util class")
 test_Yunit_Util()
 
+assert.group("Expect() matchers")
+test_Expect()
+
 ; wrap up
 assert.writeResultsToFile()
 ; assert.fullReport()
@@ -30,12 +33,12 @@ test_Yunit_Util() {
   
   ;; GetType()
   assert.label("GetType() should return the correct variable type")
-  assert.test(u.GetType(5), "integer")
-  assert.test(u.GetType(5.0), "float")
-  assert.test(u.GetType("green"), "string")
-  assert.test(u.GetType({a:1}), "object")
+  assert.test(u.GetType(5), "Integer")
+  assert.test(u.GetType(5.0), "Float")
+  assert.test(u.GetType("green"), "String")
+  assert.test(u.GetType({a:1}), "Object")
   assert.test(u.GetType(new TestClass()), "TestClass")
-  assert.test(u.GetType(TestClass), "class")
+  assert.test(u.GetType(TestClass), "Class")
 
   ;; IsFunction()
   assert.label("IsFunction() should determine whether an object is callable")
@@ -63,4 +66,11 @@ test_Yunit_Util() {
   assert.test(u.Print(actualValue), expected)
   assert.test(u.Print({ a: 1, fn: Func("Instr")}), """a"":1")
   
+}
+
+test_Expect() {
+  
+  Yunit.expect(5).toBe(6)
+  Yunit.expect(5).toBe(5)
+  ; ret := Yunit.expect(5).toBeZero()
 }
