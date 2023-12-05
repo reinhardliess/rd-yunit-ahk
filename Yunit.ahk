@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0-beta.1
 
+;; Class Yunit
 class Yunit
 {
   class Tester extends Yunit
@@ -96,6 +97,11 @@ class Yunit
     return v1.Message = v2.Message
   }
 
+  static Expect(actualValue) {
+    return Yunit._Expect(actualValue)
+  }
+  
+  ;; Class Util
   Class Util {
     static IsNumber(var) {
       return this.isInteger(var) || this.isFloat(var)
@@ -192,6 +198,67 @@ class Yunit
       }
   
       return output .= ", "
+    }
+  }
+  
+  ;; Class _ExpectBase
+  Class _ExpectBase {
+    
+    matchers := ["toBe", "toEqual"]
+        
+    /**
+    * Meta function: routes matcher to Yunit.Matchers
+    * @param {string} methodName - method name of matcher 
+    * @param {any} params - arguments passed to matcher
+    * @returns {object} matcher info 
+    */
+    __Call(methodName, params) {
+      OutputDebug(methodname ", " Yunit.Util.Print(params))
+      if (!this._findMatcher(methodName)) {  
+        Throw MethodError(format("The matcher '{1}' doesn't exist.", methodName))
+      }
+      
+      ; ret := Yunit["Matchers"][methodName](this.actualValue, params*)
+      ret := Yunit.Matchers.%methodName%(this.actualValue, params*)
+      ret.matcherType := methodName
+      OutputDebug(Yunit.Util.Print(ret))
+      if (!ret.hasPassedTest) {
+        ; throw Error
+      }
+      return ret
+    }
+  }
+  
+  ;; Class Expect
+  Class _Expect extends Yunit._ExpectBase {
+    
+    __New(Value) {
+      this.actualValue := value
+    }
+    
+    /**
+    * Checks whether a matcher exists
+    * @param {string} name - name of matcher to check
+    * @returns {boolean} 
+    */
+    _findMatcher(name) {
+      for _, value in this.matchers {
+        if (value = name) {
+          return true
+        }
+      }
+      return false
+    }
+  }
+  
+  ;; Class Matchers
+  Class Matchers {
+    static ToBe(actual, expected) {
+      info := {actual: actual, expected: expected}
+      info.hasPassedTest := (actual == expected) 
+        ? true
+        : false
+      return info
     }
   }
 }

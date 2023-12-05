@@ -8,6 +8,9 @@ global assert := unittesting()
 assert.group("Yunit.Util class")
 test_Yunit_Util()
 
+assert.group("Expect() matchers")
+test_Expect()
+
 ; wrap up
 assert.writeResultsToFile()
 ; assert.fullReport()
@@ -61,4 +64,11 @@ test_Yunit_Util() {
   assert.test(u.Print(actualValue), expected)
   assert.test(u.Print({ a: 1, fn: Instr}), '"a":1')
   
+}
+
+test_Expect() {
+  
+  Yunit.expect(5).toBe(6)
+  Yunit.expect(5).toBe(5)
+  ; ret := Yunit.expect(5).toBeZero()
 }
