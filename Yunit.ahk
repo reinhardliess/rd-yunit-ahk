@@ -200,7 +200,7 @@ class Yunit
   ;; Class _ExpectBase
   Class _ExpectBase {
     
-    matchers := ["toBe", "toEqual"]
+    matchers := ["toBe", "toEqual", "toBeCloseTo"]
         
     /**
     * Meta function: routes matcher to Yunit.Matchers
@@ -261,6 +261,15 @@ class Yunit
   Class Matchers {
     
     /**
+    * @typedef matcherInfo
+    * @property {boolean} hasPassedTest
+    * @property {any} actual
+    * @property {any} expected
+    * @property {string} [matcherType] - e.g. "ToBe", set by expect()
+    * @property {object} [err] - error object, set by .toThrow()
+    */
+    
+    /**
     * Matcher: compares two values for equality
     * objects are compared by object reference
     * @param {any} actual 
@@ -278,13 +287,13 @@ class Yunit
     
     /**
     * Matcher: compares two values for equality
-    * 2 numbers are compared numerically,
+    * numbers are compared numerically,
     * objects are compared by their stringified contents
     * @param {any} actual 
     * @param {any} expected 
     * @returns {matcherInfo} 
     */
-    toEqual(actual, expected) {
+    ToEqual(actual, expected) {
       if (Yunit.Util.IsNumber(actual) 
         && Yunit.Util.IsNumber(expected)) {
         return this.ToBe(actual, expected)
@@ -296,6 +305,19 @@ class Yunit
         expected := Yunit.Util.Print(expected)
       }
       ; OutputDebug, % actual
+      return this.ToBe(actual, expected)
+    }
+    
+    /**
+    * Matcher: compares 2 float numbers for proximate equality
+    * @param {float} actual
+    * @param {float} expected
+    * @param {integer} digits - number of digits
+    * @returns {matcherInfo} 
+    */
+    ToBeCloseTo(actual, expected, digits := 15) {
+      actual := Round(actual, digits)
+      expected := Round(expected, digits)
       return this.ToBe(actual, expected)
     }
   }
