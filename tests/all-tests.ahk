@@ -122,4 +122,8 @@ test_Matchers() {
   assert.test(m.ToEqual("abc", "Abc"), {actual: "abc", expected: "Abc", hasPassedTest: 0})
   assert.test(m.ToEqual(obj1, obj2), {actual: '"a":1', expected: '"a":1', hasPassedTest: 1})
   assert.test(m.ToEqual(obj1, {a: 2}), {actual: '"a":1', expected: '"a":2', hasPassedTest: 0})
+  
+  ;; ToBeCloseTo
+  value := Round(0.3, 15)
+  assert.test(m.ToBeCloseTo(0.1 + 0.2, 0.3, 15), {actual: value, expected: value, hasPassedTest: 1})
 }
