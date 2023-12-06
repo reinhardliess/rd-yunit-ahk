@@ -209,14 +209,14 @@ class Yunit
     * @returns {object} matcher info 
     */
     __Call(methodName, params*) {
-      OutputDebug, % methodname ", " Yunit.Util.Print(params)
+      ; OutputDebug, % methodname ", " Yunit.Util.Print(params)
       if (!this._findMatcher(methodName)) {  
         Throw Exception(format("The matcher '{1}' doesn't exist.", methodName))
       }
       
       ret := Yunit["Matchers"][methodName](this.actualValue, params*)
       ret.matcherType := methodName
-      OutputDebug, % Yunit.Util.Print(ret)
+      ; OutputDebug, % Yunit.Util.Print(ret)
       if (!ret.hasPassedTest) {
         throw new Yunit.AssertionError("Assertion error", -2, , ret)
       }
@@ -246,18 +246,6 @@ class Yunit
     }
   }
   
-  ;; Class Matchers
-  Class Matchers {
-    
-    ToBe(actual, expected) {
-      info := {actual: actual, expected: expected}
-      info.hasPassedTest := (actual == expected) 
-        ? true
-        : false
-      return info
-    }
-  }
-  
   ;; Class AssertionError
   Class AssertionError {
     __New(message, what := -1, extra :="", matcherInfo := "") {
@@ -268,4 +256,48 @@ class Yunit
       this.matcherInfo := matcherInfo
     }  
   }
+
+  ;; Class Matchers
+  Class Matchers {
+    
+    /**
+    * Matcher: compares two values for equality
+    * objects are compared by object reference
+    * @param {any} actual 
+    * @param {any} expected 
+    * @returns {matcherInfo} 
+    */
+    ToBe(actual, expected) {
+      info := {actual: actual, expected: expected}
+      ; OutputDebug, % info.actual
+,      info.hasPassedTest := (actual == expected) 
+        ? true
+        : false
+      return info
+    }
+    
+    /**
+    * Matcher: compares two values for equality
+    * 2 numbers are compared numerically,
+    * objects are compared by their stringified contents
+    * @param {any} actual 
+    * @param {any} expected 
+    * @returns {matcherInfo} 
+    */
+    toEqual(actual, expected) {
+      if (Yunit.Util.IsNumber(actual) 
+        && Yunit.Util.IsNumber(expected)) {
+        return this.ToBe(actual, expected)
+      }
+      if (isObject(actual)) {
+        actual := Yunit.Util.Print(actual)
+      }
+      if (isObject(expected)) {
+        expected := Yunit.Util.Print(expected)
+      }
+      ; OutputDebug, % actual
+      return this.ToBe(actual, expected)
+    }
+  }
+  
 }
