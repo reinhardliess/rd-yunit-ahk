@@ -7,6 +7,9 @@ SetWorkingDir, %A_ScriptDir%
 
 global assert := new unittesting()
 
+assert.group("Yunit class")
+test_Yunit()
+
 assert.group("Yunit.Util class")
 test_Yunit_Util()
 
@@ -27,6 +30,16 @@ Exit % assert.failTotal
 
 Class TestClass {
   
+}
+
+test_Yunit() {
+  
+  ;; SetOptions
+  oldOptions := Yunit.options
+  Yunit.options := {EnablePrivateProps: true, TimingWarningThreshold: 100}
+  Yunit.SetOptions({TimingWarningThreshold: 50})
+  assert.test(Yunit.options, {EnablePrivateProps: true, TimingWarningThreshold: 50})
+  Yunit.options := oldOptions
 }
 
 test_Yunit_Util() {

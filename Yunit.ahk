@@ -3,6 +3,8 @@
 ;; Class Yunit
 class Yunit
 {
+  static options :=  {EnablePrivateProps: true, TimingWarningThreshold: 100}
+  
   class Tester extends Yunit
   {
     __New(Modules)
@@ -10,12 +12,23 @@ class Yunit
       this.Modules := Modules
     }
   }
-
+  
   Use(Modules*)
   {
     return new this.Tester(Modules)
   }
 
+  /**
+  * Sets Yunit options
+  * @param {object} options - object with options 
+  * @returns {void} 
+  */
+  SetOptions(options) {
+    for key, value in options {
+      Yunit["options"][key] := value
+    }
+  }
+  
   Test(classes*) ; static method
   {
     instance := new this("")
