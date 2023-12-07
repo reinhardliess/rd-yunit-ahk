@@ -31,9 +31,6 @@ class Yunit
       instance.results[cls.__class] := obj := {}
       instance.TestClass(obj, cls)
     }
-    if (!WinExist("Yunit Testing ahk_class AutoHotkeyGUI")) {
-      ExitApp
-    }
   }
 
   Update(Category, Test, Result)
