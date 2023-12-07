@@ -205,6 +205,29 @@ class Yunit
 
       return subStr(output, 1, -2)
     }
+    
+    /** 
+    * Performance counter is a high resolution (<1us) time stamp
+    * that can be used for time-interval measurements.
+    *
+    * Retrieves the elapsed time in ms since the last call to QPC()
+    * https://docs.microsoft.com/en-us/windows/win32/api/profileapi/nf-profileapi-queryperformancecounter
+    * @returns {float} 
+    */
+    QPC(){
+      Static qpcFreq := 0, qpcNow := 0, qpcLast := 0
+    
+      if (!qpcFreq && !DllCall("QueryPerformanceFrequency", "Int64 *", qpcFreq)) {
+          throw Exception("Failure executing 'QueryPerformanceFrequency'")
+      }
+    
+      qpcLast := qpcNow
+      if (!DllCall("QueryPerformanceCounter", "Int64 *", qpcNow)) {
+        throw Exception("Failure executing 'QueryPerformanceCounter'")
+      }
+    
+      return (qpcNow - qpcLast) / qpcFreq * 1000
+    }
   }
   
   ;; Class _ExpectBase

@@ -65,6 +65,10 @@ test_Yunit_Util() {
   assert.true(u.IsFunction(Func("Substr").bind()))
   assert.false(u.IsFunction("Substr"))
   
+  ;; QPC()
+  assert.label("QueryPerformanceCounter is working")
+  assert.test(u.GetType(u.QPC()), "Float")
+  
   ;; Print()
   assert.label("Print() should stringify the contents of a variable correctly")
   assert.test(u.Print(33), 33)
