@@ -1,5 +1,5 @@
 #Include ..\Yunit.ahk
-#Include ..\Window.ahk
+; #Include ..\Window.ahk
 #Include ..\StdOut.ahk
 #Include ..\JUnit.ahk
 #Include ..\OutputDebug.ahk

@@ -3,6 +3,8 @@
 ;; Class Yunit
 class Yunit
 {
+  static options :=  {EnablePrivateProps: true, TimingWarningThreshold: 100}
+  
   class Tester extends Yunit
   {
     __New(Modules)
@@ -18,6 +20,17 @@ class Yunit
 
   New(p*) => (o := { base: this }, o.__new(p*), o)
 
+  /**
+  * Sets Yunit options
+  * @param {object} options - object with options 
+  * @returns {void} 
+  */
+  static SetOptions(options) {
+    for key, value in options.OwnProps() {
+      Yunit.options.%key% := value
+    }
+  }
+  
   Test(classes*) ; static method
   {
     instance := this.new("")
@@ -31,9 +44,6 @@ class Yunit
       instance.current := A_Index
       instance.results[cls.prototype.__class] := obj := Map()
       instance.TestClass(obj, cls)
-    }
-    if (!WinExist("Yunit Testing ahk_class AutoHotkeyGUI")) {
-      ExitApp
     }
   }
 
@@ -198,6 +208,29 @@ class Yunit
       }
   
       return output .= ", "
+    }
+    
+    /** 
+    * Performance counter is a high resolution (<1us) time stamp
+    * that can be used for time-interval measurements.
+    *
+    * Retrieves the elapsed time in ms since the last call to QPC()
+    * https://docs.microsoft.com/en-us/windows/win32/api/profileapi/nf-profileapi-queryperformancecounter
+    * @returns {float} 
+    */
+    static QPC(){
+      Static qpcFreq := 0, qpcNow := 0, qpcLast := 0
+    
+      if (!qpcFreq && !DllCall("QueryPerformanceFrequency", "Int64 *", &qpcFreq)) {
+        throw Error("Failure executing 'QueryPerformanceFrequency'")
+      }
+    
+      qpcLast := qpcNow
+      if (!DllCall("QueryPerformanceCounter", "Int64 *", &qpcNow)) {
+        throw Error("Failure executing 'QueryPerformanceCounter'")
+      }
+    
+      return (qpcNow - qpcLast) / qpcFreq * 1000
     }
   }
   

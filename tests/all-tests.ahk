@@ -5,6 +5,9 @@
 
 global assert := unittesting()
 
+assert.group("Yunit class")
+test_Yunit()
+
 assert.group("Yunit.Util class")
 test_Yunit_Util()
 
@@ -25,6 +28,16 @@ Exit(assert.failTotal)
 
 Class TestClass {
   
+}
+
+test_Yunit() {
+  
+  ;; SetOptions
+  oldOptions := Yunit.options
+  Yunit.options := {EnablePrivateProps: true, TimingWarningThreshold: 100}
+  Yunit.SetOptions({TimingWarningThreshold: 50})
+  assert.test(Yunit.options, {EnablePrivateProps: true, TimingWarningThreshold: 50})
+  Yunit.options := oldOptions
 }
 
 test_Yunit_Util() {
@@ -49,6 +62,10 @@ test_Yunit_Util() {
   assert.true(u.IsFunction(Substr))
   assert.true(u.IsFunction(Substr.bind()))
   assert.false(u.IsFunction("Substr"))
+  
+  ;; QPC()
+  assert.label("QueryPerformanceCounter is working")
+  assert.test(u.GetType(u.QPC()), "Float")
   
   ;; Print()
   assert.label("Print() should stringify the contents of a variable correctly")
@@ -124,6 +141,6 @@ test_Matchers() {
   assert.test(m.ToEqual(obj1, {a: 2}), {actual: '"a":1', expected: '"a":2', hasPassedTest: 0})
   
   ;; ToBeCloseTo
-  value := Round(0.3, 15)
+  value := "0.300000000000000"
   assert.test(m.ToBeCloseTo(0.1 + 0.2, 0.3, 15), {actual: value, expected: value, hasPassedTest: 1})
 }
