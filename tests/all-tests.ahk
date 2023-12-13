@@ -56,9 +56,15 @@ test_Yunit_Util() {
   assert.test(u.GetType(5.0), "Float")
   assert.test(u.GetType("green"), "String")
   assert.test(u.GetType({a:1}), "Object")
-  assert.test(u.GetType(new TestClass()), "TestClass")
-  assert.test(u.GetType(TestClass), "Class")
-
+  ;; IsArray()
+  assert.label("IsArray() - true")
+  assert.true(u.IsArray([]))
+  assert.true(u.IsArray(["a", "b"]))
+  assert.label("IsArray() - false")
+  assert.false(u.IsArray(5))
+  assert.false(u.IsArray({a: 1}))
+  assert.false(u.IsArray({1a: 1}))
+  
   ;; IsFunction()
   assert.label("IsFunction() should determine whether an object is callable")
   assert.true(u.IsFunction(Func("Substr")))

@@ -153,6 +153,24 @@ class Yunit
     }
 
     /**
+    * Checks whether a variable is an array
+    * Empty objects/arrays will return true
+    * @param {*} var - variable to check
+    * @returns {boolean} 
+    */
+    IsArray(var) {
+      switch {
+        case !IsObject(var):
+          return false
+        case ObjCount(var) == 0:
+          return true
+      }
+      enum := var._newEnum()
+      enum.next(key, value)
+      return this.IsInteger(key)
+    }
+    
+    /**
     * Checks whether an object is callable
     * @param {object} obj - object to check
     * @returns {boolean}
