@@ -214,7 +214,7 @@ class Yunit
     * https://docs.microsoft.com/en-us/windows/win32/api/profileapi/nf-profileapi-queryperformancecounter
     * @returns {float} 
     */
-    QPC(){
+    QPCInterval(){
       Static qpcFreq := 0, qpcNow := 0, qpcLast := 0
     
       if (!qpcFreq && !DllCall("QueryPerformanceFrequency", "Int64 *", qpcFreq)) {
