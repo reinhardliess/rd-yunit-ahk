@@ -14,8 +14,8 @@ OnError("ShowError")
 assert.group("Yunit class")
 test_Yunit()
 
-assert.group("Yunit class: Output")
-test_Yunit_Output()
+assert.group("Yunit.TestClass")
+test_Yunit_TestClass()
 
 assert.group("Yunit.Util class")
 test_Yunit_Util()
@@ -49,8 +49,7 @@ test_Yunit() {
   ;; _validateHooks()
   assert.label("BeforeEach/AfterEach and Begin/End should be mutually exclusive")
   assert.false(Yunit._validateHooks(TestClass1))
-  TestClass1.Delete("Begin")
-  assert.true(Yunit._validateHooks(TestClass1))
+  assert.true(Yunit._validateHooks(TestClass1_1))
   
   ;; _isTestMethod()
   assert.label("should check whether a method name is that of a test method")
@@ -79,15 +78,23 @@ filterOutputInfo(listInfo) {
   return newList
 }
 
-;; TestOutput
-test_Yunit_Output() {
+test_Yunit_TestClass() {
   global test_listOutputInfo
   Yunit.Use(TestOutput).Test(TestClass2)
+  
+  assert.label("should throw the correct error type when using expect()")
+  errType := Yunit.Util.GetType(test_listOutputInfo[1].result)
+  assert.test(errType, "Yunit.AssertionError")
+  
+  assert.label("should retrieve timing information for tests")
+  timeType := Yunit.Util.GetType(test_listOutputInfo[1].methodTime_ms)
+  assert.test(timeType, "Float")
   
   assert.label("should execute all test methods correctly")
   actual := filterOutputInfo(test_listOutputInfo)
   expected := [{category: "TestClass2", testMethod: "Test_Fails"}
-    , {category: "TestClass2", testMethod: "Test_Passes"}]
+    , {category: "TestClass2", testMethod: "Test_Passes"}
+    , {category: "TestClass2.CategoryOne", testMethod: "Test1"}]
   assert.test(actual, expected)
 }
 

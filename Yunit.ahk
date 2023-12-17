@@ -46,25 +46,33 @@ class Yunit
     }
   }
 
-  Update(Category, Test, Result)
+  Update(Category, Test, Result, methodTime_ms)
   {
     for k,module in this.Modules
-      module.Update({category: (category), testMethod: (test), result: (result)})
+      module.Update({category: (category)
+        , testMethod: (test)
+        , result: (result)
+        , methodTime_ms: (methodTime_ms)})
   }
 
   TestClass(results, cls)
   {
+    if (!this._validateHooks(cls)) {
+      throw Exception("Please use either 'begin/end' or 'beforeEach/afterEach' but don't mix.")
+    }
     environment := new cls() ; calls __New
     for k,v in cls
     {
       if IsObject(v) && IsFunc(v) ;test
       {
-        if (k = "Begin") or (k = "End") or (k = "__New") or (k == "__Delete")
+        if (!this._isTestMethod(k))
           continue
-        if ObjHasKey(cls,"Begin")
-          && IsFunc(cls.Begin)
+        if ObjHasKey(cls,"Begin") && IsFunc(cls.Begin)
           environment.Begin()
+        if ObjHasKey(cls,"beforeEach") && IsFunc(cls.beforeEach)
+          environment.beforeEach()
         result := 0
+        Yunit.Util.QPCInterval()
         try
         {
           %v%(environment)
@@ -77,12 +85,15 @@ class Yunit
             || !this.CompareValues(environment.ExpectedException, error)
             result := error
         }
+        methodTime_ms := Yunit.Util.QPCInterval()
+        OutputDebug % (k ": " methodTime_ms)
         results[k] := result
         ObjDelete(environment, "ExpectedException")
-        this.Update(cls.__class, k, results[k])
-        if ObjHasKey(cls,"End")
-          && IsFunc(cls.End)
+        this.Update(cls.__class, k, results[k], methodTime_ms)
+        if ObjHasKey(cls,"End") && IsFunc(cls.End)
           environment.End()
+        if ObjHasKey(cls,"afterEach") && IsFunc(cls.afterEach)
+          environment.afterEach()
       }
       else if IsObject(v)
         && ObjHasKey(v, "__class") ;category
