@@ -189,7 +189,7 @@ class Yunit
         case IsObject(key):
           ; Skip map elements with object references as keys
           return ""
-        case key is number:
+        case key is integer:
           output .= key . ":"
         default:
           output .= '"' . key . '":'
@@ -201,7 +201,7 @@ class Yunit
           return ""
         case IsObject(value):
           output .= "[" . this._stringify(value) . "]"
-        case value is number:
+        case IsNumber(value):
           output .= value
         default:
           output .= '"' . value . '"'
@@ -218,7 +218,7 @@ class Yunit
     * https://docs.microsoft.com/en-us/windows/win32/api/profileapi/nf-profileapi-queryperformancecounter
     * @returns {float} 
     */
-    static QPC(){
+    static QPCInterval(){
       Static qpcFreq := 0, qpcNow := 0, qpcLast := 0
     
       if (!qpcFreq && !DllCall("QueryPerformanceFrequency", "Int64 *", &qpcFreq)) {
