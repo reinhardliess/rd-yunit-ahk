@@ -4,6 +4,7 @@ SetWorkingDir, %A_ScriptDir%
 #Include %A_ScriptDir%
 #Include ../lib/unit-testing.ahk/export.ahk
 #Include ../Yunit.ahk
+#Include, ./TestClasses.ahk
 
 global assert := new unittesting()
 
@@ -28,18 +29,40 @@ assert.writeResultsToFile()
 assert.sendReportToDebugConsole()
 Exit % assert.failTotal
 
-Class TestClass {
-  
+restoreYunitOptions() {
+  Yunit.SetOptions({EnablePrivateProps: true, TimingWarningThreshold: 100}) 
 }
 
 test_Yunit() {
   
   ;; SetOptions
-  oldOptions := Yunit.options
-  Yunit.options := {EnablePrivateProps: true, TimingWarningThreshold: 100}
+  restoreYunitOptions()
   Yunit.SetOptions({TimingWarningThreshold: 50})
   assert.test(Yunit.options, {EnablePrivateProps: true, TimingWarningThreshold: 50})
-  Yunit.options := oldOptions
+  ;; _validateHooks()
+  assert.label("BeforeEach/AfterEach and Begin/End should be mutually exclusive")
+  assert.false(Yunit._validateHooks(TestClass1))
+  TestClass1.Delete("Begin")
+  assert.true(Yunit._validateHooks(TestClass1))
+  
+  ;; _isTestMethod()
+  assert.label("should check whether a method name is that of a test method")
+  assert.false(Yunit._isTestMethod("Begin"))
+  assert.false(Yunit._isTestMethod("BeforeEach"))
+  assert.false(Yunit._isTestMethod("_helperMethod"))
+  assert.true(Yunit._isTestMethod("Test_Division"))
+  restoreYunitOptions()
+  Yunit.SetOptions({EnablePrivateProps: false})
+  assert.true(Yunit._isTestMethod("_Test_Addition"))
+  
+  ;; _isTestCategory()
+  restoreYunitOptions()
+  assert.label("should check whether a class name belongs to a test category")
+  assert.false(Yunit._isTestCategory("_PrivateClass"))
+  assert.true(Yunit._isTestCategory("Multiplication"))
+  Yunit.SetOptions({EnablePrivateProps: false})
+  assert.true(Yunit._isTestCategory("_Multiplication"))
+}
 }
 
 test_Yunit_Util() {
@@ -56,6 +79,9 @@ test_Yunit_Util() {
   assert.test(u.GetType(5.0), "Float")
   assert.test(u.GetType("green"), "String")
   assert.test(u.GetType({a:1}), "Object")
+  assert.test(u.GetType(new TestClass1()), "TestClass1")
+  assert.test(u.GetType(TestClass1), "Class")
+
   ;; IsArray()
   assert.label("IsArray() - true")
   assert.true(u.IsArray([]))

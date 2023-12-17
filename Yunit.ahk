@@ -90,6 +90,41 @@ class Yunit
     }
   }
 
+  /** 
+  * Checks whether BeforeEach/AfterEach and Begin/End are used in a mutually
+  * exclusive way 
+  * @param {string} classObj - class object to test 
+  * @returns {boolean} 
+  */
+  _validateHooks(classObj) {
+    isBeforeAfterEach := classObj.HasKey("BeforeEach") || classObj.HasKey("AfterEach")
+    isBeforeEnd       := classObj.HasKey("Begin") || classObj.HasKey("End")
+    return !(isBeforeAfterEach && isBeforeEnd)
+  }
+
+  /**
+  * Checks whether the method name belongs to a test method
+  * @param {string} name - name of method to check
+  * @returns {boolean} 
+  */
+  _isTestMethod(name) {
+    basicRegex := "i)(^begin$|^end$|^beforeEach$|^afterEach$|^__New$|^__Delete${1})"
+    regex := format(basicRegex, Yunit.Options.EnablePrivateProps ? "|^_" : "")
+		return !!!RegExMatch(name, regex)
+	}
+
+  /**
+  * Checks whether the class name belongs to a test category
+  * @param {string} name - name of class to check
+  * @returns {boolean} 
+  */
+  _isTestCategory(name) {
+    if (!Yunit.Options.EnablePrivateProps) {
+      return true
+    }
+    return !!!(name ~= "^_")
+  }
+  
   Assert(Value, params*)
   {
     Message := (params[1] = "") ? "FAIL" : params[1]
@@ -169,7 +204,7 @@ class Yunit
       enum.next(key, value)
       return this.IsInteger(key)
     }
-    
+  
     /**
     * Checks whether an object is callable
     * @param {object} obj - object to check
