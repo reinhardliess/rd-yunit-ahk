@@ -281,6 +281,26 @@ class Yunit
     
       return (qpcNow - qpcLast) / qpcFreq * 1000
     }
+    
+    /**
+    * Checks whether a search value is included in an array
+    * @param {object} arrayObj - array
+    * @param {string | number} searchValue - value to search for 
+    * @param {integer} [caseSense:=false] - case insensitive
+    * @returns {boolean} 
+    */
+    Includes(arrayObj, searchValue, caseSense := false) {
+      if (isObject(searchValue)) {
+        throw Exception(A_ThisFunc " - TypeError: 2nd parameter must be number or string", -2)
+      }
+      for _, value in arrayObj {
+        condition := caseSense ? searchValue == value : searchValue = value
+        if (condition) {
+          return true
+        }
+      }
+      return false
+    }
   }
   
   ;; Class _ExpectBase
@@ -296,7 +316,7 @@ class Yunit
     */
     __Call(methodName, params*) {
       ; OutputDebug, % methodname ", " Yunit.Util.Print(params)
-      if (!this._findMatcher(methodName)) {  
+      if (!Yunit.Util.Includes(this.matchers, methodName)) {  
         Throw Exception(format("The matcher '{1}' doesn't exist.", methodName))
       }
       

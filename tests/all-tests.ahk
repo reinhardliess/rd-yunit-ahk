@@ -101,6 +101,20 @@ test_Yunit_Util() {
   assert.label("QueryPerformanceCounter is working")
   assert.test(u.GetType(u.QPCInterVal()), "Float")
   
+  ;; Includes()
+  strArray := ["a", "b", "c", "d"]
+  numArray := [1, 2, 3, 4]
+  assert.label("Includes() - true")
+  assert.true(u.Includes(numArray, 1))
+  assert.true(u.Includes(numArray, 4))
+  assert.true(u.Includes(strArray, "a"))
+  assert.true(u.Includes(strArray, "D"))
+  assert.label("Includes() - false")
+  assert.false(u.Includes(numArray, 5))
+  assert.false(u.Includes(strArray, "f"))
+  assert.false(u.Includes(strArray, "D", true))
+  assert.toThrow(ObjBindMethod(u, "includes", strArray, {a: 1}))
+  
   ;; Print()
   assert.label("Print() should stringify the contents of a variable correctly")
   assert.test(u.Print(33), 33)
