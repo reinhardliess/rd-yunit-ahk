@@ -3,7 +3,7 @@
 ;; Class Yunit
 class Yunit
 {
-  static options :=  {EnablePrivateProps: true, TimingWarningThreshold: 100}
+  static options := {EnablePrivateProps: true, TimingWarningThreshold: 100}
   
   class Tester extends Yunit
   {
@@ -49,7 +49,7 @@ class Yunit
   Update(Category, Test, Result)
   {
     for k,module in this.Modules
-      module.Update(Category, Test, Result)
+      module.Update({category: (category), testMethod: (test), result: (result)})
   }
 
   TestClass(results, cls)
@@ -239,7 +239,7 @@ class Yunit
         }
         
         switch {
-          case this.IsNumber(key):
+          case this.IsInteger(key):
             output .= key . ":"
           default:
             output .= """" . key . """:"
@@ -278,7 +278,6 @@ class Yunit
       if (!DllCall("QueryPerformanceCounter", "Int64 *", qpcNow)) {
         throw Exception("Failure executing 'QueryPerformanceCounter'")
       }
-    
       return (qpcNow - qpcLast) / qpcFreq * 1000
     }
     
@@ -335,20 +334,6 @@ class Yunit
     
     __New(Value) {
       this.actualValue := value
-    }
-    
-    /**
-    * Checks whether a matcher exists
-    * @param {string} name - name of matcher to check
-    * @returns {boolean} 
-    */
-    _findMatcher(name) {
-      for _, value in this.matchers {
-        if (value = name) {
-          return true
-        }
-      }
-      return false
     }
   }
   

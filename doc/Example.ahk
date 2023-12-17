@@ -14,12 +14,12 @@ class NumberTestSuite
     this.x := 123
     this.y := 456
   }
-
+  
   Test_Sum()
   {
     Yunit.assert(this.x + this.y == 579)
   }
-
+  
   Test_Division()
   {
     Yunit.assert(this.x / this.y < 1)

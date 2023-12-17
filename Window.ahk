@@ -36,8 +36,11 @@ class YunitWindow
     ExitApp
   }
 
-  Update(Category, TestName, Result)
+  Update(objOutputInfo)
   {
+    Category := objOutputInfo.category
+      , TestName := objOutputInfo.testMethod
+      , Result := objOutputInfo.result
     Gui, Yunit:Default
     If !this.Categories.HasKey(Category)
       this.AddCategories(Category)

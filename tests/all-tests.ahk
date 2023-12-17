@@ -5,11 +5,17 @@ SetWorkingDir, %A_ScriptDir%
 #Include ../lib/unit-testing.ahk/export.ahk
 #Include ../Yunit.ahk
 #Include, ./TestClasses.ahk
+#Include, ./TestOutput.ahk
 
 global assert := new unittesting()
 
+OnError("ShowError")
+
 assert.group("Yunit class")
 test_Yunit()
+
+assert.group("Yunit class: Output")
+test_Yunit_Output()
 
 assert.group("Yunit.Util class")
 test_Yunit_Util()
@@ -39,6 +45,7 @@ test_Yunit() {
   restoreYunitOptions()
   Yunit.SetOptions({TimingWarningThreshold: 50})
   assert.test(Yunit.options, {EnablePrivateProps: true, TimingWarningThreshold: 50})
+  
   ;; _validateHooks()
   assert.label("BeforeEach/AfterEach and Begin/End should be mutually exclusive")
   assert.false(Yunit._validateHooks(TestClass1))
@@ -63,6 +70,25 @@ test_Yunit() {
   Yunit.SetOptions({EnablePrivateProps: false})
   assert.true(Yunit._isTestCategory("_Multiplication"))
 }
+
+filterOutputInfo(listInfo) {
+  newList := []
+  for _, value in listInfo {
+    newList.push({category: (value.category), testMethod: (value.testMethod)})
+  }
+  return newList
+}
+
+;; TestOutput
+test_Yunit_Output() {
+  global test_listOutputInfo
+  Yunit.Use(TestOutput).Test(TestClass2)
+  
+  assert.label("should execute all test methods correctly")
+  actual := filterOutputInfo(test_listOutputInfo)
+  expected := [{category: "TestClass2", testMethod: "Test_Fails"}
+    , {category: "TestClass2", testMethod: "Test_Passes"}]
+  assert.test(actual, expected)
 }
 
 test_Yunit_Util() {
@@ -189,6 +215,12 @@ test_Matchers() {
   assert.test(m.ToEqual(obj1, {a: 2}), {actual: """a"":1", expected: """a"":2", hasPassedTest: 0})
   
   ;; ToBeCloseTo
-  value := Round(0.3, 15)
+  assert.label("ToBeCloseTo")
+  value := "0.300000000000000"
   assert.test(m.ToBeCloseTo(0.1 + 0.2, 0.3, 15), {actual: (value), expected: (value), hasPassedTest: 1})
+}
+
+ShowError(exception) {
+  OutputDebug % ("Error in " exception.file ":" exception.Line "`n" exception.Message " (" A_LastError ")" exception.extra  "`n")
+  return true
 }
