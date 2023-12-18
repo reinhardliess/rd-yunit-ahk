@@ -23,20 +23,20 @@ class YunitOutputDebug {
     OutputDebug this.prefix "***** " status ": Overall UnitTestSuite (Tests performed: " this.tests.overall " (failed: " this.tests.fail " - passed: " this.tests.pass "))"
   }
 
-  Update(Category, TestName, Result) {
+  Update(objOutputInfo)	{
+    ; category, testMethod, result, methodTime_ms
     this.tests.overall := this.tests.overall + 1
-    if Result is Error
-    {
+    if IsObject(objOutputInfo.Result) {
       this.tests.fail := this.tests.fail + 1
-      Details := "at line " Result.Line " (" Result.Message ") - (" result.file ")"
+      Details := "at line " objOutputInfo.Result.Line " (" objOutputInfo.Result.Message ") - (" objOutputInfo.result.file ")"
       Status := "FAIL"
     } else {
       this.tests.pass := this.tests.pass + 1
       Details := ""
       Status := "PASS"
     }
-    cnt := format("{:3}", this.tests.overall)
-    msg := "(" cnt ") " status ": " Category "." Testname " " details
+    cnt := format("{:3}", this.tests.overall) 
+    msg := "(" cnt ") " status ": " objOutputInfo.Category "." objOutputInfo.testMethod " " details
     OutputDebug this.prefix msg
   }
 }

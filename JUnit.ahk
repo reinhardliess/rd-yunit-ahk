@@ -37,8 +37,12 @@ class YunitJUnit {
   }
 
 
-  Update(Category, TestName, Result)
+  Update(objOutputInfo)
   {
+    Category := objOutputInfo.category
+    , TestName := objOutputInfo.testMethod
+    , Result := objOutputInfo.result
+    
     this.tests.overall := this.tests.overall + 1
     msg := '`t`t<testcase name="' . TestName . '" classname="' . Category . '"'
     if Result is Error

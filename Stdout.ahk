@@ -1,12 +1,14 @@
 class YunitStdOut
 {
-  __new(instance)
-  {
+  __New(instance){
   }
-
-  Update(Category, Test, Result) ;wip: this only supports one level of nesting?
+  
+  Update(objOutputInfo) ;wip: this only supports one level of nesting?
   {
-    if Result is Error
+    Category := objOutputInfo.category
+    , Test := objOutputInfo.testMethod
+    , Result := objOutputInfo.result
+    if IsObject(Result)
     {
       Details := " at line " Result.Line " " Result.Message "(" Result.File ")"
       Status := "FAIL"

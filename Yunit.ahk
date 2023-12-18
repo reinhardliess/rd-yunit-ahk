@@ -3,7 +3,7 @@
 ;; Class Yunit
 class Yunit
 {
-  static options :=  {EnablePrivateProps: true, TimingWarningThreshold: 100}
+  static options := {EnablePrivateProps: true, TimingWarningThreshold: 100}
   
   class Tester extends Yunit
   {
@@ -58,7 +58,7 @@ class Yunit
   
   TestClass(results, cls)
   {
-    if (!this._validateHooks(cls)) {
+    if (!Yunit._validateHooks(cls)) {
       throw Error("Please use either 'begin/end' or 'beforeEach/afterEach' but don't mix.")
     }
     environment := cls() ; calls __New
@@ -66,7 +66,7 @@ class Yunit
     {
       if !(cls.prototype.%k% is Func)
         continue
-      if (!this._isTestMethod(k))
+      if (!Yunit._isTestMethod(k))
         continue
       if environment.HasMethod("Begin")
         environment.Begin()
@@ -87,7 +87,7 @@ class Yunit
           result := err
       }
       methodTime_ms := Yunit.Util.QPCInterval()
-      OutputDebug (k ": " methodTime_ms)
+      ; OutputDebug (k ": " methodTime_ms)
       results[k] := result
       environment.DeleteProp("ExpectedException")
       this.Update(cls.prototype.__class, k, results[k], methodTime_ms)
@@ -97,10 +97,47 @@ class Yunit
         environment.AfterEach()
     }
     for k, v in cls.OwnProps()
-      if (v is Class && this._isTestCategory(v.Prototype.__class))
+      if (v is Class && Yunit._isTestCategory(v.Prototype.__class))
         this.classes.InsertAt(++this.current, v)
   }
 
+  /** 
+  * Checks whether BeforeEach/AfterEach and Begin/End are used in a mutually
+  * exclusive way 
+  * @param {string} classObj - class object to test 
+  * @returns {boolean} 
+  */
+  static _validateHooks(classObj) {
+    isBeforeAfterEach := classObj.Prototype.HasMethod("BeforeEach") || classObj.Prototype.HasMethod("AfterEach")
+    isBeforeEnd       := classObj.Prototype.HasMethod("Begin") || classObj.Prototype.HasMethod("End")
+    return !(isBeforeAfterEach && isBeforeEnd)
+  }
+
+  /**
+  * Checks whether the method name belongs to a test method
+  * @param {string} name - name of method to check
+  * @returns {boolean} 
+  */
+  static _isTestMethod(name) {
+    basicRegex := "i)(^begin$|^end$|^beforeEach$|^afterEach$|^__New$|^__Delete${1})"
+    regex := format(basicRegex, Yunit.Options.EnablePrivateProps ? "|^_" : "")
+		return !!!RegExMatch(name, regex)
+	}
+
+  /**
+  * Checks whether the class name belongs to a test category
+  * @param {string} name - name of class to check
+  * @returns {boolean} 
+  */
+  static _isTestCategory(name) {
+    if (!Yunit.Options.EnablePrivateProps) {
+      return true
+    }
+    classesArray := StrSplit(name, ".")
+    last := classesArray.Pop()
+    return !!!(last~= "^_")
+  }
+  
   static Assert(Value, params*)
   {
     try
@@ -155,6 +192,16 @@ class Yunit
       return Type(var)
     }
 
+    /**
+    * Checks whether a variable is an array
+    * Empty objects/arrays will return true
+    * @param {*} var - variable to check
+    * @returns {boolean} 
+    */
+    static IsArray(var) {
+      return (var is Array)
+    }
+  
     /**
     * Checks whether an object is callable
     * @param {object} obj - object to check
@@ -242,8 +289,27 @@ class Yunit
       if (!DllCall("QueryPerformanceCounter", "Int64 *", &qpcNow)) {
         throw Error("Failure executing 'QueryPerformanceCounter'")
       }
-    
       return (qpcNow - qpcLast) / qpcFreq * 1000
+    }
+    
+    /**
+    * Checks whether a search value is included in an array
+    * @param {object} arrayObj - array
+    * @param {string | number} searchValue - value to search for 
+    * @param {integer} [caseSense:=false] - case insensitive
+    * @returns {boolean} 
+    */
+    static Includes(arrayObj, searchValue, caseSense := false) {
+      if (isObject(searchValue)) {
+        throw TypeError(A_ThisFunc " - TypeError: 2nd parameter must be number or string", -2)
+      }
+      for _, value in arrayObj {
+        condition := caseSense ? searchValue == value : searchValue = value
+        if (condition) {
+          return true
+        }
+      }
+      return false
     }
   }
   
@@ -260,13 +326,12 @@ class Yunit
     */
     __Call(methodName, params) {
       ; OutputDebug, % methodname ", " Yunit.Util.Print(params)
-      if (!this._findMatcher(methodName)) {  
+      if (!Yunit.Util.Includes(this.matchers, methodName)) {  
         Throw MethodError(format("The matcher '{1}' doesn't exist.", methodName))
       }
       
       ret := Yunit.Matchers.%methodName%(this.actualValue, params*)
       ret.matcherType := methodName
-      ; OutputDebug, % Yunit.Util.Print(ret)
       if (!ret.hasPassedTest) {
         throw Yunit.AssertionError("Assertion error", -2, , ret)
       }
@@ -279,20 +344,6 @@ class Yunit
     
     __New(Value) {
       this.actualValue := value
-    }
-    
-    /**
-    * Checks whether a matcher exists
-    * @param {string} name - name of matcher to check
-    * @returns {boolean} 
-    */
-    _findMatcher(name) {
-      for _, value in this.matchers {
-        if (value = name) {
-          return true
-        }
-      }
-      return false
     }
   }
   

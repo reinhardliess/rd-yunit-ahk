@@ -39,8 +39,12 @@ class YunitWindow
     Return this
   }
 
-  Update(Category, TestName, Result)
+  Update(objOutputInfo)
   {
+    Category := objOutputInfo.category
+    , TestName := objOutputInfo.testMethod
+    , Result := objOutputInfo.result
+    
     If !this.Categories.Has(Category)
       this.AddCategories(Category)
     Parent := this.Categories[Category]
