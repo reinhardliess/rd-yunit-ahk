@@ -47,24 +47,33 @@ class Yunit
     }
   }
 
-  Update(Category, Test, Result)
+  Update(Category, Test, Result, methodTime_ms)
   {
-    for module in this.Modules
-      module.Update(Category, Test, Result)
+    for k,module in this.Modules
+      module.Update({category: (category)
+        , testMethod: (test)
+        , result: (result)
+        , methodTime_ms: (methodTime_ms)})
   }
-
+  
   TestClass(results, cls)
   {
+    if (!this._validateHooks(cls)) {
+      throw Error("Please use either 'begin/end' or 'beforeEach/afterEach' but don't mix.")
+    }
     environment := cls() ; calls __New
     for k in cls.prototype.OwnProps()
     {
       if !(cls.prototype.%k% is Func)
         continue
-      if (k = "Begin") or (k = "End") or (k = "__New") or (k == "__Delete")
+      if (!this._isTestMethod(k))
         continue
       if environment.HasMethod("Begin")
         environment.Begin()
+      if environment.HasMethod("BeforeEach")
+        environment.BeforeEach()
       result := 0
+      Yunit.Util.QPCInterval()
       try
       {
         environment.%k%()
@@ -77,14 +86,18 @@ class Yunit
           || !this.CompareValues(environment.ExpectedException, err)
           result := err
       }
+      methodTime_ms := Yunit.Util.QPCInterval()
+      OutputDebug (k ": " methodTime_ms)
       results[k] := result
       environment.DeleteProp("ExpectedException")
-      this.Update(cls.prototype.__class, k, results[k])
+      this.Update(cls.prototype.__class, k, results[k], methodTime_ms)
       if environment.HasMethod("End")
         environment.End()
+      if environment.HasMethod("AfterEach")
+        environment.AfterEach()
     }
     for k, v in cls.OwnProps()
-      if v is Class
+      if (v is Class && this._isTestCategory(v.Prototype.__class))
         this.classes.InsertAt(++this.current, v)
   }
 
