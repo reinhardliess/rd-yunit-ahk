@@ -48,4 +48,9 @@ Class TestClass2 {
       
     }
   }
+  Class _PrivateClass {
+    Test2() {
+      
+    }
+  }
 }

@@ -65,10 +65,10 @@ test_Yunit() {
   ;; _isTestCategory()
   restoreYunitOptions()
   assert.label("should check whether a class name belongs to a test category")
-  assert.false(Yunit._isTestCategory("_PrivateClass"))
+  assert.false(Yunit._isTestCategory("MyClass._PrivateClass"))
   assert.true(Yunit._isTestCategory("Multiplication"))
   Yunit.SetOptions({EnablePrivateProps: false})
-  assert.true(Yunit._isTestCategory("_Multiplication"))
+  assert.true(Yunit._isTestCategory("MyClass._Multiplication"))
 }
 
 filterOutputInfo(listInfo) {
@@ -81,6 +81,8 @@ filterOutputInfo(listInfo) {
 
 test_Yunit_TestClass() {
   global test_listOutputInfo
+  
+  restoreYunitOptions()
   Yunit.Use(TestOutput).Test(TestClass2)
   
   assert.label("should throw the correct error type when using expect()")

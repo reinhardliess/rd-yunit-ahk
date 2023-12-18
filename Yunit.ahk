@@ -95,9 +95,12 @@ class Yunit
         if ObjHasKey(cls,"afterEach") && IsFunc(cls.afterEach)
           environment.afterEach()
       }
-      else if IsObject(v)
-        && ObjHasKey(v, "__class") ;category
-        this.classes.InsertAt(++this.current, v)
+      ;category
+      else if (IsObject(v) && ObjHasKey(v, "__class")) {
+        if (this._isTestCategory(v.__class)) {
+          this.classes.InsertAt(++this.current, v)
+        }
+      } 
     }
   }
 
@@ -133,7 +136,9 @@ class Yunit
     if (!Yunit.Options.EnablePrivateProps) {
       return true
     }
-    return !!!(name ~= "^_")
+    classesArray := StrSplit(name, ".")
+    last := classesArray.Pop()
+    return !!!(last~= "^_")
   }
   
   Assert(Value, params*)
