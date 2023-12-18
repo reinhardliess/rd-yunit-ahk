@@ -52,6 +52,7 @@ test_Yunit() {
   assert.true(Yunit._validateHooks(TestClass1_1))
   
   ;; _isTestMethod()
+  restoreYunitOptions()
   assert.label("should check whether a method name is that of a test method")
   assert.false(Yunit._isTestMethod("Begin"))
   assert.false(Yunit._isTestMethod("BeforeEach"))
@@ -90,7 +91,7 @@ test_Yunit_TestClass() {
   timeType := Yunit.Util.GetType(test_listOutputInfo[1].methodTime_ms)
   assert.test(timeType, "Float")
   
-  assert.label("should execute all test methods correctly")
+  assert.label("should execute all test methods")
   actual := filterOutputInfo(test_listOutputInfo)
   expected := [{category: "TestClass2", testMethod: "Test_Fails"}
     , {category: "TestClass2", testMethod: "Test_Passes"}
@@ -156,7 +157,7 @@ test_Yunit_Util() {
   actualValue := {name: "Zoe", age: 20, address: { street: "Jardin des Roses"} }
   expected =  
   ( ltrim
-  "address":["street":"Jardin des Roses"], "age":20, "name":"Zoe"
+    "address":["street":"Jardin des Roses"], "age":20, "name":"Zoe"
   )
   assert.test(u.Print(actualValue), expected)
   

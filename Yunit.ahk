@@ -213,7 +213,7 @@ class Yunit
       }
       enum := var._newEnum()
       enum.next(key, value)
-      return this.IsInteger(key)
+      return this.IsInteger(key) && var.length()
     }
   
     /**
@@ -332,7 +332,6 @@ class Yunit
       
       ret := Yunit["Matchers"][methodName](this.actualValue, params*)
       ret.matcherType := methodName
-      ; OutputDebug, % Yunit.Util.Print(ret)
       if (!ret.hasPassedTest) {
         throw new Yunit.AssertionError("Assertion error", -2, , ret)
       }
