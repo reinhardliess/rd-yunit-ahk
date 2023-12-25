@@ -36,7 +36,6 @@ class YunitJUnit {
     file.close()
   }
 
-
   Update(objOutputInfo)
   {
     Category := objOutputInfo.category

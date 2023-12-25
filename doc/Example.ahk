@@ -1,11 +1,13 @@
 #Include ..\Yunit.ahk
-#Include ..\Window.ahk
+; #Include ..\Window.ahk
 #Include ..\StdOut.ahk
+#include ../StdoutMin.ahk
 #Include ..\JUnit.ahk
 #Include ..\OutputDebug.ahk
 
-; Yunit.Use(YunitWindow, YunitJUnit, YunitOutputDebug).Test(NumberTestSuite, StringTestSuite)
-Yunit.Use(YunitStdOut).Test(NumberTestSuite, StringTestSuite)
+; Yunit.Use(YunitStdOut, YunitWindow, YunitJUnit, YunitOutputDebug).Test(NumberTestSuite, StringTestSuite)
+; Yunit.Use(YunitStdOut).Test(NumberTestSuite, StringTestSuite)
+Yunit.Use(YunitStdoutMin).Test(NumberTestSuite, StringTestSuite)
 
 class NumberTestSuite
 {

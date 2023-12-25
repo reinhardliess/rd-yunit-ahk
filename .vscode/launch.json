@@ -36,6 +36,22 @@
       },
       "internalConsoleOptions": "openOnSessionStart"
     },
+    {
+      "name": "Test (StdoutMin)",
+      "type": "autohotkey",
+      "request": "launch",
+      "program": "${workspaceFolder}\\tests\\testStdoutMin.ahk",
+      "args": [],
+      "port": "9002-9010",
+      "variableCategories": "recommend",
+      "useDebugDirective": false,
+      "useAutoJumpToError": true,
+      "usePerfTips": "{{elapsedTime_ms}}ms elapsed.",
+      "useOutputDebug": {
+        "useTrailingLinebreak": true
+      },
+      "internalConsoleOptions": "openOnSessionStart"
+    },
     
   ]
 }

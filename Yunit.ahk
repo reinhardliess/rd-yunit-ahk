@@ -294,9 +294,9 @@ class Yunit
     
     /**
     * Checks whether a search value is included in an array
-    * @param {object} arrayObj - array
+    * @param {array} arrayObj - array
     * @param {string | number} searchValue - value to search for 
-    * @param {integer} [caseSense:=false] - case insensitive
+    * @param {boolean} [caseSense:=false]
     * @returns {boolean} 
     */
     static Includes(arrayObj, searchValue, caseSense := false) {
@@ -321,7 +321,7 @@ class Yunit
     /**
     * Meta function: routes matcher to Yunit.Matchers
     * @param {string} methodName - method name of matcher 
-    * @param {any} params - arguments passed to matcher
+    * @param {any*} params - arguments passed to matcher
     * @returns {object} matcher info 
     */
     __Call(methodName, params) {
@@ -364,7 +364,6 @@ class Yunit
     * @property {any} actual
     * @property {any} expected
     * @property {string} [matcherType] - e.g. "ToBe", set by expect()
-    * @property {object} [err] - error object, set by .toThrow()
     */
    
     /**
