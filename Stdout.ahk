@@ -2,9 +2,11 @@ class YunitStdOut
 {
   Update(objOutputInfo) ;wip: this only supports one level of nesting?
   {
-    Category := objOutputInfo.category
-    , Test := objOutputInfo.testMethod
-    , Result := objOutputInfo.result
+    category := objOutputInfo.category
+    , test := objOutputInfo.testMethod
+    , result := objOutputInfo.result
+    , methodTime_ms := objOutputInfo.methodTime_ms
+    
     if IsObject(Result)
     {
       Details := " at line " Result.Line " " Result.Message "(" Result.File ")"

@@ -20,19 +20,19 @@ Class TestClass1_1 {
 Class TestClass2 {
   
   __New() {
-    OutputDebug, % A_ThisFunc
+    ; OutputDebug, % A_ThisFunc
   }
 
   __Delete() {
-    OutputDebug, % A_ThisFunc
+    ; OutputDebug, % A_ThisFunc
   }
   
   beforeEach() {
-    OutputDebug, % A_ThisFunc
+    ; OutputDebug, % A_ThisFunc
   }
 
   afterEach() {
-    OutputDebug, % A_ThisFunc
+    ; OutputDebug, % A_ThisFunc
   }
   
   Test_Passes() {

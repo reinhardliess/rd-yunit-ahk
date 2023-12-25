@@ -11,6 +11,9 @@ global assert := new unittesting()
 
 OnError("ShowError")
 
+;; TODO: When converting to Yunit, think of meaningful test and variable names
+; https://osherove.com/blog/2005/4/3/naming-standards-for-unit-tests.html
+
 assert.group("Yunit class")
 test_Yunit()
 

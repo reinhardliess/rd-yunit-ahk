@@ -86,7 +86,7 @@ class Yunit
             result := error
         }
         methodTime_ms := Yunit.Util.QPCInterval()
-        OutputDebug % (k ": " methodTime_ms)
+        ; OutputDebug % (k ": " methodTime_ms)
         results[k] := result
         ObjDelete(environment, "ExpectedException")
         this.Update(cls.__class, k, results[k], methodTime_ms)
@@ -299,9 +299,9 @@ class Yunit
     
     /**
     * Checks whether a search value is included in an array
-    * @param {object} arrayObj - array
+    * @param {array} arrayObj - array
     * @param {string | number} searchValue - value to search for 
-    * @param {integer} [caseSense:=false] - case insensitive
+    * @param {boolean} [caseSense:=false]
     * @returns {boolean} 
     */
     Includes(arrayObj, searchValue, caseSense := false) {
@@ -326,11 +326,11 @@ class Yunit
     /**
     * Meta function: routes matcher to Yunit.Matchers
     * @param {string} methodName - method name of matcher 
-    * @param {any} params - arguments passed to matcher
+    * @param {any*} params - arguments passed to matcher
     * @returns {object} matcher info 
     */
     __Call(methodName, params*) {
-      ; OutputDebug, % methodname ", " Yunit.Util.Print(params)
+      ; OutputDebug(methodname ", " Yunit.Util.Print(params))
       if (!Yunit.Util.Includes(this.matchers, methodName)) {  
         Throw Exception(format("The matcher '{1}' doesn't exist.", methodName))
       }
@@ -372,7 +372,6 @@ class Yunit
     * @property {any} actual
     * @property {any} expected
     * @property {string} [matcherType] - e.g. "ToBe", set by expect()
-    * @property {object} [err] - error object, set by .toThrow()
     */
     
     /**
