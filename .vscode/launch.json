@@ -21,10 +21,10 @@
       "internalConsoleOptions": "openOnSessionStart"
     },
     {
-      "name": "Test (Yunit)",
+      "name": "Legacy Tests (Yunit)",
       "type": "autohotkey",
       "request": "launch",
-      "program": "${workspaceFolder}\\tests\\all-tests.ahk",
+      "program": "${workspaceFolder}\\tests\\legacy-tests.ahk",
       "args": [],
       "port": "9002-9010",
       "variableCategories": "recommend",

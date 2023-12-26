@@ -157,8 +157,16 @@ class Yunit
     return v1.Message = v2.Message
   }
 
-  Expect(actualValue) {
-    return new Yunit._Expect(actualValue)
+  /**
+  * Expect gives access to a number of matchers
+  * @throws Yunit.AssertionError if expectation fails
+  * @param {string} actualValue - the value to test
+  * @param {string} [message] - optional error message for output module
+  * to print
+  * @returns {any} 
+  */
+  Expect(actualValue, message := "") {
+    return new Yunit._Expect(actualValue, message)
   }
   
   ;; Class Util
@@ -330,13 +338,13 @@ class Yunit
     * @returns {object} matcher info 
     */
     __Call(methodName, params*) {
-      ; OutputDebug(methodname ", " Yunit.Util.Print(params))
       if (!Yunit.Util.Includes(this.matchers, methodName)) {  
         Throw Exception(format("The matcher '{1}' doesn't exist.", methodName))
       }
       
       ret := Yunit["Matchers"][methodName](this.actualValue, params*)
       ret.matcherType := methodName
+      ret.message := this.message
       if (!ret.hasPassedTest) {
         throw new Yunit.AssertionError("Assertion error", -2, , ret)
       }
@@ -347,8 +355,9 @@ class Yunit
   ;; Class Expect
   Class _Expect extends Yunit._ExpectBase {
     
-    __New(Value) {
+    __New(value, message) {
       this.actualValue := value
+      this.message := message
     }
   }
   
