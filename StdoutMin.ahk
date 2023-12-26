@@ -80,12 +80,22 @@ class YunitStdOutMin
     expected := errorObj.matcherInfo.expected
     matcher := errorObj.matcherInfo.matcherType
     
-    actual := isObject(actual) ? "[object]" : actual
-    expected := isObject(expected) ? "[object]" : expected
+    switch {
+      case isObject(actual):
+        actual := "[object]"
+      case matcher != "toBeCloseTo" && Yunit.Util.IsFloat(actual):
+        actual := Format("{1:.17g}", actual)
+      case Yunit.Util.GetType(actual) = "String":
+        actual := """" actual """"
+    }
     
-    if (matcher != "toBeCloseTo") {
-      actual := Yunit.Util.IsFloat(actual) ? Format("{1:.17g}", actual) : actual
-      expected := Yunit.Util.IsFloat(expected) ? Format("{1:.17g}", expected) : expected
+    switch {
+      case isObject(expected):
+        expected := "[object]"
+      case matcher != "toBeCloseTo" && Yunit.Util.IsFloat(expected):
+        expected := Format("{1:.17g}", expected)
+      case Yunit.Util.GetType(expected) = "String":
+        expected := """" expected """"
     }
     
     this.writeLn(this.indent this.white "Matcher: " errorObj.matcherInfo.matcherType "`n")
@@ -100,7 +110,10 @@ class YunitStdOutMin
   }
   
   writeStatusReport() {
-    this.writeLn()
+    if (this.tests.fail > 0) {
+      this.writeLn()
+    }
+    
     if (this.tests.pass > 0) {
       statusPassed := format("{1}{:3d} passing ({:d} ms)", this.brightGreen, this.tests.pass, this.tests.passTime)
       this.writeLn(statusPassed)
