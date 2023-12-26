@@ -23,4 +23,25 @@ Class ConsoleOutputBase {
     }
     return indentInSpaces
   }
+  
+  printLn(text, indentationLevel := 0) {
+    this.print(text "`n", indentationLevel)
+  }
+  
+  print(text, indentationLevel := 0) {
+    replaceStr := this.indentationToSpaces(indentationLevel) "$0"
+    newText := RegexReplace(text, "`am)^.", replaceStr)
+    this.printOutput(newText)
+    return 
+  }
+  
+  /**
+  * Prints to console
+  * @abstract
+  * @param {string} text - text to print 
+  * @returns {void} 
+  */
+  printOutput(text) {
+    
+  }
 }

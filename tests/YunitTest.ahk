@@ -15,8 +15,8 @@ Class YunitTest {
   ; method to test expect() returning error object
 
   ; tests:
-  ; indentation (get)
   ; printCategories, identifyCategories (get)
+  ; create toMatch
 
   beforeEach() {
     this.module := new TestStdout("")
@@ -31,4 +31,24 @@ Class YunitTest {
     Yunit.expect(twoSpaces).toBe("  ")
     Yunit.expect(fourSpaces).toBe("    ")
   }
+  
+  should_print_text_to_console_with_lf() {
+    this.module.printLn("Test data")
+
+    Yunit.expect(this.module.test_printOutput).toBe("Test data`n")
+  }
+  
+  should_print_one_line_to_console_with_indentation_level1() {
+    this.module.print("Test data", 1)
+    
+    Yunit.expect(this.module.test_printOutput).toBe("  Test data")
+  }
+  
+  should_print_multiline_text_to_console_with_indentation_level1() {
+    this.module.print("Test data`nSecond line", 1)
+    
+    Yunit.expect(this.module.test_printOutput).toBe("  Test data`n  Second line")
+  }
+  
+  
 }
