@@ -16,7 +16,7 @@ class YunitStdOutMin
   tests.fail := 0
   tests.overall := 0
   
-  _New(instance) {
+  __New(instance) {
   }
   
   __delete() {
@@ -56,7 +56,8 @@ class YunitStdOutMin
   }
 
   isError(var) {
-    if (var.hasKey("message")
+    if (IsObject(var) 
+      && var.hasKey("message")
       && var.hasKey("what")
       && var.hasKey("file")
       && var.hasKey("line")) {
