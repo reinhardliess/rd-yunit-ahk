@@ -1,20 +1,11 @@
 Class TestStdout extends ConsoleOutputBase {
 
-  _test_printOutput := ""
+  test_printOutput := ""
+  useAnsiEscapes := false
   
   __Delete() {
 
   }
-  
-  test_PrintOutput {
-    get {
-      return this._test_printOutput
-    }
-  
-    set {
-      return this._test_printOutput := value
-    }
-  }  
   
   /**
   * Prints to console
@@ -23,8 +14,20 @@ Class TestStdout extends ConsoleOutputBase {
   * @returns {void} 
   */
   printOutput(text) {
-    ; global test_printOutput
-    this.test_PrintOutput .= text    
+    this.test_printOutput .= text    
   }
-}
   
+  /**
+  * Pre-processes text
+  * Must be used to add/remove Ansi escapes
+  * @override
+  * @param {string} text - text to pre-process 
+  * @returns {void} 
+  */
+  printPreProcess(text) {
+    text := this.convertAnsiPlaceholders(text, this.useAnsiEscapes)
+    return text
+  }
+
+}
+

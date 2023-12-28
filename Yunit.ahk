@@ -336,7 +336,7 @@ class Yunit
     * @param {string} methodName - method name of matcher 
     * @param {any*} params - arguments passed to matcher
     * @returns {object} matcher info 
-    */
+    */ 
     __Call(methodName, params*) {
       if (!Yunit.Util.Includes(this.matchers, methodName)) {  
         Throw Exception(format("The matcher '{1}' doesn't exist.", methodName))
