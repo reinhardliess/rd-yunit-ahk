@@ -36,9 +36,7 @@ class YunitStdOutMin
         return
       }
       this.tests.fail++
-      if (this.isFirstError) {
-        this.isFirstError := false
-      } else {
+      if (this.tests.fail > 1) {
         this.writeLn()
       }
       ; * ShoppingCart > Subtotal > Items_CalculatePrice
@@ -86,6 +84,7 @@ class YunitStdOutMin
       case matcher != "toBeCloseTo" && Yunit.Util.IsFloat(actual):
         actual := Format("{1:.17g}", actual)
       case Yunit.Util.GetType(actual) = "String":
+        actual := StrReplace(actual, chr(27), Chr(27) "[90m" "esc" chr(27) "[91m")
         actual := """" actual """"
     }
     
@@ -95,6 +94,7 @@ class YunitStdOutMin
       case matcher != "toBeCloseTo" && Yunit.Util.IsFloat(expected):
         expected := Format("{1:.17g}", expected)
       case Yunit.Util.GetType(expected) = "String":
+        expected := StrReplace(expected, chr(27), Chr(27) "[90m" "esc" chr(27) "[92m")
         expected := """" expected """"
     }
     
