@@ -82,7 +82,7 @@ Class ConsoleOutputBase {
   }
   
   /**
-  * Removes Ansi escape placeholders or replaces them
+  * Removes or replaces Ansi escape placeholders
   * @param {string} text - text to process
   * @param {boolean} [AddRemove:=false] - true, to add Ansi escapes
   * @returns {string} 

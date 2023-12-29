@@ -1,3 +1,5 @@
+; cspell:disable
+
 #Include ..\Yunit.ahk
 ; #Include ..\Window.ahk
 #Include ..\StdOut.ahk
