@@ -38,24 +38,24 @@ Class ConsoleOutputBase {
   /**
   * Prints text to console with LF (formatted)
   * @param {integer} indentationLevel 
-  * @param {string} formatStr - passed to Format()
+  * @param {string} [formatStr] - passed to Format()
   * @param {any*} values  - values for Format()
   * @returns {void} 
   */
-  printLine(indentationLevel, formatStr, values*) {
+  printLine(indentationLevel, formatStr := "", values*) {
     this.print(indentationLevel, formatStr "{reset}`n", values*)
   }
   
   /**
   * Prints text to console 
   * @param {integer} indentationLevel 
-  * @param {string} formatStr - passed to Format()
+  * @param {string} formatStr - passed to Format(), printPreProcess()
   * @param {any*} values  - values for Format()
   * @returns {void} 
   */
   print(indentationLevel, formatStr, values*) {
-    newFormatStr := this.printPreProcess(formatStr)
-    text := format(newFormatStr, values*)
+    formatted := format(formatStr, values*)
+    text := this.printPreProcess(formatted)
     replaceStr := this.indentationToSpaces(indentationLevel) "$0"
     newText := RegexReplace(text, "`am)^.", replaceStr)
     this.printOutput(newText)
@@ -136,4 +136,48 @@ Class ConsoleOutputBase {
       }
     }
   }
+  
+  /**
+  * Prints test info (one line)
+  * @param {OutputInfo} outputInfo 
+  * @returns {void} 
+  */
+  printTestInfo(outputInfo) {
+    ; 1: statusFormat, 2: status, 3: testMethod, 4: methodTime_ms
+    formatStr := "{1}[{2}] {format.textDimmed}{3}"
+    switch {
+      case this.isError(outputInfo.result):
+        status := "Fail"
+        statusFormat := "{format.error}"
+      default:
+        status := "Pass"
+        statusFormat := "{format.ok}"
+        switch {
+          case outputInfo.methodTime_ms > Yunit.options.timingWarningThreshold:
+            formatStr .= " {format.slowTest}({4} ms)"
+          case outputInfo.methodTime_ms > 0:
+            formatStr .= " ({4} ms)"
+        }
+    }
+    indent := this.categories[outputInfo.category]
+    this.printLine(indent, formatStr, statusFormat, status
+      , outputInfo.testMethod, outputInfo.methodTime_ms)
+  }
+  
+  /**
+  * Tests whether a variable is an error object
+  * @param {any} var - variable to test 
+  * @returns {boolean} 
+  */
+  isError(var) {
+    if (IsObject(var) 
+      && var.hasKey("message")
+      && var.hasKey("what")
+      && var.hasKey("file")
+      && var.hasKey("line")) {
+      return true
+    }
+    return false
+  }
+
 }

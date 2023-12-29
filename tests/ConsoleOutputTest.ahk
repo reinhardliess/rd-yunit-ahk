@@ -1,5 +1,42 @@
+; cspell:ignore dont ansi
 ;; ConsoleOutputTest
 Class ConsoleOutputTest {
+  
+  /**
+  * Runs expect(), returns status
+  * @param {string} matcherName
+  * @param {any} actualValue
+  * @param {any*} expectedValues 
+  * @returns {Yunit.AssertError | 0} 
+  */
+  _runMatcher(matcherName, actualValue, expectedValues*) {
+    try {
+      Yunit.expect(actualValue)[matcherName](expectedValues*)
+      ret := 0
+    } catch err {
+      ret := err
+    }
+    return ret
+  }
+
+  /**
+  * Creates OutputInfo object from passed arguments
+  * "Prints" category, resets print output (simulated)
+  * @param {string} category 
+  * @param {string} testMethod - Name of test
+  * @param {Yunit.AssertError | 0} result - test result
+  * @param {string} methodTime_ms - time taken for test
+  * @returns {OutputInfo} 
+  */
+  _setOutputInfo(category, testMethod, result, methodTime_ms) {
+    this.module.printNewCategories(category)
+    this.module.test_printOutput := ""  
+    return { category: (category)
+      , testMethod: (testMethod)
+      , result: (result)
+      , methodTime_ms: (methodTime_ms)}
+  }
+  
   beforeEach() {
     this.module := new TestStdout("")
   }
@@ -59,7 +96,7 @@ Class ConsoleOutputTest {
     Yunit.expect(this.module.test_printOutput).toEqual(formattedString)
   }
   
-  print_categories_if_no_categories_printed() {
+  print_categories_if_not_already_printed() {
     expected := "Category1`n  sub1`n"
     
     this.module.printNewCategories("Category1.sub1")
@@ -67,7 +104,7 @@ Class ConsoleOutputTest {
     Yunit.expect(this.module.test_printOutput).toEqual(expected)
   }
   
-  not_print_categories_if_already_printed() {
+  dont_print_categories_that_are_already_printed() {
     m := this.module
     
     m.printNewCategories("Category1.sub1")
@@ -76,7 +113,7 @@ Class ConsoleOutputTest {
     Yunit.expect(m.test_printOutput).toEqual("Category1`n  sub1`n")
   }
 
-  print_new_categories_if_other_categories_already_printed() {
+  print_new_categories_after_other_categories_already_printed() {
     m := this.module
     expected := "Category1`n  sub1`nCategory2`n  sub2`n"
     
@@ -84,6 +121,36 @@ Class ConsoleOutputTest {
     m.printNewCategories("Category2.sub2")
     
     Yunit.expect(m.test_printOutput).toEqual(expected)
+  }
+  
+  print_test_info_for_passed_test_with_time() {
+    m := this.module
+    result := this._runMatcher("toEqual", 5, 5)
+    outputInfo := this._setOutputInfo("Category1.sub1", "tests_a_behavior", result, 5)
+        
+    m.printTestInfo(outputInfo)
+    
+    Yunit.expect(m.test_printOutput).toBe("    [Pass] tests_a_behavior (5 ms)`n")
+  }
+  
+  print_test_info_for_passed_test_dont_show_time_below1ms() {
+    m := this.module
+    result := this._runMatcher("toEqual", 5, 5)
+    outputInfo := this._setOutputInfo("Category1.sub1", "tests_a_behavior", result, 0)
+        
+    m.printTestInfo(outputInfo)
+    
+    Yunit.expect(m.test_printOutput).toBe("    [Pass] tests_a_behavior`n")
+  }
+
+  print_test_info_for_failed_test() {
+    m := this.module
+    result := this._runMatcher("toEqual", 5, 6)
+    outputInfo := this._setOutputInfo("Category1.sub1", "tests_a_behavior", result, 5)
+        
+    m.printTestInfo(outputInfo)
+    
+    Yunit.expect(m.test_printOutput).toBe("    [Fail] tests_a_behavior`n")
   }
 
 }
