@@ -2,6 +2,11 @@ Class ConsoleOutputBase {
   
   defaults := { indent: 2}
   ansiEscapes := {"format.text": "37", "format.textDimmed": "90", "format.ok": "92", "format.error": "91","format.errorPath": "91;1", "format.slowTest": "95", "format.slowTestPath": "95;1", "reset": "0" }
+  categories := {}
+  
+  ; instance variables
+  ; tests[] - object array
+  ; summary = {passed: {count, timeTaken}, failed: {count}, slowTests: {count, timeTaken}, overall: {count}}
   
   __New(instance) {
     
@@ -79,7 +84,7 @@ Class ConsoleOutputBase {
   /**
   * Removes Ansi escape placeholders or replaces them
   * @param {string} text - text to process
-  * @param {integer} [AddRemove:=false] - true, to add Ansi escapes
+  * @param {boolean} [AddRemove:=false] - true, to add Ansi escapes
   * @returns {string} 
   */
   convertAnsiPlaceholders(text, AddRemove := false) {
@@ -110,5 +115,25 @@ Class ConsoleOutputBase {
     }
     out := format("{1}[{2};{3}m", chr(27), this.ansiEscapes.reset, ansiString)
     return out
+  }
+  
+  /**
+  * Prints new categories with indentation
+  * @param {string} newCategories
+  * @returns {void} 
+  */
+  printNewCategories(newCategories) {
+    if (this.categories.hasKey(newCategories)) {
+      return
+    }
+    splitCategories := StrSplit(newCategories, ".")
+    category := ""
+    for index, value in splitCategories {
+      category .= index == 1 ? value : "." value
+      if (!this.categories.hasKey(category)) {
+        this.categories[category] := index
+        this.printLine(index - 1, "{format.text}{1}", value)
+      }
+    }
   }
 }

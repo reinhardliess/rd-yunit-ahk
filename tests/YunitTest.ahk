@@ -21,7 +21,7 @@ Class YunitOutputTest {
       this.module := new TestStdout("")
     }
 
-    should_convert_indentation_level_to_number_of_spaces() {
+    convert_indentation_level_to_spaces() {
       noSpaces   := this.module.indentationToSpaces(0)
       twoSpaces  := this.module.indentationToSpaces(1)
       fourSpaces := this.module.indentationToSpaces(2)
@@ -31,52 +31,77 @@ Class YunitOutputTest {
       Yunit.expect(fourSpaces).toBe("    ")
     }
     
-    should_print_text_to_console_with_lf() {
+    print_text_with_lf() {
       this.module.printLine(0, "Test data")
 
       Yunit.expect(this.module.test_printOutput).toBe("Test data`n")
     }
 
-    should_print_one_line_to_console_with_indentation_level1() {
+    print_one_line_with_indentation_level1() {
       this.module.print(1, "Test data")
 
       Yunit.expect(this.module.test_printOutput).toBe("  Test data")
     }
 
-    should_print_multiline_text_to_console_with_indentation_level1() {
+    print_multiline_text_with_indentation_level1() {
       this.module.print(1, "Test data`nSecond line")
 
       Yunit.expect(this.module.test_printOutput)
             .toBe("  Test data`n  Second line")
     }
     
-    should_remove_ansi_placeholders_from_formatString() {
+    remove_ansi_placeholders_from_formatString() {
       this.module.print(0, "{format.text}Test data{reset}")
       
       Yunit.expect(this.module.test_printOutput).toBe("Test data")
     }
   
-    should_replace_ansi_placeholders_in_formatString() {
+    replace_ansi_placeholders_in_formatString() {
       this.module.useAnsiEscapes := true
       esc := chr(27)
       formattedString := esc "[0;37mTest data" esc "[0m"
       
       this.module.print(0, "{format.text}Test data{reset}")
       
-      Yunit.expect(this.module.test_printOutput).toBe(formattedString)
+      Yunit.expect(this.module.test_printOutput).toEqual(formattedString)
     }
     
-    should_perform_an_ansi_reset_before_printing_an_lf() {
+    perform_an_ansi_reset_before_printing_an_lf() {
       this.module.useAnsiEscapes := true
       esc := chr(27)
       formattedString := esc "[0;37mTest data" esc "[0m`n"
       
       this.module.printLine(0, "{format.text}Test data")
       
-      Yunit.expect(this.module.test_printOutput).toBe(formattedString)
+      Yunit.expect(this.module.test_printOutput).toEqual(formattedString)
     }
     
+    print_categories_if_no_categories_printed() {
+      expected := "Category1`n  sub1`n"
+      
+      this.module.printNewCategories("Category1.sub1")
+      
+      Yunit.expect(this.module.test_printOutput).toEqual(expected)
+    }
+    
+    not_print_categories_if_already_printed() {
+      m := this.module
+      
+      m.printNewCategories("Category1.sub1")
+      m.printNewCategories("Category1.sub1")
+      
+      Yunit.expect(m.test_printOutput).toEqual("Category1`n  sub1`n")
+    }
   
+    print_new_categories_if_other_categories_already_printed() {
+      m := this.module
+      expected := "Category1`n  sub1`nCategory2`n  sub2`n"
+      
+      m.printNewCategories("Category1.sub1")
+      m.printNewCategories("Category2.sub2")
+      
+      Yunit.expect(m.test_printOutput).toEqual(expected)
+    }
   }
 
 }
