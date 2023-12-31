@@ -1,11 +1,10 @@
-Class TestStdout extends ConsoleOutputBase {
+Class Test_ConsoleOutput extends ConsoleOutputBase {
 
   test_printOutput := ""
   test_thisValue := {}
   useAnsiEscapes := false
   
-  
-  Update(objOutputInfo) {
+    Update(objOutputInfo) {
     base.Update(objOutputInfo)
     this.test_thisValue := {tests: (this.tests), summary: (this.summary)}  
   }

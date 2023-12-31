@@ -51,7 +51,7 @@ Class ConsoleOutputTest {
 
   _setup() {
     ; Yunit.SetOptions({EnablePrivateProps: true, TimingWarningThreshold: 100})
-    return new TestStdout("")
+    return new Test_ConsoleOutput("")
   }
 
   beforeEach() {

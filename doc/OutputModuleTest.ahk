@@ -1,13 +1,4 @@
-#NoEnv
-SetBatchLines, -1
-SetWorkingDir, %A_ScriptDir%
-
-#Include ../Yunit.ahk
-#Include ../StdoutMin.ahk
-
-Yunit.Use(YunitStdoutMin).Test(StdoutMinTest)
-
-class StdoutMinTest {
+class OutputModuleTest {
 
   class assert {
     integer_addition_correct_result() {

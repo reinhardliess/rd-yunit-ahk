@@ -4,8 +4,8 @@ SetWorkingDir, %A_ScriptDir%
 #Include %A_ScriptDir%
 #Include ../lib/unit-testing.ahk/export.ahk
 #Include ../Yunit.ahk
-#Include, ./TestClasses.ahk
-#Include, ./TestOutput.ahk
+#Include, ./testclasses/TestClasses.ahk
+#Include, ./testclasses/TestOutput.ahk
 
 global assert := new unittesting()
 
