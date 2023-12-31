@@ -1,5 +1,6 @@
 ; cspell:disable
 
+#SingleInstance, Force
 #Include ..\Yunit.ahk
 ; #Include ..\Window.ahk
 #Include ..\StdOut.ahk

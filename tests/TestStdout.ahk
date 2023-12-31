@@ -1,10 +1,13 @@
 Class TestStdout extends ConsoleOutputBase {
 
   test_printOutput := ""
+  test_thisValue := {}
   useAnsiEscapes := false
   
-  __Delete() {
-
+  
+  Update(objOutputInfo) {
+    base.Update(objOutputInfo)
+    this.test_thisValue := {tests: (this.tests), summary: (this.summary)}  
   }
   
   /**

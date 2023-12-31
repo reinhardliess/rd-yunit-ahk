@@ -29,16 +29,33 @@ Class ConsoleOutputTest {
   * @returns {OutputInfo} 
   */
   _setOutputInfo(category, testMethod, result, methodTime_ms) {
-    this.module.printNewCategories(category)
-    this.module.test_printOutput := ""  
     return { category: (category)
       , testMethod: (testMethod)
       , result: (result)
       , methodTime_ms: (methodTime_ms)}
   }
   
+  /**
+  * Runs simplified, simulated test using ToEqual() matcher
+  * @param {string} testName 
+  * @param {string} actual 
+  * @param {string} expected 
+  * @param {string} timeTaken 
+  * @returns {outputInfo} 
+  */
+  _runTest(category, testName, actual, expected, timeTaken) {
+    result := this._runMatcher("toEqual", actual, expected)
+    outputInfo := this._setOutputInfo(category, testName, result, timeTaken)
+    return outputInfo
+  }
+
+  _setup() {
+    ; Yunit.SetOptions({EnablePrivateProps: true, TimingWarningThreshold: 100})
+    return new TestStdout("")
+  }
+
   beforeEach() {
-    this.module := new TestStdout("")
+    this.module := ConsoleOutputTest._setup()
   }
 
   convert_indentation_level_to_spaces() {
@@ -123,34 +140,49 @@ Class ConsoleOutputTest {
     Yunit.expect(m.test_printOutput).toEqual(expected)
   }
   
+  _runPrintInfoTest(category, testName, actual, expected, timeTaken) {
+    this.module.printNewCategories(category)
+    outputInfo := this._runTest(category, testName, actual, expected, timeTaken)
+    this.module.printTestInfo(outputInfo)
+  }
+  
   print_test_info_for_passed_test_with_time() {
-    m := this.module
-    result := this._runMatcher("toEqual", 5, 5)
-    outputInfo := this._setOutputInfo("Category1.sub1", "tests_a_behavior", result, 5)
-        
-    m.printTestInfo(outputInfo)
+    this._runPrintInfoTest("Category1", "tests_a_behavior", "def", "def", 5)
     
-    Yunit.expect(m.test_printOutput).toBe("    [Pass] tests_a_behavior (5 ms)`n")
+    Yunit.expect(this.module.test_printOutput).toBe("Category1`n  [Pass] tests_a_behavior (5 ms)`n")
   }
   
   print_test_info_for_passed_test_dont_show_time_below1ms() {
-    m := this.module
-    result := this._runMatcher("toEqual", 5, 5)
-    outputInfo := this._setOutputInfo("Category1.sub1", "tests_a_behavior", result, 0)
-        
-    m.printTestInfo(outputInfo)
+    this._runPrintInfoTest("Category1", "tests_a_behavior", "def", "def", 0)
     
-    Yunit.expect(m.test_printOutput).toBe("    [Pass] tests_a_behavior`n")
+    Yunit.expect(this.module.test_printOutput).toBe("Category1`n  [Pass] tests_a_behavior`n")
   }
 
   print_test_info_for_failed_test() {
-    m := this.module
-    result := this._runMatcher("toEqual", 5, 6)
-    outputInfo := this._setOutputInfo("Category1.sub1", "tests_a_behavior", result, 5)
-        
-    m.printTestInfo(outputInfo)
+    this._runPrintInfoTest("Category1", "tests_a_behavior", "def", "ghi", 5)
     
-    Yunit.expect(m.test_printOutput).toBe("    [Fail] tests_a_behavior`n")
+    Yunit.expect(this.module.test_printOutput).toBe("Category1`n  [Fail] tests_a_behavior`n")
   }
-
+  
+  update_summary_data_for_tests() {
+    m := this.module
+    tests := []
+    Yunit.SetOptions({TimingWarningThreshold: 20})
+        
+    tests.push(this._runTest("Category1", "test1", "abc", "abc", 5))
+    tests.push(this._runTest("Category1", "test2", "def", "def", 21))
+    tests.push(this._runTest("Category1", "test3", "def", "ghi", 5))
+    
+    for index, outputInfo in tests {
+      m.Update(outputInfo)
+    }
+    
+    expectedSummary := { passed: {count: 2, timeTaken: 26}
+    , failed: {count: 1}
+    , slowTests: {count: 1, timeTaken: 21}
+    , overall: {count: 3} }
+    Yunit.expect(m.test_thisValue.tests).toEqual(tests)
+    Yunit.expect(m.test_thisValue.summary).toEqual(expectedSummary)
+  }
+  
 }

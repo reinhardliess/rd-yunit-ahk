@@ -1,12 +1,18 @@
 Class ConsoleOutputBase {
   
+  ; config data
   defaults := { indent: 2}
-  ansiEscapes := {"format.text": "37", "format.textDimmed": "90", "format.ok": "92", "format.error": "91","format.errorPath": "91;1", "format.slowTest": "95", "format.slowTestPath": "95;1", "reset": "0" }
-  categories := {}
+  ansiEscapes := {"format.text": "37", "format.textDimmed": "90"
+    , "format.ok": "92", "format.error": "91","format.errorPath": "91;1"
+    , "format.slowTest": "95", "format.slowTestPath": "95;1", "reset": "0" }
   
-  ; instance variables
-  ; tests[] - object array
-  ; summary = {passed: {count, timeTaken}, failed: {count}, slowTests: {count, timeTaken}, overall: {count}}
+  ; test data
+  categories := {}
+  tests := []
+  summary := { passed: {count: 0, timeTaken: 0}
+    , failed: {count: 0}
+    , slowTests: {count: 0, timeTaken: 0}
+    , overall: {count: 0} }
   
   __New(instance) {
     
@@ -16,10 +22,22 @@ Class ConsoleOutputBase {
   * Called by Yunit tester to send test data to output module
   * @param {outputInfo} objOutputInfo
   * {category, testName, result, methodTime_ms}
-  * @returns {void} 
+  * @returns {void}
   */
   Update(objOutputInfo) {
-    
+    this.tests.push(objOutputInfo)
+    this.summary.overall.count++
+    switch {
+      case this.isError(objOutputInfo.result):
+        this.summary.failed.count++
+      default:
+        this.summary.passed.count++
+        this.summary.passed.timeTaken += objOutputInfo.methodTime_ms
+        if (objOutputInfo.methodTime_ms > Yunit.options.TimingWarningThreshold) {
+          this.summary.slowTests.count++
+          this.summary.slowTests.timeTaken += objOutputInfo.methodTime_ms
+        }
+    }
   }
 
   /**
@@ -95,7 +113,7 @@ Class ConsoleOutputBase {
       out .= SubStr(text, startPos, pos - startPos)
       startPos := pos + m.len[0]
       if (addRemove) {
-        out .= this._buildAnsiEscape(m[1])
+        out .= this.buildAnsiEscape(m[1])
       } else {
         continue
       }
@@ -108,7 +126,7 @@ Class ConsoleOutputBase {
   * @param {string} placeholder
   * @returns {string} 
   */
-  _buildAnsiEscape(placeholder) {
+  buildAnsiEscape(placeholder) {
     ansiString := this["ansiEscapes"][placeholder]
     if !(placeholder ~= "i)^format\.") {
       return chr(27) "[" ansiString "m"
@@ -144,6 +162,7 @@ Class ConsoleOutputBase {
   */
   printTestInfo(outputInfo) {
     ; 1: statusFormat, 2: status, 3: testMethod, 4: methodTime_ms
+    methodTime_ms := outputInfo.methodTime_ms
     formatStr := "{1}[{2}] {format.textDimmed}{3}"
     switch {
       case this.isError(outputInfo.result):
@@ -153,15 +172,15 @@ Class ConsoleOutputBase {
         status := "Pass"
         statusFormat := "{format.ok}"
         switch {
-          case outputInfo.methodTime_ms > Yunit.options.timingWarningThreshold:
+          case methodTime_ms > Yunit.options.timingWarningThreshold:
             formatStr .= " {format.slowTest}({4} ms)"
-          case outputInfo.methodTime_ms > 0:
+          case methodTime_ms > 0:
             formatStr .= " ({4} ms)"
         }
     }
     indent := this.categories[outputInfo.category]
     this.printLine(indent, formatStr, statusFormat, status
-      , outputInfo.testMethod, outputInfo.methodTime_ms)
+      , outputInfo.testMethod, methodTime_ms)
   }
   
   /**
