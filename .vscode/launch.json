@@ -37,6 +37,22 @@
       "internalConsoleOptions": "openOnSessionStart"
     },
     {
+      "name": "Test Stdout",
+      "type": "autohotkey",
+      "request": "launch",
+      "program": "${workspaceFolder}\\doc\\ExampleStdout.ahk",
+      "args": [],
+      "port": "9002-9010",
+      "variableCategories": "recommend",
+      "useDebugDirective": false,
+      "useAutoJumpToError": true,
+      "usePerfTips": "{{elapsedTime_ms}}ms elapsed.",
+      "useOutputDebug": {
+        "useTrailingLinebreak": true
+      },
+      "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
       "name": "Current file",
       "type": "autohotkey",
       "request": "launch",

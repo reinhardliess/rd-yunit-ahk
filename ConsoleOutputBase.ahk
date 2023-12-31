@@ -4,7 +4,7 @@ Class ConsoleOutputBase {
   defaults := { indent: 2}
   ansiEscapes := {"format.text": "37", "format.textDimmed": "90"
     , "format.ok": "92", "format.error": "91","format.errorPath": "91;1"
-    , "format.slowTest": "95", "format.slowTestPath": "95;1", "reset": "0" }
+    , "format.slowTest": "96", "format.slowTestPath": "96;1", "reset": "0" }
   
   ; test data
   categories := {}
@@ -55,12 +55,12 @@ Class ConsoleOutputBase {
   
   /**
   * Prints text to console with LF (formatted)
-  * @param {integer} indentationLevel 
-  * @param {string} [formatStr] - passed to Format()
+  * @param {integer} [indentationLevel:=0] 
+  * @param {string} [formatStr:""] - passed to Format()
   * @param {any*} values  - values for Format()
   * @returns {void} 
   */
-  printLine(indentationLevel, formatStr := "", values*) {
+  printLine(indentationLevel := 0, formatStr := "", values*) {
     this.print(indentationLevel, formatStr "{reset}`n", values*)
   }
   
@@ -207,6 +207,31 @@ Class ConsoleOutputBase {
     for testNumber, test in this.tests {
       this.printNewCategories(test.category)
       this.printTestInfo(test)
+    }
+  }
+  
+  /**
+  * Prints categories and test name as breadcrumbs
+  * @param {outputInfo} outputInfo
+  * @returns {void} 
+  */
+  printErrorPath(outputInfo) {
+    formatHeading := "{format.errorPath}* {1}"
+    this.printLine(0, formatHeading, StrReplace(outputInfo.category "." outputInfo.testMethod, "." , " > "))
+  }
+  
+  /**
+  * Prints header for matcher output
+  * @param {object} errorObj
+  * @returns {void} 
+  */
+  printErrorHeader(errorObj) {
+    formatHeader := "expect({format.error}actual{format.text}).{1}({format.ok}expected{format.text})"
+    this.printLine(1, formatHeader, errorObj.matcherInfo.matcherType)
+    message := errorObj.matcherInfo.message
+    if (message) {
+      this.printLine()
+      this.printLine(1, message)
     }
   }
 }

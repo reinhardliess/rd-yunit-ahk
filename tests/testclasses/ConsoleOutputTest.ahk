@@ -185,4 +185,35 @@ Class ConsoleOutputTest {
     Yunit.expect(m.test_thisValue.summary).toEqual(expectedSummary)
   }
   
+  print_categories_and_testname_as_breadcrumbs_for_error() {
+    m := this.module
+    outputInfo := this._runTest("Category1.sub1", "test3", "def", "ghi", 5)
+    expected := "* Category1 > sub1 > test3`n"
+    
+    m.printErrorPath(outputInfo)
+    
+    Yunit.expect(m.test_PrintOutput).toEqual(expected)
+  }
+  
+  print_expect_header() {
+    m := this.module
+    err := this._runMatcher("toEqual", 5, 6)
+    expected := "  expect(actual).toEqual(expected)`n"
+    
+    m.printErrorHeader(err)
+    
+    Yunit.expect(m.test_PrintOutput).toEqual(expected)
+  }
+
+  print_expect_header_with_message() {
+    m := this.module
+    err := this._runMatcher("toEqual", 5, 6)
+    err.matcherInfo.message := "error message"
+    expected := "  expect(actual).toEqual(expected)`n`n  error message`n"
+    
+    m.printErrorHeader(err)
+    
+    Yunit.expect(m.test_PrintOutput).toEqual(expected)
+  }
+  
 }
