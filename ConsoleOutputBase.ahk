@@ -198,5 +198,15 @@ Class ConsoleOutputBase {
     }
     return false
   }
-
+  
+  /**
+  * Prints test results with categories
+  * @returns {void} 
+  */
+  printTestResults() {
+    for testNumber, test in this.tests {
+      this.printNewCategories(test.category)
+      this.printTestInfo(test)
+    }
+  }
 }

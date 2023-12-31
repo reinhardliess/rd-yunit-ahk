@@ -1,22 +1,28 @@
-class YunitStdOut
-{
-  Update(objOutputInfo) ;wip: this only supports one level of nesting?
-  {
-    category := objOutputInfo.category
-    , test := objOutputInfo.testMethod
-    , result := objOutputInfo.result
-    , methodTime_ms := objOutputInfo.methodTime_ms
-    
-    if IsObject(Result)
-    {
-      Details := " at line " Result.Line " " Result.Message "(" Result.File ")"
-      Status := "FAIL"
-    }
-    else
-    {
-      Details := ""
-      Status := "PASS"
-    }
-    FileAppend, %Status%: %Category%.%Test% %Details%`n, *
+class YunitStdOut extends ConsoleOutputBase {
+  
+  __Delete() {
+    this.printTestResults()
+  }
+  
+  /**
+  * Prints to console
+  * @override
+  * @param {string} text - text to print 
+  * @returns {void} 
+  */
+  printOutput(text) {
+    FileAppend, %text%, *, UTF-8
+  }
+  
+  /**
+  * Pre-processes text
+  * Must be used to add/remove Ansi escapes
+  * @override
+  * @param {string} text - text to pre-process 
+  * @returns {void} 
+  */
+  printPreProcess(text) {
+    text := this.convertAnsiPlaceholders(text, true)
+    return text
   }
 }
