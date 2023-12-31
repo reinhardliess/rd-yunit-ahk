@@ -59,6 +59,7 @@ test_Yunit() {
   assert.label("should check whether a method name is that of a test method")
   assert.false(Yunit._isTestMethod("Begin"))
   assert.false(Yunit._isTestMethod("BeforeEach"))
+  assert.false(Yunit._isTestMethod("AfterEachAll"))
   assert.false(Yunit._isTestMethod("_helperMethod"))
   assert.true(Yunit._isTestMethod("Test_Division"))
   restoreYunitOptions()

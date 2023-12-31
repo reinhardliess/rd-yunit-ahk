@@ -234,4 +234,57 @@ Class ConsoleOutputBase {
       this.printLine(1, message)
     }
   }
+  
+  /**
+  * Prints actual/expected error details
+  * @param {object} errorObj
+  * @returns {void} 
+  */
+  printErrorDetails(err) {
+    matcher := "getMatcherOutput" err.matcherInfo.matcherType
+    output := this[matcher](err)
+    ; output := this.injectAnsiPlaceholdersIntoMatcherOutput(output)
+    this.printLine(1, output)
+  }
+  
+  injectAnsiPlaceholdersIntoMatcherOutput(output) {
+    
+  }
+  
+  formatTestValue(value) {
+    newValue := value
+    switch {
+      case isObject(value):
+        newValue := Yunit.Util.Print(value)
+      case Yunit.Util.IsFloat(value):
+        newValue := Format("{1:.17g}", value)
+      case Yunit.Util.GetType(value) = "String":
+        ; actual := StrReplace(actual, chr(27), Chr(27) "[90m" "esc" chr(27) "[91m")
+        newValue := """" value """"
+    }
+    return newValue
+  }
+  
+  getMatcherOutputToBe(err) {
+    actual   := err.matcherInfo.actual
+    expected := err.matcherInfo.expected
+    
+    switch {
+      case isObject(actual):
+        actual := "[object]"
+      default:
+        actual := this.formatTestValue(actual)
+    }
+    
+    switch {
+      case isObject(expected):
+        expected := "[object]"
+      default:
+        expected := this.formatTestValue(expected)
+    }
+    
+    formatStr := "Actual:   {1}`nExpected: {2}"
+    return format(formatStr, actual, expected)
+  }
+  
 }

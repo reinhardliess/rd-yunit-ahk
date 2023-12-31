@@ -67,10 +67,9 @@ class Yunit
       {
         if (!this._isTestMethod(k))
           continue
-        if ObjHasKey(cls,"Begin") && IsFunc(cls.Begin)
-          environment.Begin()
-        if ObjHasKey(cls,"beforeEach") && IsFunc(cls.beforeEach)
-          environment.beforeEach()
+        Yunit.executeGlobalHook(cls, "BeforeEachAll", environment)
+        Yunit.executeHook(cls, "Begin", environment)
+        Yunit.executeHook(cls, "BeforeEach", environment)
         result := 0
         Yunit.Util.QPCInterval()
         try
@@ -86,14 +85,12 @@ class Yunit
             result := error
         }
         methodTime_ms := Round(Yunit.Util.QPCInterval())
-        ; OutputDebug % (k ": " methodTime_ms)
         results[k] := result
         ObjDelete(environment, "ExpectedException")
         this.Update(cls.__class, k, results[k], methodTime_ms)
-        if ObjHasKey(cls,"End") && IsFunc(cls.End)
-          environment.End()
-        if ObjHasKey(cls,"afterEach") && IsFunc(cls.afterEach)
-          environment.afterEach()
+        Yunit.executeHook(cls, "End", environment)
+        Yunit.executeHook(cls, "afterEach", environment)
+        Yunit.executeGlobalHook(cls, "AfterEachAll", environment)
       }
       ;category
       else if (IsObject(v) && ObjHasKey(v, "__class")) {
@@ -103,10 +100,36 @@ class Yunit
       } 
     }
   }
+  
+  /**
+  * Execute hook if it exists
+  * @param {string} cls - class
+  * @param {string} method - method to execute
+  * @param {string} instance - instance
+  * @returns {void} 
+  */
+  executeHook(cls, method, instance, params*) {
+    if ObjHasKey(cls, method) && IsFunc(cls[method])
+      instance[method](params*)
+  }
+  
+  /**
+  * Executes global hook if it exists
+  * Global hooks are executed in the top level and all nested classes
+  * @param {string} cls - class object
+  * @param {string} method
+  * @param {string} instance 
+  * @returns {void} 
+  */
+  executeGlobalHook(cls, method, instance) {
+    topLevelClass := StrSplit(cls.__class, ".")[1] 
+    classObj := % %topLevelClass%
+    Yunit.executeHook(classObj, method, classObj, instance)
+  }
 
   /** 
-  * Checks whether BeforeEach/AfterEach and Begin/End are used in a mutually
-  * exclusive way 
+  * Checks whether BeforeEach/AfterEach and Begin/End are used in a
+  * mutually exclusive way 
   * @param {string} classObj - class object to test 
   * @returns {boolean} 
   */
@@ -122,7 +145,7 @@ class Yunit
   * @returns {boolean} 
   */
   _isTestMethod(name) {
-    basicRegex := "i)(^begin$|^end$|^beforeEach$|^afterEach$|^__New$|^__Delete${1})"
+    basicRegex := "i)(^begin$|^end$|^beforeEach$|^beforeEachAll$|^afterEach$|^afterEachAll$|^__New$|^__Delete${1})"
     regex := format(basicRegex, Yunit.Options.EnablePrivateProps ? "|^_" : "")
 		return !!!RegExMatch(name, regex)
 	}
