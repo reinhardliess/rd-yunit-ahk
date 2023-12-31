@@ -74,6 +74,7 @@ test_Yunit() {
   assert.true(Yunit._isTestCategory("MyClass._Multiplication"))
 }
 
+;; TODO: use filterProps(arr, props*) {} instead
 filterOutputInfo(listInfo) {
   newList := []
   for _, value in listInfo {
@@ -94,7 +95,7 @@ test_Yunit_TestClass() {
   
   assert.label("should retrieve timing information for tests")
   timeType := Yunit.Util.GetType(test_listOutputInfo[1].methodTime_ms)
-  assert.test(timeType, "Float")
+  assert.test(timeType, "Integer")
   
   assert.label("should execute all test methods")
   actual := filterOutputInfo(test_listOutputInfo)

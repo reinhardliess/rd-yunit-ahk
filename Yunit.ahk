@@ -85,7 +85,7 @@ class Yunit
             || !this.CompareValues(environment.ExpectedException, error)
             result := error
         }
-        methodTime_ms := Yunit.Util.QPCInterval()
+        methodTime_ms := Round(Yunit.Util.QPCInterval())
         ; OutputDebug % (k ": " methodTime_ms)
         results[k] := result
         ObjDelete(environment, "ExpectedException")
