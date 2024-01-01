@@ -188,63 +188,83 @@ Class ConsoleOutputTest {
   }
   
   ;; Error details
-  print_categories_and_testname_as_breadcrumbs_for_error() {
-    outputInfo := ConsoleOutputTest._runTest("Category1.sub1", "test3", "def", "ghi", 5)
-    expected := "* Category1 > sub1 > test3`n"
-    
-    this.m.printErrorPath(outputInfo)
-    
-    Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
-  }
-  
-  print_expect_header() {
-    err := ConsoleOutputTest._runMatcher("toEqual", 5, 6)
-    expected := "  expect(actual).toEqual(expected)`n"
-    
-    this.m.printErrorHeader(err)
-    
-    Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
-  }
-
-  print_expect_header_with_message() {
-    err := ConsoleOutputTest._runMatcher("toEqual", 5, 6)
-    err.matcherInfo.message := "error message"
-    expected := "  expect(actual).toEqual(expected)`n`n  error message`n"
-    
-    this.m.printErrorHeader(err)
-    
-    Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
-  }
-  
-  print_file_path_error_info() {
-    err := ConsoleOutputTest._runMatcher("toEqual", 5, 6)
-    err.file := "d:\src\test.ahk"
-    err.line := 25
-
-    this.m.printErrorFilePath(err)
-    
-    expected := "  (d:\src\test.ahk:25)`n"
-    Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
-  }
-  
-  update_summary_data_for_tests() {
-    tests := []
-    Yunit.SetOptions({TimingWarningThreshold: 20})
-        
-    tests.push(ConsoleOutputTest._runTest("Category1", "test1", "abc", "abc", 5))
-    tests.push(ConsoleOutputTest._runTest("Category1", "test2", "def", "def", 21))
-    tests.push(ConsoleOutputTest._runTest("Category1", "test3", "def", "ghi", 5))
-    
-    for index, outputInfo in tests {
-      this.m.Update(outputInfo)
+  Class Print_error_details {
+    print_categories_and_testname_as_breadcrumbs_for_error() {
+      outputInfo := ConsoleOutputTest._runTest("Category1.sub1", "test3", "def", "ghi", 5)
+      expected := "* Category1 > sub1 > test3`n"
+      
+      this.m.printErrorPath(outputInfo)
+      
+      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
     }
     
-    expectedSummary := { passed: {count: 2, timeTaken: 26}
-    , failed: {count: 1}
-    , slowTests: {count: 1, timeTaken: 21}
-    , overall: {count: 3} }
-    Yunit.expect(this.m.test_thisValue.tests).toEqual(tests)
-    Yunit.expect(this.m.test_thisValue.summary).toEqual(expectedSummary)
+    print_expect_header() {
+      err := ConsoleOutputTest._runMatcher("toEqual", 5, 6)
+      expected := "  expect(actual).toEqual(expected)`n"
+      
+      this.m.printErrorHeader(err)
+      
+      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+    }
+  
+    print_expect_header_with_message() {
+      err := ConsoleOutputTest._runMatcher("toEqual", 5, 6)
+      err.matcherInfo.message := "error message"
+      expected := "  expect(actual).toEqual(expected)`n`n  error message`n"
+      
+      this.m.printErrorHeader(err)
+      
+      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+    }
+    
+    print_file_path_error_info() {
+      err := ConsoleOutputTest._runMatcher("toEqual", 5, 6)
+      err.file := "d:\src\test.ahk"
+      err.line := 25
+  
+      this.m.printErrorFilePath(err)
+      
+      expected := "  (d:\src\test.ahk:25)`n"
+      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+    }
+    
+    update_summary_data_for_tests() {
+      tests := []
+      Yunit.SetOptions({TimingWarningThreshold: 20})
+          
+      tests.push(ConsoleOutputTest._runTest("Category1", "test1", "abc", "abc", 5))
+      tests.push(ConsoleOutputTest._runTest("Category1", "test2", "def", "def", 21))
+      tests.push(ConsoleOutputTest._runTest("Category1", "test3", "def", "ghi", 5))
+      
+      for index, outputInfo in tests {
+        this.m.Update(outputInfo)
+      }
+      
+      expectedSummary := { passed: {count: 2, timeTaken: 26}
+      , failed: {count: 1}
+      , slowTests: {count: 1, timeTaken: 21}
+      , overall: {count: 3} }
+      Yunit.expect(this.m.test_thisValue.tests).toEqual(tests)
+      Yunit.expect(this.m.test_thisValue.summary).toEqual(expectedSummary)
+    }
+    
+    print_test_summary() {
+      this.m.summary := { passed: {count: 2, timeTaken: 26}
+      , failed: { count: 1}
+      , slowTests: { count: 1, timeTaken: 21} }
+      
+      printedSummary := "
+      (
+  2 passing (26 ms)
+  1 failing
+  1 slow test (21 ms)`n
+      )"
+        
+      this.m.printTestSummary()
+      
+      Yunit.expect(this.m.test_PrintOutput).toEqual(printedSummary)
+    }
+  
   }
 
   Class Matchers {

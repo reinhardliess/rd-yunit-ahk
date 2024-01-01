@@ -256,6 +256,31 @@ Class ConsoleOutputBase {
     this.printLine(1, "{format.textDimmed}({1}:{2})", err.file, err.line)
   }
   
+  printTestSummary() {
+    ; if (this.summary.failed.count > 0) {
+    ;   this.printLine()
+    ; }
+    passed := this.summary.passed
+    failed := this.summary.failed
+    slowTests := this.summary.slowTests
+    
+    if (passed.count > 0) {
+      statusPassed := "{format.ok}{1:3d} passing ({2:d} ms)"
+      this.printLine(0, statusPassed, passed.count, passed.timeTaken)
+    }
+    if (failed.count > 0) {
+      statusFailed := "{format.error}{1:3d} failing"
+      this.printLine(0, statusFailed, failed.count)
+    }
+    if (slowTests.count > 0) {
+      statusSlow := "{format.slowTest}{1:3d} slow {2} ({3:d} ms)"
+      this.printLine(0, statusSlow
+        , slowTests.count
+        , slowTests.count > 1 ? "tests" : "test"
+        , slowTests.timeTaken)
+    }
+  }
+  
   /**
   * Inserts Ansi placeholders into actual/expected output
   * @param {string} output
