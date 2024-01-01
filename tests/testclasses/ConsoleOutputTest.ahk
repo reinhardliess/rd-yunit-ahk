@@ -220,7 +220,6 @@ Class ConsoleOutputTest {
   }
   
   inject_ansi_placeholders_into_matcher_output() {
-    m := this.module
     matcherOutput := "
     (LTrim
     Actual:   5
@@ -232,7 +231,7 @@ Class ConsoleOutputTest {
     {format.text}Expected: {format.ok}6
     )"
     
-    output := m.injectAnsiPlaceholdersIntoMatcherOutput(matcherOutput)
+    output := this.m.injectAnsiPlaceholdersIntoMatcherOutput(matcherOutput)
     
     Yunit.expect(output).toEqual(expected)
   
