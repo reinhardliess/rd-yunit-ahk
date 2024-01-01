@@ -243,7 +243,7 @@ Class ConsoleOutputBase {
   printErrorDetails(err) {
     matcher := "getMatcherOutput" err.matcherInfo.matcherType
     output := this[matcher](err)
-    ; output := this.injectAnsiPlaceholdersIntoMatcherOutput(output)
+    output := this.injectAnsiPlaceholdersIntoMatcherOutput(output)
     this.printLine(1, output)
   }
   

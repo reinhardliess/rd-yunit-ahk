@@ -114,7 +114,24 @@ Class ConsoleOutputTest {
       
       Yunit.expect(this.m.test_printOutput).toEqual(formattedString)
     }
+  
+    inject_ansi_placeholders_into_matcher_output() {
+      matcherOutput := "
+      (LTrim
+      Actual:   5
+      Expected: 6
+      )"
+      expected := "
+      (LTrim
+      {format.text}Actual:   {format.error}5
+      {format.text}Expected: {format.ok}6
+      )"
       
+      output := this.m.injectAnsiPlaceholdersIntoMatcherOutput(matcherOutput)
+      
+      Yunit.expect(output).toEqual(expected)
+    
+    }
   }
   
   ;; Print test results
