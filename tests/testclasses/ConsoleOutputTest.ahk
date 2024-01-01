@@ -187,26 +187,6 @@ Class ConsoleOutputTest {
   
   }
   
-  update_summary_data_for_tests() {
-    tests := []
-    Yunit.SetOptions({TimingWarningThreshold: 20})
-        
-    tests.push(ConsoleOutputTest._runTest("Category1", "test1", "abc", "abc", 5))
-    tests.push(ConsoleOutputTest._runTest("Category1", "test2", "def", "def", 21))
-    tests.push(ConsoleOutputTest._runTest("Category1", "test3", "def", "ghi", 5))
-    
-    for index, outputInfo in tests {
-      this.m.Update(outputInfo)
-    }
-    
-    expectedSummary := { passed: {count: 2, timeTaken: 26}
-    , failed: {count: 1}
-    , slowTests: {count: 1, timeTaken: 21}
-    , overall: {count: 3} }
-    Yunit.expect(this.m.test_thisValue.tests).toEqual(tests)
-    Yunit.expect(this.m.test_thisValue.summary).toEqual(expectedSummary)
-  }
-  
   ;; Error details
   print_categories_and_testname_as_breadcrumbs_for_error() {
     outputInfo := ConsoleOutputTest._runTest("Category1.sub1", "test3", "def", "ghi", 5)
@@ -236,24 +216,37 @@ Class ConsoleOutputTest {
     Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
   }
   
-  inject_ansi_placeholders_into_matcher_output() {
-    matcherOutput := "
-    (LTrim
-    Actual:   5
-    Expected: 6
-    )"
-    expected := "
-    (LTrim
-    {format.text}Actual:   {format.error}5
-    {format.text}Expected: {format.ok}6
-    )"
+  print_file_path_error_info() {
+    err := ConsoleOutputTest._runMatcher("toEqual", 5, 6)
+    err.file := "d:\src\test.ahk"
+    err.line := 25
+
+    this.m.printErrorFilePath(err)
     
-    output := this.m.injectAnsiPlaceholdersIntoMatcherOutput(matcherOutput)
-    
-    Yunit.expect(output).toEqual(expected)
-  
+    expected := "  (d:\src\test.ahk:25)`n"
+    Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
   }
   
+  update_summary_data_for_tests() {
+    tests := []
+    Yunit.SetOptions({TimingWarningThreshold: 20})
+        
+    tests.push(ConsoleOutputTest._runTest("Category1", "test1", "abc", "abc", 5))
+    tests.push(ConsoleOutputTest._runTest("Category1", "test2", "def", "def", 21))
+    tests.push(ConsoleOutputTest._runTest("Category1", "test3", "def", "ghi", 5))
+    
+    for index, outputInfo in tests {
+      this.m.Update(outputInfo)
+    }
+    
+    expectedSummary := { passed: {count: 2, timeTaken: 26}
+    , failed: {count: 1}
+    , slowTests: {count: 1, timeTaken: 21}
+    , overall: {count: 3} }
+    Yunit.expect(this.m.test_thisValue.tests).toEqual(tests)
+    Yunit.expect(this.m.test_thisValue.summary).toEqual(expectedSummary)
+  }
+
   Class Matchers {
     Class ToBe {
       get_error_details_type_integer() {
@@ -340,6 +333,7 @@ Class ConsoleOutputTest {
           
     
     }
+    
     Class toBeCloseTo {
       
       get_error_details_precision_5_digits() {

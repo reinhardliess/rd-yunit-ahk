@@ -248,6 +248,15 @@ Class ConsoleOutputBase {
   }
   
   /**
+  * Prints clickable file name in error output
+  * @param {string} err - error object
+  * @returns {void} 
+  */
+  printErrorFilePath(err) {
+    this.printLine(1, "{format.textDimmed}({1}:{2})", err.file, err.line)
+  }
+  
+  /**
   * Inserts Ansi placeholders into actual/expected output
   * @param {string} output
   * @returns {string} 
@@ -259,6 +268,11 @@ Class ConsoleOutputBase {
     return text
   }
   
+  /**
+  * Formats test value for output in actual/expected block
+  * @param {string} value
+  * @returns {string} 
+  */
   formatTestValue(value) {
     newValue := value
     switch {
