@@ -279,6 +279,50 @@ Class ConsoleOutputTest {
       }
           
     }
+    
+    Class ToEqual {
+      
+      get_error_details_type_integer() {
+        err := ConsoleOutputTest._runMatcher("toEqual", 5, 6)
+        expected := "
+        (LTrim
+        Actual:   5
+        Expected: 6
+        )"
+        
+        output := this.m.getMatcherOutputToEqual(err)
+        
+        Yunit.expect(output).toEqual(expected)
+      }
+      
+      get_error_details_type_string() {
+        err := ConsoleOutputTest._runMatcher("toEqual", "Zoi", "Zoe")
+        expected =
+        (Ltrim
+        Actual:   "Zoi"
+        Expected: "Zoe"
+        )
+        
+        output := this.m.getMatcherOutputToEqual(err)
+        
+        Yunit.expect(output).toEqual(expected)
+      }
+      
+      get_error_details_type_object() {
+        err := ConsoleOutputTest._runMatcher("toEqual", {a:1}, {a:2})
+        expected =
+        (Ltrim
+        Actual:   "a":1
+        Expected: "a":2
+        )
+        
+        output := this.m.getMatcherOutputToEqual(err)
+        
+        Yunit.expect(output).toEqual(expected)
+      }
+          
+    
+    }
   }
   
 }

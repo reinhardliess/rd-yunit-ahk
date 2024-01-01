@@ -431,18 +431,18 @@ class Yunit
     * @returns {matcherInfo} 
     */
     ToEqual(actual, expected) {
-      if (Yunit.Util.IsNumber(actual) 
-        && Yunit.Util.IsNumber(expected)) {
+      if (!isObject(expected)) {
         return this.ToBe(actual, expected)
       }
+      info := {actual: actual, expected: expected}
       if (isObject(actual)) {
         actual := Yunit.Util.Print(actual)
       }
       if (isObject(expected)) {
         expected := Yunit.Util.Print(expected)
       }
-      ; OutputDebug, % actual
-      return this.ToBe(actual, expected)
+      info.hasPassedTest := (actual == expected) ? true : false 
+      return info
     }
     
     /**

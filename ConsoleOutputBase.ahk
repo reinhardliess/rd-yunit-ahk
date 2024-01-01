@@ -295,4 +295,15 @@ Class ConsoleOutputBase {
     return format(formatStr, actual, expected)
   }
   
+  getMatcherOutputToEqual(err) {
+    actual   := err.matcherInfo.actual
+    expected := err.matcherInfo.expected
+    
+    actual := this.formatTestValue(actual)
+    expected := this.formatTestValue(expected)
+    
+    formatStr := "Actual:   {1}`nExpected: {2}"
+    return format(formatStr, actual, expected)
+  }
+  
 }
