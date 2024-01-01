@@ -453,9 +453,12 @@ class Yunit
     * @returns {matcherInfo} 
     */
     ToBeCloseTo(actual, expected, digits := 15) {
-      actual := Round(actual, digits)
-      expected := Round(expected, digits)
-      return this.ToBe(actual, expected)
+      info := {actual: { value: actual, difference: Abs(expected - actual)}
+        , expected: { value: expected, digits: digits, difference: 10 ** -digits / 2}}
+      info.hasPassedTest := info.actual.difference < info.expected.difference
+        ? true
+        : false
+      return info
     }
   }
   

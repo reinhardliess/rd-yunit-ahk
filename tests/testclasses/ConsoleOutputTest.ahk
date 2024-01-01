@@ -323,6 +323,28 @@ Class ConsoleOutputTest {
           
     
     }
+    Class toBeCloseTo {
+      
+      get_error_details_precision_5_digits() {
+        err := ConsoleOutputTest._runMatcher("toBeCloseTo", 0.1 + 0.2, 0.29, 5)
+        
+        expected := "
+        (Ltrim
+        Actual:   0.30000000000000004
+        Expected: 0.28999999999999998
+    
+        Actual difference:     0.010000000000000064 
+        Expected difference: < 0.000005
+        Expected precision:    5
+        )"
+        
+        output := this.m.getMatcherOutputToBeCloseTo(err)
+        
+        Yunit.expect(output).toEqual(expected)
+        
+      }
+    }
+    
   }
   
 }

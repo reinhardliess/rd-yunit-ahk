@@ -306,4 +306,28 @@ Class ConsoleOutputBase {
     return format(formatStr, actual, expected)
   }
   
+  getMatcherOutputToBeCloseTo(err) {
+    formatStr :="
+    (Ltrim
+    Actual:   {1}
+    Expected: {2}
+    
+    Actual difference:     {3}
+    Expected difference: < {4:.$$f}
+    Expected precision:    {5}
+    )"
+    
+    expected  := err.matcherInfo.expected
+    actual    := err.matcherInfo.actual
+    formatStr := StrReplace(formatStr, "$$", expected.digits + 1)
+    
+    output := format(formatStr
+      , this.formatTestValue(actual.value)
+      , this.formatTestValue(expected.value)
+      , this.formatTestValue(actual.difference)
+      , expected.difference
+      , expected.digits)
+    
+    return output
+  }
 }
