@@ -2,9 +2,9 @@ Class Test_ConsoleOutput extends ConsoleOutputBase {
 
   test_printOutput := ""
   test_thisValue := {}
-  useAnsiEscapes := false
+  test_useAnsiEscapes := false
   
-    Update(objOutputInfo) {
+  Update(objOutputInfo) {
     base.Update(objOutputInfo)
     this.test_thisValue := {tests: (this.tests), summary: (this.summary)}  
   }
@@ -20,15 +20,12 @@ Class Test_ConsoleOutput extends ConsoleOutputBase {
   }
   
   /**
-  * Pre-processes text
-  * Must be used to add/remove Ansi escapes
+  * Should return true if Ansi escapes should be used
   * @override
-  * @param {string} text - text to pre-process 
-  * @returns {void} 
+  * @returns {boolean} 
   */
-  printPreProcess(text) {
-    text := this.convertAnsiPlaceholders(text, this.useAnsiEscapes)
-    return text
+  useAnsiEscapes() {
+    return this.test_useAnsiEscapes
   }
 
 }

@@ -67,7 +67,7 @@ Class ConsoleOutputBase {
     }
   }
   
-    /**
+  /**
   * Prints new categories with indentation
   * @param {string} newCategories
   * @returns {void} 
@@ -115,15 +115,25 @@ Class ConsoleOutputBase {
 
   /**
   * Pre-processes text
-  * Must be used to add/remove Ansi escapes
-  * @abstract
+  * Adds/removes Ansi escapes
   * @param {string} text - text to pre-process 
-  * @returns {void} 
+  * @returns {string} 
   */
   printPreProcess(text) {
-    
+    useEscapes := this.useAnsiEscapes()
+    return this.convertAnsiPlaceholders(text, useEscapes)
   }
 
+  
+  /**
+  * Should return true if Ansi escapes should be used
+  * @abstract
+  * @returns {boolean} 
+  */
+  useAnsiEscapes() {
+    
+  }
+  
   /**
   * Removes or replaces Ansi escape placeholders
   * @param {string} text - text to process

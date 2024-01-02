@@ -96,7 +96,7 @@ Class ConsoleOutputTest {
     }
   
     replace_ansi_placeholders_in_formatString() {
-      this.m.useAnsiEscapes := true
+      this.m.test_useAnsiEscapes := true
       esc := chr(27)
       formattedString := esc "[0;37mTest data" esc "[0m"
       
@@ -106,7 +106,7 @@ Class ConsoleOutputTest {
     }
     
     perform_an_ansi_reset_before_printing_an_lf() {
-      this.m.useAnsiEscapes := true
+      this.m.test_useAnsiEscapes := true
       esc := chr(27)
       formattedString := esc "[0;37mTest data" esc "[0m`n"
       

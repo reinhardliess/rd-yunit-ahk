@@ -19,16 +19,13 @@ class YunitStdOut extends ConsoleOutputBase {
   printOutput(text) {
     FileAppend, %text%, *, UTF-8
   }
-  
+
   /**
-  * Pre-processes text
-  * Must be used to add/remove Ansi escapes
+  * Should return true if Ansi escapes should be used
   * @override
-  * @param {string} text - text to pre-process 
-  * @returns {void} 
+  * @returns {boolean} 
   */
-  printPreProcess(text) {
-    text := this.convertAnsiPlaceholders(text, true)
-    return text
+  useAnsiEscapes() {
+    return true
   }
 }
