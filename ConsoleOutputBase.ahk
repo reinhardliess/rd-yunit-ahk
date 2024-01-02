@@ -39,47 +39,52 @@ Class ConsoleOutputBase {
         }
     }
   }
+  
+  /**
+  * Tests whether a variable is an error object
+  * @param {any} var - variable to test 
+  * @returns {boolean} 
+  */
+  isError(var) {
+    if (IsObject(var) 
+      && var.hasKey("message")
+      && var.hasKey("what")
+      && var.hasKey("file")
+      && var.hasKey("line")) {
+      return true
+    }
+    return false
+  }
 
   /**
-  * Prints detailed info for each error
+  * Prints test results with categories
   * @returns {void} 
   */
-  printErrorOverview() {
-    errorCount := 0
+  printTestResults() {
     for testNumber, test in this.tests {
-      if (!this.isError(test.result)) {
-        continue
-      }
-      errorCount++
-      if (errorCount > 1) {
-        this.printLine()
-      }
-      this.printErrorPath(test)
-      this.printLine()
-      switch Yunit.Util.GetType(test.result) {
-        case "Yunit.AssertionError":
-          this.printErrorHeader(test.result)
-          this.printLine()
-          this.printErrorDetails(test.result)
-        default:
-          this.printLine(1, "{format.text}{1}", test.result.message )
-      }
-      this.printLine()
-      this.printErrorFilePath(test.result)
+      this.printNewCategories(test.category)
+      this.printTestInfo(test)
     }
   }
   
-  /**
-  * converts indentation level to # of spaces
-  * @param {number} level - indentation level
-  * @returns {string}
+    /**
+  * Prints new categories with indentation
+  * @param {string} newCategories
+  * @returns {void} 
   */
-  indentationToSpaces(level) {
-    indentInSpaces := ""
-    Loop % (level * this.defaults.indent) {
-      indentInSpaces .= A_Space
+  printNewCategories(newCategories) {
+    if (this.categories.hasKey(newCategories)) {
+      return
     }
-    return indentInSpaces
+    splitCategories := StrSplit(newCategories, ".")
+    category := ""
+    for index, value in splitCategories {
+      category .= index == 1 ? value : "." value
+      if (!this.categories.hasKey(category)) {
+        this.categories[category] := index
+        this.printLine(index - 1, "{format.text}{1}", value)
+      }
+    }
   }
   
   /**
@@ -107,7 +112,7 @@ Class ConsoleOutputBase {
     newText := RegexReplace(text, "`am)^.", replaceStr)
     this.printOutput(newText)
   }
-  
+
   /**
   * Pre-processes text
   * Must be used to add/remove Ansi escapes
@@ -118,16 +123,7 @@ Class ConsoleOutputBase {
   printPreProcess(text) {
     
   }
-  
-  /**
-  * Prints text to output
-  * @abstract
-  * @param {string} text - text to print 
-  * @returns {void} 
-  */
-  printOutput(text) {
-  }
-  
+
   /**
   * Removes or replaces Ansi escape placeholders
   * @param {string} text - text to process
@@ -163,27 +159,29 @@ Class ConsoleOutputBase {
     out := format("{1}[{2};{3}m", chr(27), this.ansiEscapes.reset, ansiString)
     return out
   }
-  
+
   /**
-  * Prints new categories with indentation
-  * @param {string} newCategories
-  * @returns {void} 
+  * converts indentation level to # of spaces
+  * @param {number} level - indentation level
+  * @returns {string}
   */
-  printNewCategories(newCategories) {
-    if (this.categories.hasKey(newCategories)) {
-      return
+  indentationToSpaces(level) {
+    indentInSpaces := ""
+    Loop % (level * this.defaults.indent) {
+      indentInSpaces .= A_Space
     }
-    splitCategories := StrSplit(newCategories, ".")
-    category := ""
-    for index, value in splitCategories {
-      category .= index == 1 ? value : "." value
-      if (!this.categories.hasKey(category)) {
-        this.categories[category] := index
-        this.printLine(index - 1, "{format.text}{1}", value)
-      }
-    }
+    return indentInSpaces
   }
   
+  /**
+  * Prints text to output
+  * @abstract
+  * @param {string} text - text to print 
+  * @returns {void} 
+  */
+  printOutput(text) {
+  }
+
   /**
   * Prints test info (one line)
   * @param {OutputInfo} outputInfo 
@@ -213,32 +211,34 @@ Class ConsoleOutputBase {
   }
   
   /**
-  * Tests whether a variable is an error object
-  * @param {any} var - variable to test 
-  * @returns {boolean} 
-  */
-  isError(var) {
-    if (IsObject(var) 
-      && var.hasKey("message")
-      && var.hasKey("what")
-      && var.hasKey("file")
-      && var.hasKey("line")) {
-      return true
-    }
-    return false
-  }
-  
-  /**
-  * Prints test results with categories
+  * Prints detailed info for each error
   * @returns {void} 
   */
-  printTestResults() {
+  printErrorOverview() {
+    errorCount := 0
     for testNumber, test in this.tests {
-      this.printNewCategories(test.category)
-      this.printTestInfo(test)
+      if (!this.isError(test.result)) {
+        continue
+      }
+      errorCount++
+      if (errorCount > 1) {
+        this.printLine()
+      }
+      this.printErrorPath(test)
+      this.printLine()
+      switch Yunit.Util.GetType(test.result) {
+        case "Yunit.AssertionError":
+          this.printErrorHeader(test.result)
+          this.printLine()
+          this.printErrorDetails(test.result)
+        default:
+          this.printLine(1, "{format.text}{1}", test.result.message )
+      }
+      this.printLine()
+      this.printErrorFilePath(test.result)
     }
   }
-  
+
   /**
   * Prints categories and test name as breadcrumbs
   * @param {outputInfo} outputInfo
@@ -276,71 +276,6 @@ Class ConsoleOutputBase {
     this.printLine(1, output)
   }
   
-  /**
-  * Prints clickable file name in error output
-  * @param {string} err - error object
-  * @returns {void} 
-  */
-  printErrorFilePath(err) {
-    this.printLine(1, "{format.textDimmed}({1}:{2})", err.file, err.line)
-  }
-  
-  printTestSummary() {
-    ; if (this.summary.failed.count > 0) {
-    ;   this.printLine()
-    ; }
-    passed := this.summary.passed
-    failed := this.summary.failed
-    slowTests := this.summary.slowTests
-    
-    if (passed.count > 0) {
-      statusPassed := "{format.ok}{1:3d} passing ({2:d} ms)"
-      this.printLine(0, statusPassed, passed.count, passed.timeTaken)
-    }
-    if (failed.count > 0) {
-      statusFailed := "{format.error}{1:3d} failing"
-      this.printLine(0, statusFailed, failed.count)
-    }
-    if (slowTests.count > 0) {
-      statusSlow := "{format.slowTest}{1:3d} slow {2} ({3:d} ms)"
-      this.printLine(0, statusSlow
-        , slowTests.count
-        , slowTests.count > 1 ? "tests" : "test"
-        , slowTests.timeTaken)
-    }
-  }
-  
-  /**
-  * Inserts Ansi placeholders into actual/expected output
-  * @param {string} output
-  * @returns {string} 
-  */
-  injectAnsiPlaceholdersIntoMatcherOutput(output) {
-    text := RegexReplace(output, "`aim)(actual|expected).*:\s+", "{format.text}$0")
-    text := RegexReplace(text, "`aim)^{format\.text}+actual.*:\s+", "$0{format.error}")
-    text := RegexReplace(text, "`aim)^{format\.text}+expected.*:\s+", "$0{format.ok}")
-    return text
-  }
-  
-  /**
-  * Formats test value for output in actual/expected block
-  * @param {string} value
-  * @returns {string} 
-  */
-  formatTestValue(value) {
-    newValue := value
-    switch {
-      case isObject(value):
-        newValue := Yunit.Util.Print(value)
-      case Yunit.Util.IsFloat(value):
-        newValue := Format("{1:.17g}", value)
-      case Yunit.Util.GetType(value) = "String":
-        ; actual := StrReplace(actual, chr(27), Chr(27) "[90m" "esc" chr(27) "[91m")
-        newValue := """" value """"
-    }
-    return newValue
-  }
-  
   getMatcherOutputToBe(err) {
     actual   := err.matcherInfo.actual
     expected := err.matcherInfo.expected
@@ -361,6 +296,25 @@ Class ConsoleOutputBase {
     
     formatStr := "Actual:   {1}`nExpected: {2}"
     return format(formatStr, actual, expected)
+  }
+  
+  /**
+  * Formats test value for output in actual/expected block
+  * @param {string} value
+  * @returns {string} 
+  */
+  formatTestValue(value) {
+    newValue := value
+    switch {
+      case isObject(value):
+        newValue := Yunit.Util.Print(value)
+      case Yunit.Util.IsFloat(value):
+        newValue := Format("{1:.17g}", value)
+      case Yunit.Util.GetType(value) = "String":
+        ; actual := StrReplace(actual, chr(27), Chr(27) "[90m" "esc" chr(27) "[91m")
+        newValue := """" value """"
+    }
+    return newValue
   }
   
   getMatcherOutputToEqual(err) {
@@ -398,4 +352,48 @@ Class ConsoleOutputBase {
     
     return output
   }
+  
+  /**
+  * Inserts Ansi placeholders into actual/expected output
+  * @param {string} output
+  * @returns {string} 
+  */
+  injectAnsiPlaceholdersIntoMatcherOutput(output) {
+    text := RegexReplace(output, "`aim)(actual|expected).*:\s+", "{format.text}$0")
+    text := RegexReplace(text, "`aim)^{format\.text}+actual.*:\s+", "$0{format.error}")
+    text := RegexReplace(text, "`aim)^{format\.text}+expected.*:\s+", "$0{format.ok}")
+    return text
+  }
+  
+  /**
+  * Prints clickable file name in error output
+  * @param {string} err - error object
+  * @returns {void} 
+  */
+  printErrorFilePath(err) {
+    this.printLine(1, "{format.textDimmed}({1}:{2})", err.file, err.line)
+  }
+  
+  printTestSummary() {
+    passed := this.summary.passed
+    failed := this.summary.failed
+    slowTests := this.summary.slowTests
+    
+    if (passed.count > 0) {
+      statusPassed := "{format.ok}{1:3d} passing ({2:d} ms)"
+      this.printLine(0, statusPassed, passed.count, passed.timeTaken)
+    }
+    if (failed.count > 0) {
+      statusFailed := "{format.error}{1:3d} failing"
+      this.printLine(0, statusFailed, failed.count)
+    }
+    if (slowTests.count > 0) {
+      statusSlow := "{format.slowTest}{1:3d} slow {2} ({3:d} ms)"
+      this.printLine(0, statusSlow
+        , slowTests.count
+        , slowTests.count > 1 ? "tests" : "test"
+        , slowTests.timeTaken)
+    }
+  }
+  
 }
