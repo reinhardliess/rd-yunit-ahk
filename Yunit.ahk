@@ -3,7 +3,9 @@
 ;; Class Yunit
 class Yunit
 {
-  static options := {EnablePrivateProps: true, TimingWarningThreshold: 100}
+  static options := {EnablePrivateProps: true
+    , TimingWarningThreshold: 100
+    , OutputRenderWhiteSpace: false}
   
   class Tester extends Yunit
   {

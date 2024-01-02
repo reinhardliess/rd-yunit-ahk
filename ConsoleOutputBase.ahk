@@ -284,26 +284,35 @@ Class ConsoleOutputBase {
       case isObject(actual):
         actual := "[object]"
       default:
-        actual := this.formatTestValue(actual)
+        actual := this.formatActualTestValue(actual)
     }
     
     switch {
       case isObject(expected):
         expected := "[object]"
       default:
-        expected := this.formatTestValue(expected)
+        expected := this.formatExpectedTestValue(expected)
     }
     
     formatStr := "Actual:   {1}`nExpected: {2}"
     return format(formatStr, actual, expected)
   }
   
+  formatActualTestValue(value) {
+    return this.formatTestValue("actual", value)  
+  }
+  
+  formatExpectedTestValue(value) {
+    return this.formatTestValue("expected", value)  
+  }
+  
   /**
   * Formats test value for output in actual/expected block
+  * @param {string} type - "actual" or "expected"
   * @param {string} value
   * @returns {string} 
   */
-  formatTestValue(value) {
+  formatTestValue(type, value) {
     newValue := value
     switch {
       case isObject(value):
@@ -311,18 +320,36 @@ Class ConsoleOutputBase {
       case Yunit.Util.IsFloat(value):
         newValue := Format("{1:.17g}", value)
       case Yunit.Util.GetType(value) = "String":
-        ; actual := StrReplace(actual, chr(27), Chr(27) "[90m" "esc" chr(27) "[91m")
-        newValue := """" value """"
+        textFormat := type = "actual" ? "{format.error}" : "{format.ok}"
+        newValue := this.renderWhiteSpace(value, textFormat)
+        newValue := """" newValue """"
     }
     return newValue
   }
   
+  /**
+  * Renders white space characters
+  * @param {string} string
+  * @param {string} textFormat - Ansi placeholder 
+  * @returns {string} 
+  */
+  renderWhiteSpace(string, textFormat) {
+    if (!Yunit.options.outputRenderWhiteSpace) {
+      return string
+    }
+    buffer := StrReplace(string, "`r`n", "{format.textDimmed}``r``n" textFormat)
+    buffer := StrReplace(buffer, "`n", "{format.textDimmed}``n" textFormat)
+    buffer := StrReplace(buffer, chr(27), "{format.textDimmed}``e" textFormat)
+    
+    return buffer
+  }
+
   getMatcherOutputToEqual(err) {
     actual   := err.matcherInfo.actual
     expected := err.matcherInfo.expected
     
-    actual := this.formatTestValue(actual)
-    expected := this.formatTestValue(expected)
+    actual := this.formatActualTestValue(actual)
+    expected := this.formatExpectedTestValue(expected)
     
     formatStr := "Actual:   {1}`nExpected: {2}"
     return format(formatStr, actual, expected)
@@ -344,9 +371,9 @@ Class ConsoleOutputBase {
     formatStr := StrReplace(formatStr, "$$", expected.digits + 1)
     
     output := format(formatStr
-      , this.formatTestValue(actual.value)
-      , this.formatTestValue(expected.value)
-      , this.formatTestValue(actual.difference)
+      , this.formatActualTestValue(actual.value)
+      , this.formatExpectedTestValue(expected.value)
+      , this.formatActualTestValue(actual.difference)
       , expected.difference
       , expected.digits)
     

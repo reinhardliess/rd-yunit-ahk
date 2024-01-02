@@ -266,8 +266,36 @@ Class ConsoleOutputTest {
     }
   
   }
-  ;; ToBe
+  ;; Matchers
   Class Matchers {
+    
+    beforeEach() {
+      this.oldRenderWhiteSpace := Yunit.options.outputRenderWhitespace 
+      Yunit.options.outputRenderWhitespace := true
+    }
+    
+    afterEach() {
+      Yunit.options.outputRenderWhitespace := this.oldRenderWhiteSpace 
+    }
+    
+    render_linefeeds_in_strings_if_option_set() {
+      
+      lineLf := this.m.formatActualTestValue("Hello World!`nHow are you?")
+      lineCrlf := this.m.formatActualTestValue("Hello World!`r`nHow are you?")
+      
+      Yunit.expect(lineLf).toBe("""Hello World!{format.textDimmed}``n{format.error}How are you?""")
+      Yunit.expect(lineCrlf).toBe("""Hello World!{format.textDimmed}``r``n{format.error}How are you?""")
+    }
+    
+    render_esc_in_strings_if_option_set() {
+      
+      lineWithEsc := this.m.formatActualTestValue(chr(27) "[95m" "Hello World!")
+      
+      expected := format("{1}{format.textDimmed}``e{format.error}[95mHello World!{1}", chr(34), chr(27))
+      Yunit.expect(lineWithEsc).toBe(expected)
+    }
+    
+    ;; toBe
     Class ToBe {
       get_error_details_type_integer() {
         err := ConsoleOutputTest._runMatcher("toBe", 5, 6)
