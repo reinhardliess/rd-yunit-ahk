@@ -41,6 +41,35 @@ Class ConsoleOutputBase {
   }
 
   /**
+  * Prints detailed info for each error
+  * @returns {void} 
+  */
+  printErrorOverview() {
+    errorCount := 0
+    for testNumber, test in this.tests {
+      if (!this.isError(test.result)) {
+        continue
+      }
+      errorCount++
+      if (errorCount > 1) {
+        this.printLine()
+      }
+      this.printErrorPath(test)
+      this.printLine()
+      switch Yunit.Util.GetType(test.result) {
+        case "Yunit.AssertionError":
+          this.printErrorHeader(test.result)
+          this.printLine()
+          this.printErrorDetails(test.result)
+        default:
+          this.printLine(1, "{format.text}{1}", test.result.message )
+      }
+      this.printLine()
+      this.printErrorFilePath(test.result)
+    }
+  }
+  
+  /**
   * converts indentation level to # of spaces
   * @param {number} level - indentation level
   * @returns {string}
@@ -226,7 +255,7 @@ Class ConsoleOutputBase {
   * @returns {void} 
   */
   printErrorHeader(errorObj) {
-    formatHeader := "expect({format.error}actual{format.text}).{1}({format.ok}expected{format.text})"
+    formatHeader := "{format.text}expect({format.error}actual{format.text}).{1}({format.ok}expected{format.text})"
     this.printLine(1, formatHeader, errorObj.matcherInfo.matcherType)
     message := errorObj.matcherInfo.message
     if (message) {

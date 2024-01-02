@@ -24,6 +24,10 @@ class OutputModuleTest {
     integer_addition_error() {
       Yunit.expect(1 + 4).toBe(6)
     }
+    
+    string_comparison_error() {
+      Yunit.expect("Zoi").toBe("Zoe")
+    }
 
     float_addition_error() {
       Yunit.expect(0.1 + 0.2).toBe(0.3)

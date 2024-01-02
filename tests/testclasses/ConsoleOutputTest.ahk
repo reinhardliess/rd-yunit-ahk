@@ -266,7 +266,7 @@ Class ConsoleOutputTest {
     }
   
   }
-
+  ;; ToBe
   Class Matchers {
     Class ToBe {
       get_error_details_type_integer() {
@@ -310,6 +310,7 @@ Class ConsoleOutputTest {
           
     }
     
+    ;; ToEqual()
     Class ToEqual {
       
       get_error_details_type_integer() {
@@ -354,6 +355,7 @@ Class ConsoleOutputTest {
     
     }
     
+    ;; ToBeCloseTo()
     Class toBeCloseTo {
       
       get_error_details_precision_5_digits() {

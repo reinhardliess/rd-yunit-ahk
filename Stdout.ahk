@@ -2,6 +2,12 @@ class YunitStdOut extends ConsoleOutputBase {
   
   __Delete() {
     this.printTestResults()
+    if (this.summary.failed.count > 0) {
+      this.printLine()
+      this.printErrorOverview()
+    }
+    this.printLine()
+    this.printTestSummary()
   }
   
   /**
