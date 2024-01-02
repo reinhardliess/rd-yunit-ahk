@@ -2,7 +2,7 @@ SetBatchLines, -1
 SetWorkingDir, %A_ScriptDir%
 
 #Include %A_ScriptDir%
-#Include ../lib/unit-testing.ahk/export.ahk
+#Include ../lib/unit-testing.ahk/export-v1.ahk
 #Include ../Yunit.ahk
 #Include, ./testclasses/TestClasses.ahk
 #Include, ./testclasses/TestOutput.ahk
