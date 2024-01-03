@@ -1,11 +1,6 @@
-SetWorkingDir(A_ScriptDir)
-
 #Include ../Yunit.ahk
-#Include ../StdoutMin.ahk
 
-Yunit.Use(YunitStdoutMin).Test(StdoutMinTest)
-
-class StdoutMinTest {
+class OutputModuleTest {
 
   class assert {
     integer_addition_correct_result() {
@@ -24,18 +19,23 @@ class StdoutMinTest {
   class toBe {
 
     integer_addition_correct_result() {
+      Sleep 30
       Yunit.expect(1 + 4).toBe(5)
     }
 
     integer_addition_error() {
       Yunit.expect(1 + 4).toBe(6)
     }
+    
+    string_comparison_error() {
+      Yunit.expect("Zoi").toBe("Zoe")
+    }
 
-    float_addition() {
+    float_addition_error() {
       Yunit.expect(0.1 + 0.2).toBe(0.3)
     }
 
-    object_comparison() {
+    object_comparison_error() {
       Yunit.expect({a:1}).toBe({a:1})
     }
   }

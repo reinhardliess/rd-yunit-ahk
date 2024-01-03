@@ -3,7 +3,9 @@
 ;; Class Yunit
 class Yunit
 {
-  static options := {EnablePrivateProps: true, TimingWarningThreshold: 100}
+  static options := {EnablePrivateProps: true
+    , TimingWarningThreshold: 100
+    , OutputRenderWhiteSpace: false}
   
   class Tester extends Yunit
   {
@@ -68,10 +70,9 @@ class Yunit
         continue
       if (!Yunit._isTestMethod(k))
         continue
-      if environment.HasMethod("Begin")
-        environment.Begin()
-      if environment.HasMethod("BeforeEach")
-        environment.BeforeEach()
+      Yunit.executeGlobalHook(cls, "BeforeEachAll", environment)
+      Yunit.executeHook(cls, "Begin", environment)
+      Yunit.executeHook(cls, "BeforeEach", environment)
       result := 0
       Yunit.Util.QPCInterval()
       try
@@ -86,24 +87,52 @@ class Yunit
           || !this.CompareValues(environment.ExpectedException, err)
           result := err
       }
-      methodTime_ms := Yunit.Util.QPCInterval()
+      methodTime_ms := Round(Yunit.Util.QPCInterval())
       ; OutputDebug (k ": " methodTime_ms)
       results[k] := result
       environment.DeleteProp("ExpectedException")
       this.Update(cls.prototype.__class, k, results[k], methodTime_ms)
-      if environment.HasMethod("End")
-        environment.End()
-      if environment.HasMethod("AfterEach")
-        environment.AfterEach()
+      Yunit.executeHook(cls, "End", environment)
+      Yunit.executeHook(cls, "afterEach", environment)
+      Yunit.executeGlobalHook(cls, "AfterEachAll", environment)
     }
     for k, v in cls.OwnProps()
       if (v is Class && Yunit._isTestCategory(v.Prototype.__class))
         this.classes.InsertAt(++this.current, v)
   }
+  
+  /**
+  * Execute hook if it exists
+  * @param {string} cls - class
+  * @param {string} method - method to execute
+  * @param {string} instance - instance
+  * @returns {void} 
+  */
+  static executeHook(cls, method, instance, params*) {
+    if (cls.Prototype.hasMethod(method))
+      instance.%method%(params*)
+  }
+  
+  /**
+  * Executes global hook if it exists
+  * Global hooks are executed in the top level and all nested classes
+  * @param {string} cls - class object
+  * @param {string} method
+  * @param {string} instance 
+  * @returns {void} 
+  */
+  static executeGlobalHook(cls, method, instance) {
+    topLevelClass := StrSplit(Type(instance), ".")[1] 
+    classObj := %topLevelClass%
+    ; Yunit.executeHook(classObj, method, classObj, instance)
+    if (classObj.HasMethod(method)) {
+      classObj.%method%(instance)
+    }
+  }
 
   /** 
-  * Checks whether BeforeEach/AfterEach and Begin/End are used in a mutually
-  * exclusive way 
+  * Checks whether BeforeEach/AfterEach and Begin/End are used in a
+  * mutually exclusive way 
   * @param {string} classObj - class object to test 
   * @returns {boolean} 
   */
@@ -119,7 +148,7 @@ class Yunit
   * @returns {boolean} 
   */
   static _isTestMethod(name) {
-    basicRegex := "i)(^begin$|^end$|^beforeEach$|^afterEach$|^__New$|^__Delete${1})"
+    basicRegex := "i)(^begin$|^end$|^beforeEach$|^beforeEachAll$|^afterEach$|^afterEachAll$|^__New$|^__Delete${1})"
     regex := format(basicRegex, Yunit.Options.EnablePrivateProps ? "|^_" : "")
 		return !!!RegExMatch(name, regex)
 	}
@@ -157,8 +186,16 @@ class Yunit
     return v1.Message = v2.Message
   }
 
-  static Expect(actualValue) {
-    return Yunit._Expect(actualValue)
+  /**
+  * Expect gives access to a number of matchers
+  * @throws Yunit.AssertionError if expectation fails
+  * @param {string} actualValue - the value to test
+  * @param {string} [message] - optional error message for output module
+  * to print
+  * @returns {any} 
+  */
+  static Expect(actualValue, message := "") {
+    return Yunit._Expect(actualValue, message)
   }
   
   ;; Class Util
@@ -194,7 +231,6 @@ class Yunit
 
     /**
     * Checks whether a variable is an array
-    * Empty objects/arrays will return true
     * @param {*} var - variable to check
     * @returns {boolean} 
     */
@@ -274,7 +310,7 @@ class Yunit
     * Performance counter is a high resolution (<1us) time stamp
     * that can be used for time-interval measurements.
     *
-    * Retrieves the elapsed time in ms since the last call to QPC()
+    * Retrieves the elapsed time in ms since the last call to QPCInterval()
     * https://docs.microsoft.com/en-us/windows/win32/api/profileapi/nf-profileapi-queryperformancecounter
     * @returns {float} 
     */
@@ -325,13 +361,13 @@ class Yunit
     * @returns {object} matcher info 
     */
     __Call(methodName, params) {
-      ; OutputDebug, % methodname ", " Yunit.Util.Print(params)
       if (!Yunit.Util.Includes(this.matchers, methodName)) {  
         Throw MethodError(format("The matcher '{1}' doesn't exist.", methodName))
       }
       
       ret := Yunit.Matchers.%methodName%(this.actualValue, params*)
       ret.matcherType := methodName
+      ret.message := this.message
       if (!ret.hasPassedTest) {
         throw Yunit.AssertionError("Assertion error", -2, , ret)
       }
@@ -342,8 +378,9 @@ class Yunit
   ;; Class Expect
   Class _Expect extends Yunit._ExpectBase {
     
-    __New(Value) {
+    __New(value, message) {
       this.actualValue := value
+      this.message := message
     }
   }
   
@@ -375,7 +412,7 @@ class Yunit
     */
     static ToBe(actual, expected) {
       info := {actual: actual, expected: expected}
-      ; OutputDebug, % info.actual
+      ; OutputDebug info.actual
       info.hasPassedTest := (actual == expected) 
         ? true
         : false
@@ -390,19 +427,19 @@ class Yunit
     * @param {any} expected 
     * @returns {matcherInfo} 
     */
-    static toEqual(actual, expected) {
-      if (Yunit.Util.IsNumber(actual) 
-        && Yunit.Util.IsNumber(expected)) {
+    static ToEqual(actual, expected) {
+      if (!isObject(expected)) {
         return this.ToBe(actual, expected)
       }
+      info := {actual: actual, expected: expected}
       if (isObject(actual)) {
         actual := Yunit.Util.Print(actual)
       }
       if (isObject(expected)) {
         expected := Yunit.Util.Print(expected)
       }
-      ; OutputDebug, % actual
-      return this.ToBe(actual, expected)
+      info.hasPassedTest := (actual == expected) ? true : false 
+      return info
     }
     
     /**
@@ -413,9 +450,12 @@ class Yunit
     * @returns {matcherInfo} 
     */
     static ToBeCloseTo(actual, expected, digits := 15) {
-      actual := Round(actual, digits)
-      expected := Round(expected, digits)
-      return this.ToBe(actual, expected)
+      info := {actual: { value: actual, difference: Abs(expected - actual)}
+        , expected: { value: expected, digits: digits, difference: 10 ** -digits / 2}}
+      info.hasPassedTest := info.actual.difference < info.expected.difference
+        ? true
+        : false
+      return info
     }
   }
   

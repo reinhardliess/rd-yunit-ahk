@@ -5,10 +5,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Test (Example)",
+      "name": "Tests (Yunit)",
       "type": "autohotkey",
       "request": "launch",
-      "program": "${workspaceFolder}\\doc\\Example.ahk",
+      "program": "${workspaceFolder}\\tests\\YunitTestrunner.ahk",
       "args": [],
       "port": "9002-9010",
       "variableCategories": "recommend",
@@ -21,10 +21,10 @@
       "internalConsoleOptions": "openOnSessionStart"
     },
     {
-      "name": "Test (Yunit)",
+      "name": "Legacy Tests (Yunit)",
       "type": "autohotkey",
       "request": "launch",
-      "program": "${workspaceFolder}\\tests\\all-tests.ahk",
+      "program": "${workspaceFolder}\\tests\\LegacyTestrunner.ahk",
       "args": [],
       "port": "9002-9010",
       "variableCategories": "recommend",
@@ -37,10 +37,26 @@
       "internalConsoleOptions": "openOnSessionStart"
     },
     {
-      "name": "Test (StdoutMin)",
+      "name": "Test Stdout",
       "type": "autohotkey",
       "request": "launch",
-      "program": "${workspaceFolder}\\tests\\testStdoutMin.ahk",
+      "program": "${workspaceFolder}\\doc\\ExampleStdout.ahk",
+      "args": [],
+      "port": "9002-9010",
+      "variableCategories": "recommend",
+      "useDebugDirective": false,
+      "useAutoJumpToError": true,
+      "usePerfTips": "{{elapsedTime_ms}}ms elapsed.",
+      "useOutputDebug": {
+        "useTrailingLinebreak": true
+      },
+      "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
+      "name": "Current file",
+      "type": "autohotkey",
+      "request": "launch",
+      "program": "${file}",
       "args": [],
       "port": "9002-9010",
       "variableCategories": "recommend",

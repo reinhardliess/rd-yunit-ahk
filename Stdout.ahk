@@ -1,25 +1,33 @@
-class YunitStdOut
-{
-  __New(instance){
+#Include ./ConsoleOutputBase.ahk
+
+class YunitStdOut extends ConsoleOutputBase {
+  
+  __Delete() {
+    this.printTestResults()
+    if (this.summary.failed.count > 0) {
+      this.printLine()
+      this.printErrorOverview()
+    }
+    this.printLine()
+    this.printTestSummary()
   }
   
-  Update(objOutputInfo) ;wip: this only supports one level of nesting?
-  {
-    category := objOutputInfo.category
-    , test := objOutputInfo.testMethod
-    , result := objOutputInfo.result
-    , methodTime_ms := objOutputInfo.methodTime_ms
-    
-    if IsObject(Result)
-    {
-      Details := " at line " Result.Line " " Result.Message "(" Result.File ")"
-      Status := "FAIL"
-    }
-    else
-    {
-      Details := ""
-      Status := "PASS"
-    }
-    FileAppend Status ": " Category "." Test " " Details "`n", "*"
+  /**
+  * Prints to console
+  * @override
+  * @param {string} text - text to print 
+  * @returns {void} 
+  */
+  printOutput(text) {
+    FileAppend(text, "*", "UTF-8")
+  }
+
+  /**
+  * Should return true if Ansi escapes should be used
+  * @override
+  * @returns {boolean} 
+  */
+  useAnsiEscapes() {
+    return true
   }
 }

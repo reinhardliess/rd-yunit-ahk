@@ -1,9 +1,9 @@
 
 #Include %A_ScriptDir%
-#Include ../lib/unit-testing.ahk/export.ahk
+#Include ../lib/unit-testing.ahk/export-v2.ahk
 #Include ../Yunit.ahk
-#Include ./TestClasses.ahk
-#Include ./TestOutput.ahk
+#Include ./testclasses/TestClasses.ahk
+#Include ./testclasses/TestOutput.ahk
 
 global assert := unittesting()
 
@@ -57,6 +57,7 @@ test_Yunit() {
   assert.label("should check whether a method name is that of a test method")
   assert.false(Yunit._isTestMethod("Begin"))
   assert.false(Yunit._isTestMethod("BeforeEach"))
+  assert.false(Yunit._isTestMethod("AfterEachAll"))
   assert.false(Yunit._isTestMethod("_helperMethod"))
   assert.true(Yunit._isTestMethod("Test_Division"))
   restoreYunitOptions()
@@ -72,6 +73,7 @@ test_Yunit() {
   assert.true(Yunit._isTestCategory("MyClass._Multiplication"))
 }
 
+;; TODO: use filterProps(arr, props*) {} instead
 filterOutputInfo(listInfo) {
   newList := []
   for _, value in listInfo {
@@ -92,7 +94,7 @@ test_Yunit_TestClass() {
   
   assert.label("should retrieve timing information for tests")
   timeType := Yunit.Util.GetType(test_listOutputInfo[1].methodTime_ms)
-  assert.test(timeType, "Float")
+  assert.test(timeType, "Integer")
   
   assert.label("should execute all test methods")
   actual := filterOutputInfo(test_listOutputInfo)
@@ -185,7 +187,7 @@ test_AssertionError() {
 }
 
 expectAssertionError() {
-  Yunit.expect(5).toBe(6)
+  Yunit.expect(5, "message").toBe(6)
 }
 
 expectWrongMatcher() {
@@ -197,7 +199,7 @@ test_Expect() {
   err := assert.toThrow(expectAssertionError, Yunit.AssertionError)
   
   assert.label("if the expectation fails, the error object should contain the correct matchinfo object")
-  assert.test(err.matcherInfo, {actual: 5, expected: 6, hasPassedTest: 0, matcherType: "toBe"})
+  assert.test(err.matcherInfo, {actual: 5, expected: 6, hasPassedTest: 0, matcherType: "toBe", message: "message"})
   
   assert.label("if a matcher is used, that doesn't exist, expect should throw an error")
   assert.toThrow(expectWrongMatcher, MethodError)
