@@ -327,6 +327,9 @@ Class ConsoleOutputBase {
     switch {
       case isObject(value):
         newValue := Yunit.Util.Print(value)
+        if (!newValue) {
+          newValue := "{}"
+        }
       case Yunit.Util.IsFloat(value):
         newValue := Format("{1:.17g}", value)
       case Yunit.Util.GetType(value) = "String":
@@ -396,9 +399,9 @@ Class ConsoleOutputBase {
   * @returns {string} 
   */
   injectAnsiPlaceholdersIntoMatcherOutput(output) {
-    text := RegexReplace(output, "`aim)(actual|expected).*:\s+", "{format.text}$0")
-    text := RegexReplace(text, "`aim)^{format\.text}+actual.*:\s+", "$0{format.error}")
-    text := RegexReplace(text, "`aim)^{format\.text}+expected.*:\s+", "$0{format.ok}")
+    text := RegexReplace(output, "`aim)(^actual|^expected).*?:\s+", "{format.text}$0")
+    text := RegexReplace(text, "`aim)^{format\.text}+actual.*?:\s+", "$0{format.error}")
+    text := RegexReplace(text, "`aim)^{format\.text}+expected.*?:\s+", "$0{format.ok}")
     return text
   }
   
