@@ -29,9 +29,6 @@ test_AssertionError()
 assert.group("Expect()")
 test_Expect()
 
-assert.group("Matchers")
-test_Matchers()
-
 ; wrap up
 assert.writeResultsToFile()
 ; assert.fullReport()
@@ -205,34 +202,6 @@ test_Expect() {
   
   assert.label("if a matcher is used that doesn't exist, 'expect' should throw an error")
   assert.toThrow(func("expectWrongMatcher"))
-}
-
-test_Matchers() {
-  static m := Yunit.Matchers
-  obj1 := {a: 1}, obj2 := {a: 1}, objref := obj1
-  
-  ;; ToBe
-  assert.label("ToBe")
-  assert.test(m.ToBe(5, 5), {actual: 5, expected: 5, hasPassedTest: 1})
-  assert.test(m.ToBe(5, 6), {actual: 5, expected: 6, hasPassedTest: 0})
-  assert.test(m.ToBe("abc", "abc"), {actual: "abc", expected: "abc", hasPassedTest: 1})
-  assert.test(m.ToBe("abc", "Abc"), {actual: "abc", expected: "Abc", hasPassedTest: 0})
-  assert.test(m.ToBe(obj1, objref), {actual: (obj1), expected: (objref), hasPassedTest: 1})
-  assert.test(m.ToBe(obj1, obj2), {actual: (obj1), expected: (obj2) , hasPassedTest: 0})
-  
-  ;; ToEqual
-  assert.label("ToEqual")
-  assert.test(m.ToEqual(5, 5), {actual: 5, expected: 5, hasPassedTest: 1})
-  assert.test(m.ToEqual(5, 6), {actual: 5, expected: 6, hasPassedTest: 0})
-  assert.test(m.ToEqual("abc", "abc"), {actual: "abc", expected: "abc", hasPassedTest: 1})
-  assert.test(m.ToEqual("abc", "Abc"), {actual: "abc", expected: "Abc", hasPassedTest: 0})
-  assert.test(m.ToEqual(obj1, obj2), {actual: """a"":1", expected: """a"":1", hasPassedTest: 1})
-  assert.test(m.ToEqual(obj1, {a: 2}), {actual: """a"":1", expected: """a"":2", hasPassedTest: 0})
-  
-  ;; ToBeCloseTo
-  assert.label("ToBeCloseTo")
-  value := "0.300000000000000"
-  assert.test(m.ToBeCloseTo(0.1 + 0.2, 0.3, 15), {actual: (value), expected: (value), hasPassedTest: 1})
 }
 
 ShowError(exception) {

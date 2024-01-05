@@ -1,6 +1,19 @@
 Class YunitTest {
   Class Matchers {
 
+    matcher_options_should_be_set_by_constructor() {
+      matcher := new Yunit.MatcherToBe({message: "error"})
+      
+      Yunit.expect(matcher.message).toBe("error")
+    }
+    
+    getMatcherType_should_return_matcher_display_name() {
+      matcher := new Yunit.MatcherToBe()
+      matcherName := matcher.getMatcherType()
+      
+      Yunit.expect(matcherName).toBe("ToBe")
+    }
+    
     Class ToBe {
 
       beforeEach() {

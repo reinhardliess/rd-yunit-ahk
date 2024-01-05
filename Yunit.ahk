@@ -400,7 +400,9 @@ class Yunit
   ;; Matcher classes
   Class MatcherBase {
     __New(options := "") {
-      ; OutputDebug, % A_ThisFunc
+      if (options.HasKey("message")) {
+        this.message := options.message
+      }
     }
 
     /**
@@ -414,19 +416,15 @@ class Yunit
       this.actual := actual, this.expected := expected
     }
     
+    /**
+    * Returns the error output to print in the error details section
+    * @virtual
+    * @returns {string | string[]} 
+    */
     GetErrorOutput() {
       actual := this.formatActualTestValue(this.actual)
       expected := this.formatExpectedTestValue(this.expected)
-      
       return format("Actual:   {1}`nExpected: {2}", actual, expected)
-    }
-    
-    formatActualTestValue(value) {
-      return this.formatTestValue("actual", value)  
-    }
-    
-    formatExpectedTestValue(value) {
-      return this.formatTestValue("expected", value)  
     }
     
     /**
@@ -452,6 +450,14 @@ class Yunit
       }
       return newValue
     }
+
+    formatActualTestValue(value) {
+      return this.formatTestValue("actual", value)  
+    }
+    
+    formatExpectedTestValue(value) {
+      return this.formatTestValue("expected", value)  
+    }
     
     /**
     * Renders white space characters
@@ -469,9 +475,43 @@ class Yunit
       
       return buffer
     }
+    
+    /**
+    * Returns the names of additional expect matcher parameters
+    * to be printed in the error details header
+    * e.g. for expect(value).toBeCloseTo(expected, digits)
+    *   it would be ["digits"]
+    * @virtual
+    * @returns {string[]} 
+    */
+    GetAdditionalExpectParams() {
+      return []
+    }
+    
+    /**
+    * Returns the text of a dynamic comment for the expect matcher
+    * to be printed in the error details header
+    * @abstract
+    * @returns {string} 
+    */
+    GetExpectComment() {
+      return ""
+    }
+    
+    /**
+    * Returns the name of the matcher
+    * @virtual
+    * @returns {string} 
+    */
+    GetMatcherType() {
+      varType := StrSplit(this.__class, ".").Pop()
+      RegexMatch(varType, "iO)^matcher(.*)$", m)
+      return m[1]
+    }
   }
 
   Class MatcherToBe extends Yunit.MatcherBase {
+    
     Assert(actual, expected) {
       base.Assert(actual, expected)
       return this.hasPassedTest := (actual == expected)
