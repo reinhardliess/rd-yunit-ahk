@@ -397,6 +397,7 @@ class Yunit
     }
   }
 
+  ;; Matcher classes
   Class MatcherBase {
     __New(options := "") {
       ; OutputDebug, % A_ThisFunc
@@ -404,13 +405,69 @@ class Yunit
 
     /**
     * Runs actual matcher
-    * @abstract
+    * @virtual
     * @param {string} actual
     * @param {string} expected
     * @returns {boolean}
     */
     Assert(actual, expected) {
       this.actual := actual, this.expected := expected
+    }
+    
+    GetErrorOutput() {
+      actual := this.formatActualTestValue(this.actual)
+      expected := this.formatExpectedTestValue(this.expected)
+      
+      return format("Actual:   {1}`nExpected: {2}", actual, expected)
+    }
+    
+    formatActualTestValue(value) {
+      return this.formatTestValue("actual", value)  
+    }
+    
+    formatExpectedTestValue(value) {
+      return this.formatTestValue("expected", value)  
+    }
+    
+    /**
+    * Formats test value for output in actual/expected block
+    * @param {string} type - "actual" or "expected"
+    * @param {string} value
+    * @returns {string} 
+    */
+    formatTestValue(type, value) {
+      newValue := value
+      switch {
+        case isObject(value):
+          newValue := Yunit.Util.Print(value)
+          if (!newValue) {
+            newValue := "{}"
+          }
+        case Yunit.Util.IsFloat(value):
+          newValue := Format("{1:.17g}", value)
+        case Yunit.Util.GetType(value) = "String":
+          textFormat := type = "actual" ? "{format.error}" : "{format.ok}"
+          newValue := this.renderWhiteSpace(value, textFormat)
+          newValue := """" newValue """"
+      }
+      return newValue
+    }
+    
+    /**
+    * Renders white space characters
+    * @param {string} string
+    * @param {string} textFormat - Ansi placeholder 
+    * @returns {string} 
+    */
+    renderWhiteSpace(string, textFormat) {
+      if (!Yunit.options.outputRenderWhiteSpace) {
+        return string
+      }
+      buffer := StrReplace(string, "`r`n", "{format.textDimmed}``r``n" textFormat)
+      buffer := StrReplace(buffer, "`n", "{format.textDimmed}``n" textFormat)
+      buffer := StrReplace(buffer, chr(27), "{format.textDimmed}``e" textFormat)
+      
+      return buffer
     }
   }
 
@@ -442,6 +499,32 @@ class Yunit
       this.actual   := {value: actual, difference: Abs(expected - actual)}
       this.expected := {value: expected, digits: digits, difference: 10 ** -digits / 2}
       return this.hasPassedTest := this.actual.difference < this.expected.difference
+    }
+    
+    getErrorOutput() {
+      ;; TODO: split into two => array?
+      formatStr :="
+      (Ltrim
+      Actual:   {1}
+      Expected: {2}
+      
+      Actual difference:     {3}
+      Expected difference: < {4:.$$f}
+      Expected precision:    {5}
+      )"
+      
+      expected  := this.expected
+      actual    := this.actual
+      formatStr := StrReplace(formatStr, "$$", expected.digits + 1)
+      
+      output := format(formatStr
+        , this.formatActualTestValue(actual.value)
+        , this.formatExpectedTestValue(expected.value)
+        , this.formatActualTestValue(actual.difference)
+        , expected.difference
+        , expected.digits)
+      
+      return output
     }
   }
 
