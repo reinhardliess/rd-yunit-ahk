@@ -349,6 +349,23 @@ class Yunit
       }
       return false
     }
+    
+    /**
+    * Joins elements of an array into a string, JavaScript like
+    * @param {array} arr - Array to convert
+    * @param {string} [sep:=","] - separator e.g. ','
+    * @returns {string} separated list
+    */
+    Join(arr, separator := ",") {
+      joinedStr := ""
+      for i, value in arr {
+        if (i > 1) {
+          joinedStr .= separator
+        }
+        joinedStr .= value
+      }
+      return joinedStr
+    }
   }
 
   ;; Class _ExpectBase
@@ -385,12 +402,12 @@ class Yunit
 
   ;; Class AssertionError
   Class AssertionError {
-    __New(message, what := -1, extra :="", matcherInfo := "") {
+    __New(message, what := -1, extra :="", matcher := "") {
       err := Exception(message, what, extra)
       for key, value in err {
         this[key] := value
       }
-      this.matcherInfo := matcherInfo
+      this.matcher := matcher
     }
   }
 
@@ -405,7 +422,7 @@ class Yunit
 
       /**
       * Runs actual matcher
-      * @virtual
+      * @abstract
       * @param {string} actual
       * @param {string} expected
       * @returns {boolean}
@@ -502,19 +519,29 @@ class Yunit
       * @returns {string}
       */
       GetMatcherType() {
-        varType := StrSplit(this.__class, ".").Pop()
-        return varType
+        return StrSplit(this.__class, ".").Pop()
       }
     }
 
+    ;; ToBe
     Class ToBe extends Yunit.Matchers.MatcherBase {
 
       Assert(actual, expected) {
         base.Assert(actual, expected)
         return this.hasPassedTest := (actual == expected)
       }
+      
+      GetExpectComment() {
+        switch {
+          case isObject(this.expected):
+            return "compares object references"
+          default:
+            return "compares with =="
+          }
+        }
     }
 
+    ;; ToEqual
     Class ToEqual extends Yunit.Matchers.MatcherBase {
       Assert(actual, expected) {
         base.Assert(actual, expected)
@@ -538,11 +565,12 @@ class Yunit
         case isObject(this.expected):
           return "deep stringified equality, no type checking"
         default:
-          return "comparison with =="
+          return "compares with =="
         }
       }
     }
 
+    ;; Class ToBeCloseTo
     Class ToBeCloseTo extends Yunit.Matchers.MatcherBase {
       assert(actual, expected, digits := 2) {
         this.actual := {value: actual, difference: Abs(expected - actual)}
@@ -578,9 +606,10 @@ class Yunit
 
         return output
       }
-
+      
+      GetAdditionalExpectParams() {
+        return ["precision"]
+      }
     }
-
   }
-
 }

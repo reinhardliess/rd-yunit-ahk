@@ -238,9 +238,9 @@ Class ConsoleOutputBase {
       this.printLine()
       switch Yunit.Util.GetType(test.result) {
         case "Yunit.AssertionError":
-          this.printErrorHeader(test.result)
+          this.printErrorHeader(test.result.matcher)
           this.printLine()
-          this.printErrorDetails(test.result)
+          this.printErrorDetails(test.result.matcher)
         default:
           this.printLine(1, "{format.text}{1}", test.result.message )
       }
@@ -261,137 +261,47 @@ Class ConsoleOutputBase {
   
   /**
   * Prints header for matcher output
-  * @param {object} errorObj
+  * @param {object} matcher - instance of Yunit.Matchers.MatcherBase
   * @returns {void} 
   */
-  printErrorHeader(errorObj) {
-    formatHeader := "{format.text}expect({format.error}actual{format.text}).{1}({format.ok}expected{format.text})"
-    this.printLine(1, formatHeader, errorObj.matcherInfo.getMatcherType())
-    message := errorObj.matcherInfo.message
-    if (message) {
+  printErrorHeader(matcher) {
+    formatHeader := "{format.text}expect({format.error}actual{format.text}).{1}({format.ok}expected{2}{format.text}) {format.textDimmed}{3}"
+    params := matcher.GetAdditionalExpectParams()
+    comment := matcher.GetExpectComment()
+    if (params.Length()) {
+      params := ", " Yunit.Util.Join(params)
+    }
+    if (comment) {
+      comment := "; " comment
+    }
+    
+    this.printLine(1, formatHeader
+      , matcher.getMatcherType()
+      , params
+      , comment)
+    if (matcher.message) {
       this.printLine()
-      this.printLine(1, message)
+      this.printLine(1, matcher.message)
     }
   }
   
   /**
   * Prints actual/expected error details
-  * @param {object} errorObj
+  * @param {object} matcher - instance of Yunit.Matchers.MatcherBase
   * @returns {void} 
   */
-  printErrorDetails(err) {
-    ; matcher := "getMatcherOutput" err.matcherInfo.matcherType
-    ; output := this[matcher](err)
-    output := err.matcherInfo.GetErrorOutput()
-    output := this.injectAnsiPlaceholdersIntoMatcherOutput(output)
-    this.printLine(1, output)
-  }
-  
-  getMatcherOutputToBe(err) {
-    actual   := err.matcherInfo.actual
-    expected := err.matcherInfo.expected
-    
-    switch {
-      case isObject(actual):
-        actual := "[object]"
-      default:
-        actual := this.formatActualTestValue(actual)
+  printErrorDetails(matcher) {
+    output := matcher.GetErrorOutput()
+    if (!isObject(output)) {
+      output := [output]
     }
-    
-    switch {
-      case isObject(expected):
-        expected := "[object]"
-      default:
-        expected := this.formatExpectedTestValue(expected)
+    for i, errorBlock in output {
+      withAnsi := this.injectAnsiPlaceholdersIntoMatcherOutput(errorBlock)
+      if (i > 1) {
+        this.printLine()
+      }
+      this.printLine(1, withAnsi)
     }
-    
-    formatStr := "Actual:   {1}`nExpected: {2}"
-    return format(formatStr, actual, expected)
-  }
-  
-  formatActualTestValue(value) {
-    return this.formatTestValue("actual", value)  
-  }
-  
-  formatExpectedTestValue(value) {
-    return this.formatTestValue("expected", value)  
-  }
-  
-  /**
-  * Formats test value for output in actual/expected block
-  * @param {string} type - "actual" or "expected"
-  * @param {string} value
-  * @returns {string} 
-  */
-  formatTestValue(type, value) {
-    newValue := value
-    switch {
-      case isObject(value):
-        newValue := Yunit.Util.Print(value)
-        if (!newValue) {
-          newValue := "{}"
-        }
-      case Yunit.Util.IsFloat(value):
-        newValue := Format("{1:.17g}", value)
-      case Yunit.Util.GetType(value) = "String":
-        textFormat := type = "actual" ? "{format.error}" : "{format.ok}"
-        newValue := this.renderWhiteSpace(value, textFormat)
-        newValue := """" newValue """"
-    }
-    return newValue
-  }
-  
-  /**
-  * Renders white space characters
-  * @param {string} string
-  * @param {string} textFormat - Ansi placeholder 
-  * @returns {string} 
-  */
-  renderWhiteSpace(string, textFormat) {
-    if (!Yunit.options.outputRenderWhiteSpace) {
-      return string
-    }
-    buffer := StrReplace(string, "`r`n", "{format.textDimmed}``r``n" textFormat)
-    buffer := StrReplace(buffer, "`n", "{format.textDimmed}``n" textFormat)
-    buffer := StrReplace(buffer, chr(27), "{format.textDimmed}``e" textFormat)
-    
-    return buffer
-  }
-
-  getMatcherOutputToEqual(err) {
-    actual   := err.matcherInfo.actual
-    expected := err.matcherInfo.expected
-    
-    actual := this.formatActualTestValue(actual)
-    expected := this.formatExpectedTestValue(expected)
-    
-    formatStr := "Actual:   {1}`nExpected: {2}"
-    return format(formatStr, actual, expected)
-  }
-  
-  getMatcherOutputToBeCloseTo(err) {
-    formatStr :="
-    (Ltrim
-    Actual:   {1}
-    Expected: {2}
-    
-    Actual difference:     {3}
-    Expected difference: < {4:.$$f}
-    Expected precision:    {5}
-    )"
-    
-    expected  := err.matcherInfo.expected
-    actual    := err.matcherInfo.actual
-    formatStr := StrReplace(formatStr, "$$", expected.digits + 1)
-    
-    output := format(formatStr
-      , this.formatActualTestValue(actual.value)
-      , this.formatExpectedTestValue(expected.value)
-      , this.formatActualTestValue(actual.difference)
-      , expected.difference
-      , expected.digits)
-    
-    return output
   }
   
   /**

@@ -174,7 +174,6 @@ test_Yunit_Util() {
   )
   assert.test(u.Print(actualValue), expected)
   assert.test(u.Print({ a: 1, fn: Func("Instr")}), """a"":1")
-  
 }
 
 test_AssertionError() {
@@ -184,7 +183,7 @@ test_AssertionError() {
   assert.test(err.message, "message")
   assert.test(err.what, "what")
   assert.test(err.extra, "extra")
-  assert.test(err.matcherInfo, {hasPassedTest: false})
+  assert.test(err.matcher, {hasPassedTest: false})
 }
 
 expectAssertionError() {
@@ -200,8 +199,8 @@ test_Expect() {
   err := assert.toThrow(func("expectAssertionError"), Yunit.AssertionError)
   
   assert.label("if the expectation fails, the error object should contain the correct matchinfo object")
-  err.matcherInfo.matcherType := err.matcherInfo.GetMatcherType()
-  assert.test(err.matcherInfo, {actual: 5, expected: 6, hasPassedTest: 0, matcherType: "ToBe", message: "message"})
+  err.matcher.matcherType := err.matcher.GetMatcherType()
+  assert.test(err.matcher, {actual: 5, expected: 6, hasPassedTest: 0, matcherType: "ToBe", message: "message"})
   
   assert.label("if a matcher is used that doesn't exist, 'expect' should throw an error")
   assert.toThrow(func("expectWrongMatcher"))

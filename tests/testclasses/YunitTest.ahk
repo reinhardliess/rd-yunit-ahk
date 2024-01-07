@@ -1,17 +1,44 @@
 Class YunitTest {
   Class Matchers {
 
+    ;; TODO: use SetOptions/RestoreOptions when available
+    ; beforeEach() {
+    ;   this.oldRenderWhiteSpace := Yunit.options.outputRenderWhitespace 
+    ;   Yunit.options.outputRenderWhitespace := true
+    ; }
+    
+    ; afterEach() {
+    ;   Yunit.options.outputRenderWhitespace := this.oldRenderWhiteSpace 
+    ; }
+    
     matcher_options_should_be_set_by_constructor() {
       matcher := new Yunit.Matchers.ToBe({message: "error"})
       
       Yunit.expect(matcher.message).toBe("error")
     }
-    
+
     getMatcherType_should_return_matcher_display_name() {
       matcher := new Yunit.Matchers.ToBe()
       matcherName := matcher.getMatcherType()
       
       Yunit.expect(matcherName).toBe("ToBe")
+    }
+    
+    render_linefeeds_in_strings_if_option_set() {
+      matcher := new Yunit.Matchers.ToBe()
+      lineLf := matcher.formatActualTestValue("Hello World!`nHow are you?")
+      lineCrlf := matcher.formatActualTestValue("Hello World!`r`nHow are you?")
+      
+      Yunit.expect(lineLf).toBe("""Hello World!{format.textDimmed}``n{format.error}How are you?""")
+      Yunit.expect(lineCrlf).toBe("""Hello World!{format.textDimmed}``r``n{format.error}How are you?""")
+    }
+    
+    render_esc_in_strings_if_option_set() {
+      matcher := new Yunit.Matchers.ToBe()
+      lineWithEsc := matcher.formatActualTestValue(chr(27) "[95m" "Hello World!")
+      
+      expected := format("{1}{format.textDimmed}``e{format.error}[95mHello World!{1}", chr(34), chr(27))
+      Yunit.expect(lineWithEsc).toBe(expected)
     }
     
     Class ToBe {
@@ -197,6 +224,16 @@ Class YunitTest {
         Yunit.expect(output[1]).toBe(errorBlock)
         Yunit.expect(output[2]).toBe(errorDetails)
       }
+    }
+  }
+  
+  Class Util {
+    join_should_join_array_elements_with_separator() {
+      Yunit.expect(Yunit.Util.Join([])).toEqual("")
+      Yunit.expect(Yunit.Util.Join([1])).toEqual("1")
+      Yunit.expect(Yunit.Util.Join([1,2])).toEqual("1,2")
+      Yunit.expect(Yunit.Util.Join(["a","b"])).toEqual("a,b")
+      Yunit.expect(Yunit.Util.Join([1,2], ";")).toEqual("1;2")
     }
   }
 }

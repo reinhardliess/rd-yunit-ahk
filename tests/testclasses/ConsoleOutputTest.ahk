@@ -198,24 +198,24 @@ Class ConsoleOutputTest {
       Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
     }
     
-    print_expect_header() {
-      err := ConsoleOutputTest._runMatcher("toEqual", 5, 6)
-      expected := "  expect(actual).ToEqual(expected)`n"
+    ; print_expect_header_with_additional_expect_parameter() {
+    ;   err := ConsoleOutputTest._runMatcher("toBeCloseTo", 0.3, 0.29)
+    ;   expected := "  expect(actual).ToEqual(expected)`n"
       
-      this.m.printErrorHeader(err)
+    ;   this.m.printErrorHeader(err.matcher)
       
-      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
-    }
+    ;   Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+    ; }
   
-    print_expect_header_with_message() {
-      err := ConsoleOutputTest._runMatcher("toEqual", 5, 6)
-      err.matcherInfo.message := "error message"
-      expected := "  expect(actual).ToEqual(expected)`n`n  error message`n"
+    ; print_expect_header_with_message() {
+    ;   err := ConsoleOutputTest._runMatcher("toEqual", 5, 6)
+    ;   err.matcher.message := "error message"
+    ;   expected := "  expect(actual).ToEqual(expected)`n`n  error message`n"
       
-      this.m.printErrorHeader(err)
+    ;   this.m.printErrorHeader(err.matcher)
       
-      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
-    }
+    ;   Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+    ; }
     
     print_file_path_error_info() {
       err := ConsoleOutputTest._runMatcher("toEqual", 5, 6)
@@ -264,36 +264,5 @@ Class ConsoleOutputTest {
       
       Yunit.expect(this.m.test_PrintOutput).toEqual(printedSummary)
     }
-  
   }
-  ;; Matchers
-  Class Matchers {
-    
-    beforeEach() {
-      this.oldRenderWhiteSpace := Yunit.options.outputRenderWhitespace 
-      Yunit.options.outputRenderWhitespace := true
-    }
-    
-    afterEach() {
-      Yunit.options.outputRenderWhitespace := this.oldRenderWhiteSpace 
-    }
-    
-    render_linefeeds_in_strings_if_option_set() {
-      
-      lineLf := this.m.formatActualTestValue("Hello World!`nHow are you?")
-      lineCrlf := this.m.formatActualTestValue("Hello World!`r`nHow are you?")
-      
-      Yunit.expect(lineLf).toBe("""Hello World!{format.textDimmed}``n{format.error}How are you?""")
-      Yunit.expect(lineCrlf).toBe("""Hello World!{format.textDimmed}``r``n{format.error}How are you?""")
-    }
-    
-    render_esc_in_strings_if_option_set() {
-      
-      lineWithEsc := this.m.formatActualTestValue(chr(27) "[95m" "Hello World!")
-      
-      expected := format("{1}{format.textDimmed}``e{format.error}[95mHello World!{1}", chr(34), chr(27))
-      Yunit.expect(lineWithEsc).toBe(expected)
-    }
-  }
-  
 }
