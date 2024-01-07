@@ -200,7 +200,7 @@ Class ConsoleOutputTest {
     
     print_expect_header() {
       err := ConsoleOutputTest._runMatcher("toEqual", 5, 6)
-      expected := "  expect(actual).toEqual(expected)`n"
+      expected := "  expect(actual).ToEqual(expected)`n"
       
       this.m.printErrorHeader(err)
       
@@ -210,7 +210,7 @@ Class ConsoleOutputTest {
     print_expect_header_with_message() {
       err := ConsoleOutputTest._runMatcher("toEqual", 5, 6)
       err.matcherInfo.message := "error message"
-      expected := "  expect(actual).toEqual(expected)`n`n  error message`n"
+      expected := "  expect(actual).ToEqual(expected)`n`n  error message`n"
       
       this.m.printErrorHeader(err)
       

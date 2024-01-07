@@ -11,9 +11,6 @@ class TestOutput
   
   ; category, testMethod, result, methodTime_ms
   Update(objOutputInfo) {
-    switch {
-      case Yunit.Util.GetType(outputInfo.result) = "Yunit.AssertionError":
-    }
     this.listOutputInfo.push(objOutputInfo)
   }
 }

@@ -13,3 +13,4 @@ SetWorkingDir, %A_ScriptDir%
 
 Yunit.SetOptions({ outputRenderWhiteSpace: true })
 Yunit.Use(YunitStdoutMin).Test(YunitTest, YunitHookTest, ConsoleOutputTest)
+; Yunit.Use(YunitStdoutMin).Test(YunitTest, YunitHookTest)

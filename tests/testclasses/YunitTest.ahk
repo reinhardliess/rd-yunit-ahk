@@ -2,13 +2,13 @@ Class YunitTest {
   Class Matchers {
 
     matcher_options_should_be_set_by_constructor() {
-      matcher := new Yunit.MatcherToBe({message: "error"})
+      matcher := new Yunit.Matchers.ToBe({message: "error"})
       
       Yunit.expect(matcher.message).toBe("error")
     }
     
     getMatcherType_should_return_matcher_display_name() {
-      matcher := new Yunit.MatcherToBe()
+      matcher := new Yunit.Matchers.ToBe()
       matcherName := matcher.getMatcherType()
       
       Yunit.expect(matcherName).toBe("ToBe")
@@ -17,7 +17,7 @@ Class YunitTest {
     Class ToBe {
 
       beforeEach() {
-        this.m := new Yunit.MatcherToBe()
+        this.m := new Yunit.Matchers.ToBe()
       }
 
       integer_comparison_true() {
@@ -92,7 +92,7 @@ Class YunitTest {
 
     Class ToEqual {
       beforeEach() {
-        this.m := new Yunit.MatcherToEqual()
+        this.m := new Yunit.Matchers.ToEqual()
       }
 
       object_comparison_true() {
@@ -127,7 +127,7 @@ Class YunitTest {
 
     Class ToBeCloseTo {
       beforeEach() {
-        this.m := new Yunit.MatcherToBeCloseTo()
+        this.m := new Yunit.Matchers.ToBeCloseTo()
       }
 
       proximate_equality_true() {
@@ -144,14 +144,42 @@ Class YunitTest {
         Yunit.expect(this.m.expected.difference).toBe(0.005)
       }
 
+      ; proximate_equality_false() {
+      ;   actual   := 0.1 + 0.2
+      ;   expected := 0.29
+      ;   expectedOutput := "
+      ;   (Ltrim
+      ;   Actual:   0.30000000000000004
+      ;   Expected: 0.28999999999999998
+
+      ;   Actual difference:     0.010000000000000064
+      ;   Expected difference: < 0.005
+      ;   Expected precision:    2
+      ;   )"
+
+      ;   ret := this.m.Assert(actual, expected)
+      ;   output := this.m.GetErrorOutput()
+
+      ;   Yunit.expect(ret).toBe(false)
+      ;   ;; TODO: replace with ToContain matcher -> object
+      ;   Yunit.expect(this.m.actual.value).toBe(actual)
+      ;   Yunit.expect(this.m.expected.value).toBe(expected)
+      ;   Yunit.expect(this.m.expected.digits).toBe(2)
+      ;   Yunit.expect(this.m.expected.difference).toBe(0.005)
+      ;   Yunit.expect(output).toBe(expectedOutput)
+      ; }
+      
       proximate_equality_false() {
         actual   := 0.1 + 0.2
         expected := 0.29
-        expectedOutput := "
+        
+        errorBlock := "
         (Ltrim
         Actual:   0.30000000000000004
         Expected: 0.28999999999999998
-
+        )"
+        errorDetails := "
+        (Ltrim
         Actual difference:     0.010000000000000064
         Expected difference: < 0.005
         Expected precision:    2
@@ -166,7 +194,8 @@ Class YunitTest {
         Yunit.expect(this.m.expected.value).toBe(expected)
         Yunit.expect(this.m.expected.digits).toBe(2)
         Yunit.expect(this.m.expected.difference).toBe(0.005)
-        Yunit.expect(output).toBe(expectedOutput)
+        Yunit.expect(output[1]).toBe(errorBlock)
+        Yunit.expect(output[2]).toBe(errorDetails)
       }
     }
   }

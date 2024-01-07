@@ -266,7 +266,7 @@ Class ConsoleOutputBase {
   */
   printErrorHeader(errorObj) {
     formatHeader := "{format.text}expect({format.error}actual{format.text}).{1}({format.ok}expected{format.text})"
-    this.printLine(1, formatHeader, errorObj.matcherInfo.matcherType)
+    this.printLine(1, formatHeader, errorObj.matcherInfo.getMatcherType())
     message := errorObj.matcherInfo.message
     if (message) {
       this.printLine()
@@ -280,8 +280,9 @@ Class ConsoleOutputBase {
   * @returns {void} 
   */
   printErrorDetails(err) {
-    matcher := "getMatcherOutput" err.matcherInfo.matcherType
-    output := this[matcher](err)
+    ; matcher := "getMatcherOutput" err.matcherInfo.matcherType
+    ; output := this[matcher](err)
+    output := err.matcherInfo.GetErrorOutput()
     output := this.injectAnsiPlaceholdersIntoMatcherOutput(output)
     this.printLine(1, output)
   }

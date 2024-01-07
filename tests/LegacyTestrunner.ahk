@@ -44,7 +44,9 @@ test_Yunit() {
   ;; SetOptions
   restoreYunitOptions()
   Yunit.SetOptions({TimingWarningThreshold: 50})
-  assert.test(Yunit.options, {EnablePrivateProps: true, TimingWarningThreshold: 50})
+  assert.test(Yunit.options, {EnablePrivateProps: true
+    , TimingWarningThreshold: 50
+    , OutputRenderWhiteSpace: false})
   
   ;; _validateHooks()
   assert.label("BeforeEach/AfterEach and Begin/End should be mutually exclusive")
@@ -198,7 +200,8 @@ test_Expect() {
   err := assert.toThrow(func("expectAssertionError"), Yunit.AssertionError)
   
   assert.label("if the expectation fails, the error object should contain the correct matchinfo object")
-  assert.test(err.matcherInfo, {actual: 5, expected: 6, hasPassedTest: 0, matcherType: "toBe", message: "message"})
+  err.matcherInfo.matcherType := err.matcherInfo.GetMatcherType()
+  assert.test(err.matcherInfo, {actual: 5, expected: 6, hasPassedTest: 0, matcherType: "ToBe", message: "message"})
   
   assert.label("if a matcher is used that doesn't exist, 'expect' should throw an error")
   assert.toThrow(func("expectWrongMatcher"))
