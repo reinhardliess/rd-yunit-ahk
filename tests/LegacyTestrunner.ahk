@@ -27,9 +27,6 @@ test_AssertionError()
 assert.group("Expect()")
 test_Expect()
 
-assert.group("Matchers")
-test_Matchers()
-
 ; wrap up
 assert.writeResultsToFile()
 ; assert.fullReport()
@@ -45,7 +42,9 @@ test_Yunit() {
   ;; SetOptions
   restoreYunitOptions()
   Yunit.SetOptions({TimingWarningThreshold: 50})
-  assert.test(Yunit.options, {EnablePrivateProps: true, TimingWarningThreshold: 50})
+  assert.test(Yunit.options, {EnablePrivateProps: true
+    , TimingWarningThreshold: 50
+    , OutputRenderWhiteSpace: false})
   
   ;; _validateHooks()
   assert.label("BeforeEach/AfterEach and Begin/End should be mutually exclusive")
@@ -183,7 +182,7 @@ test_AssertionError() {
   assert.test(err.message, "message")
   assert.test(err.what, "what")
   assert.test(err.extra, "extra")
-  assert.test(err.matcherInfo, {hasPassedTest: false})
+  assert.test(err.matcher, {hasPassedTest: false})
 }
 
 expectAssertionError() {
@@ -199,7 +198,8 @@ test_Expect() {
   err := assert.toThrow(expectAssertionError, Yunit.AssertionError)
   
   assert.label("if the expectation fails, the error object should contain the correct matchinfo object")
-  assert.test(err.matcherInfo, {actual: 5, expected: 6, hasPassedTest: 0, matcherType: "toBe", message: "message"})
+  err.matcher.matcherType := err.matcher.GetMatcherType()
+  assert.test(err.matcher, {actual: 5, expected: 6, hasPassedTest: 0, matcherType: "ToBe", message: "message"})
   
   assert.label("if a matcher is used, that doesn't exist, expect should throw an error")
   assert.toThrow(expectWrongMatcher, MethodError)

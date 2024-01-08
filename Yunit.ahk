@@ -6,7 +6,7 @@ class Yunit
   static options := {EnablePrivateProps: true
     , TimingWarningThreshold: 100
     , OutputRenderWhiteSpace: false}
-  
+
   class Tester extends Yunit
   {
     __New(Modules)
@@ -24,15 +24,15 @@ class Yunit
 
   /**
   * Sets Yunit options
-  * @param {object} options - object with options 
-  * @returns {void} 
+  * @param {object} options - object with options
+  * @returns {void}
   */
   static SetOptions(options) {
     for key, value in options.OwnProps() {
       Yunit.options.%key% := value
     }
   }
-  
+
   Test(classes*) ; static method
   {
     instance := this.new("")
@@ -100,26 +100,26 @@ class Yunit
       if (v is Class && Yunit._isTestCategory(v.Prototype.__class))
         this.classes.InsertAt(++this.current, v)
   }
-  
+
   /**
   * Execute hook if it exists
   * @param {string} cls - class
   * @param {string} method - method to execute
   * @param {string} instance - instance
-  * @returns {void} 
+  * @returns {void}
   */
   static executeHook(cls, method, instance, params*) {
     if (cls.Prototype.hasMethod(method))
       instance.%method%(params*)
   }
-  
+
   /**
   * Executes global hook if it exists
   * Global hooks are executed in the top level and all nested classes
   * @param {string} cls - class object
   * @param {string} method
-  * @param {string} instance 
-  * @returns {void} 
+  * @param {string} instance
+  * @returns {void}
   */
   static executeGlobalHook(cls, method, instance) {
     topLevelClass := StrSplit(Type(instance), ".")[1] 
@@ -130,11 +130,11 @@ class Yunit
     }
   }
 
-  /** 
+  /**
   * Checks whether BeforeEach/AfterEach and Begin/End are used in a
-  * mutually exclusive way 
-  * @param {string} classObj - class object to test 
-  * @returns {boolean} 
+  * mutually exclusive way
+  * @param {string} classObj - class object to test
+  * @returns {boolean}
   */
   static _validateHooks(classObj) {
     isBeforeAfterEach := classObj.Prototype.HasMethod("BeforeEach") || classObj.Prototype.HasMethod("AfterEach")
@@ -145,18 +145,18 @@ class Yunit
   /**
   * Checks whether the method name belongs to a test method
   * @param {string} name - name of method to check
-  * @returns {boolean} 
+  * @returns {boolean}
   */
   static _isTestMethod(name) {
     basicRegex := "i)(^begin$|^end$|^beforeEach$|^beforeEachAll$|^afterEach$|^afterEachAll$|^__New$|^__Delete${1})"
     regex := format(basicRegex, Yunit.Options.EnablePrivateProps ? "|^_" : "")
-		return !!!RegExMatch(name, regex)
-	}
+    return !!!RegExMatch(name, regex)
+  }
 
   /**
   * Checks whether the class name belongs to a test category
   * @param {string} name - name of class to check
-  * @returns {boolean} 
+  * @returns {boolean}
   */
   static _isTestCategory(name) {
     if (!Yunit.Options.EnablePrivateProps) {
@@ -192,12 +192,12 @@ class Yunit
   * @param {string} actualValue - the value to test
   * @param {string} [message] - optional error message for output module
   * to print
-  * @returns {any} 
+  * @returns {any}
   */
   static Expect(actualValue, message := "") {
     return Yunit._Expect(actualValue, message)
   }
-  
+
   ;; Class Util
   Class Util {
     static IsNumber(var) {
@@ -232,12 +232,12 @@ class Yunit
     /**
     * Checks whether a variable is an array
     * @param {*} var - variable to check
-    * @returns {boolean} 
+    * @returns {boolean}
     */
     static IsArray(var) {
       return (var is Array)
     }
-  
+
     /**
     * Checks whether an object is callable
     * @param {object} obj - object to check
@@ -249,8 +249,8 @@ class Yunit
 
     /**
     * Stringifies variable
-    * @param {*} value - variable to stringify 
-    * @returns {string} 
+    * @param {*} value - variable to stringify
+    * @returns {string}
     */
     static Print(value) {
 
@@ -305,14 +305,14 @@ class Yunit
   
       return output .= ", "
     }
-    
-    /** 
+
+    /**
     * Performance counter is a high resolution (<1us) time stamp
     * that can be used for time-interval measurements.
     *
     * Retrieves the elapsed time in ms since the last call to QPCInterval()
     * https://docs.microsoft.com/en-us/windows/win32/api/profileapi/nf-profileapi-queryperformancecounter
-    * @returns {float} 
+    * @returns {float}
     */
     static QPCInterval(){
       Static qpcFreq := 0, qpcNow := 0, qpcLast := 0
@@ -320,20 +320,20 @@ class Yunit
       if (!qpcFreq && !DllCall("QueryPerformanceFrequency", "Int64 *", &qpcFreq)) {
         throw Error("Failure executing 'QueryPerformanceFrequency'")
       }
-    
+
       qpcLast := qpcNow
       if (!DllCall("QueryPerformanceCounter", "Int64 *", &qpcNow)) {
         throw Error("Failure executing 'QueryPerformanceCounter'")
       }
       return (qpcNow - qpcLast) / qpcFreq * 1000
     }
-    
+
     /**
     * Checks whether a search value is included in an array
     * @param {array} arrayObj - array
-    * @param {string | number} searchValue - value to search for 
+    * @param {string | number} searchValue - value to search for
     * @param {boolean} [caseSense:=false]
-    * @returns {boolean} 
+    * @returns {boolean}
     */
     static Includes(arrayObj, searchValue, caseSense := false) {
       if (isObject(searchValue)) {
@@ -347,116 +347,265 @@ class Yunit
       }
       return false
     }
+    
+    /**
+    * Joins elements of an array into a string, JavaScript like
+    * @param {array} arr - Array to convert
+    * @param {string} [sep:=","] - separator e.g. ','
+    * @returns {string} separated list
+    */
+    static Join(arr, separator := ",") {
+      joinedStr := ""
+      for i, value in arr {
+        if (i > 1) {
+          joinedStr .= separator
+        }
+        joinedStr .= value
+      }
+      return joinedStr
+    }
   }
-  
+
   ;; Class _ExpectBase
   Class _ExpectBase {
-    
-    matchers := ["toBe", "toEqual", "toBeCloseTo"]
-        
+
     /**
     * Meta function: routes matcher to Yunit.Matchers
-    * @param {string} methodName - method name of matcher 
+    * @param {string} methodName - method name of matcher
     * @param {any*} params - arguments passed to matcher
-    * @returns {object} matcher info 
+    * @returns {object} matcher info
     */
     __Call(methodName, params) {
-      if (!Yunit.Util.Includes(this.matchers, methodName)) {  
+      try {
+        classMatcher := Yunit.Matchers.%methodName%
+      } catch Error as e {
         Throw MethodError(format("The matcher '{1}' doesn't exist.", methodName))
       }
-      
-      ret := Yunit.Matchers.%methodName%(this.actualValue, params*)
-      ret.matcherType := methodName
-      ret.message := this.message
-      if (!ret.hasPassedTest) {
-        throw Yunit.AssertionError("Assertion error", -2, , ret)
+      matcher := classMatcher({message: this.message})
+      ret := matcher.assert(this.actualValue, params*)
+      if (!ret) {
+        throw Yunit.AssertionError("Assertion error", -2, , matcher)
       }
       return ret
     }
   }
-  
+
   ;; Class Expect
   Class _Expect extends Yunit._ExpectBase {
-    
-    __New(value, message) {
+
+    __New(value, message := "") {
       this.actualValue := value
       this.message := message
     }
   }
-  
+
   ;; Class AssertionError
   Class AssertionError extends Error {
-    __New(message, what := -1, extra :="", matcherInfo := "") {
+    __New(message, what := -1, extra :="", matcher := "") {
       super.__New(message, what, extra)
-      this.matcherInfo := matcherInfo
+      this.matcher := matcher
     }  
   }
 
-  ;; Class Matchers
   Class Matchers {
-    
-    /**
-    * @typedef matcherInfo
-    * @property {boolean} hasPassedTest
-    * @property {any} actual
-    * @property {any} expected
-    * @property {string} [matcherType] - e.g. "ToBe", set by expect()
-    */
-   
-    /**
-    * Matcher: compares two values for equality
-    * objects are compared by object reference
-    * @param {any} actual 
-    * @param {any} expected 
-    * @returns {matcherInfo} 
-    */
-    static ToBe(actual, expected) {
-      info := {actual: actual, expected: expected}
-      ; OutputDebug info.actual
-      info.hasPassedTest := (actual == expected) 
-        ? true
-        : false
-      return info
+    ;; MatcherBase class
+    Class MatcherBase {
+      __New(options := "") {
+        if (options.HasProp("message")) {
+          this.message := options.message
+        }
+      }
+
+      /**
+      * Runs actual matcher
+      * @abstract
+      * @param {string} actual
+      * @param {string} expected
+      * @returns {boolean}
+      */
+      Assert(actual, expected) {
+        this.actual := actual, this.expected := expected
+      }
+
+      /**
+      * Returns the error output to print in the error details section
+      * @virtual
+      * @returns {string | string[]}
+      */
+      GetErrorOutput() {
+        actual := this.formatActualTestValue(this.actual)
+        expected := this.formatExpectedTestValue(this.expected)
+        return format("Actual:   {1}`nExpected: {2}", actual, expected)
+      }
+
+      /**
+      * Formats test value for output in actual/expected block
+      * @param {string} type - "actual" or "expected"
+      * @param {string} value
+      * @returns {string}
+      */
+      formatTestValue(type, value) {
+        newValue := value
+        switch {
+        case isObject(value):
+          newValue := Yunit.Util.Print(value)
+          if (!newValue) {
+            newValue := "{}"
+          }
+        case Yunit.Util.IsFloat(value):
+          newValue := Format("{1:.17g}", value)
+        case Yunit.Util.GetType(value) = "String":
+          textFormat := type = "actual" ? "{format.error}" : "{format.ok}"
+          newValue := this.renderWhiteSpace(value, textFormat)
+          newValue := '"' newValue '"'
+        }
+        return newValue
+      }
+
+      formatActualTestValue(value) {
+        return this.formatTestValue("actual", value)
+      }
+
+      formatExpectedTestValue(value) {
+        return this.formatTestValue("expected", value)
+      }
+
+      /**
+      * Renders white space characters
+      * @param {string} string
+      * @param {string} textFormat - Ansi placeholder
+      * @returns {string}
+      */
+      renderWhiteSpace(string, textFormat) {
+        if (!Yunit.options.outputRenderWhiteSpace) {
+          return string
+        }
+        buffer := StrReplace(string, "`r`n", "{format.textDimmed}``r``n" textFormat)
+        buffer := StrReplace(buffer, "`n", "{format.textDimmed}``n" textFormat)
+        buffer := StrReplace(buffer, chr(27), "{format.textDimmed}``e" textFormat)
+
+        return buffer
+      }
+
+      /**
+      * Returns the names of additional expect matcher parameters
+      * to be printed in the error details header
+      * e.g. for expect(value).toBeCloseTo(expected, digits)
+      *   it would be ["digits"]
+      * @virtual
+      * @returns {string[]}
+      */
+      GetAdditionalExpectParams() {
+        return []
+      }
+
+      /**
+      * Returns the text of a dynamic comment for the expect matcher
+      * to be printed in the error details header
+      * @abstract
+      * @returns {string}
+      */
+      GetExpectComment() {
+        return ""
+      }
+
+      /**
+      * Returns the name of the matcher
+      * @virtual
+      * @returns {string}
+      */
+      GetMatcherType() {
+        return StrSplit(this.__class, ".").Pop()
+      }
     }
-    
-    /**
-    * Matcher: compares two values for equality
-    * numbers are compared numerically,
-    * objects are compared by their stringified contents
-    * @param {any} actual 
-    * @param {any} expected 
-    * @returns {matcherInfo} 
-    */
-    static ToEqual(actual, expected) {
-      if (!isObject(expected)) {
-        return this.ToBe(actual, expected)
+
+    ;; ToBe
+    Class ToBe extends Yunit.Matchers.MatcherBase {
+
+      Assert(actual, expected) {
+        super.Assert(actual, expected)
+        return this.hasPassedTest := (actual == expected)
       }
-      info := {actual: actual, expected: expected}
-      if (isObject(actual)) {
-        actual := Yunit.Util.Print(actual)
-      }
-      if (isObject(expected)) {
-        expected := Yunit.Util.Print(expected)
-      }
-      info.hasPassedTest := (actual == expected) ? true : false 
-      return info
+      
+      GetExpectComment() {
+        switch {
+          case isObject(this.expected):
+            return "compares object references"
+          default:
+            return "compares with =="
+          }
+        }
     }
-    
-    /**
-    * Matcher: compares 2 float numbers for proximate equality
-    * @param {float} actual
-    * @param {float} expected
-    * @param {integer} digits - number of digits
-    * @returns {matcherInfo} 
-    */
-    static ToBeCloseTo(actual, expected, digits := 15) {
-      info := {actual: { value: actual, difference: Abs(expected - actual)}
-        , expected: { value: expected, digits: digits, difference: 10 ** -digits / 2}}
-      info.hasPassedTest := info.actual.difference < info.expected.difference
-        ? true
-        : false
-      return info
+
+    ;; ToEqual
+    Class ToEqual extends Yunit.Matchers.MatcherBase {
+      Assert(actual, expected) {
+        super.Assert(actual, expected)
+        if (isObject(actual)) {
+          actual := Yunit.Util.Print(actual)
+        }
+        if (isObject(expected)) {
+          expected := Yunit.Util.Print(expected)
+        }
+        return this.hasPassedTest := (actual == expected)
+      }
+
+      /**
+      * Returns the text of a dynamic comment for the expect matcher
+      * to be printed in the error details header
+      * @override
+      * @returns {string}
+      */
+      GetExpectComment() {
+        switch {
+        case isObject(this.expected):
+          return "deep stringified equality, no type checking"
+        default:
+          return "compares with =="
+        }
+      }
+    }
+
+    ;; Class ToBeCloseTo
+    Class ToBeCloseTo extends Yunit.Matchers.MatcherBase {
+      assert(actual, expected, digits := 2) {
+        this.actual := {value: actual, difference: Abs(expected - actual)}
+        this.expected := {value: expected, digits: digits, difference: 10 ** -digits / 2}
+        return this.hasPassedTest := this.actual.difference < this.expected.difference
+      }
+
+      getErrorOutput() {
+        output := []
+        formatBlock :="
+        (Ltrim
+          Actual:   {1}
+          Expected: {2}
+        )"
+        formatDetails := "
+        (LTrim
+          Actual difference:     {1}
+          Expected difference: < {2:.$$f}
+          Expected precision:    {3}
+        )"
+        expected := this.expected
+        actual := this.actual
+
+        output.Push(format(formatBlock
+          , this.formatActualTestValue(actual.value)
+          , this.formatExpectedTestValue(expected.value)))
+
+        formatDetails := StrReplace(formatDetails, "$$", expected.digits + 1)
+        output.Push(format(formatDetails
+          , this.formatActualTestValue(actual.difference)
+          , expected.difference
+          , expected.digits))
+
+        return output
+      }
+      
+      GetAdditionalExpectParams() {
+        return ["precision"]
+      }
     }
   }
-  
 }
