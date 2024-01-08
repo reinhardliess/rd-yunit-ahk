@@ -1,7 +1,21 @@
 ; cspell:ignore dont ansi
 ;; ConsoleOutputTest
 Class ConsoleOutputTest {
-  
+
+  Class _MockMatcher extends Yunit.Matchers.MatcherBase {
+    
+    test_expectComment := ""
+    test_expectParams := []
+    
+    GetAdditionalExpectParams() {
+      return this.test_expectParams
+    }
+    
+    GetExpectComment() {
+      return this.test_expectComment
+    }
+  }
+
   ;; static helper methods
   
   /**
@@ -189,11 +203,69 @@ Class ConsoleOutputTest {
   
   ;; Error details
   Class Print_error_details {
+    beforeEach() {
+      this.matcher := new ConsoleOutputTest._MockMatcher()
+    }
+
     print_categories_and_testname_as_breadcrumbs_for_error() {
       outputInfo := ConsoleOutputTest._runTest("Category1.sub1", "test3", "def", "ghi", 5)
       expected := "* Category1 > sub1 > test3`n"
       
       this.m.printErrorPath(outputInfo)
+      
+      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+    }
+
+    print_error_header_no_additional_data() {
+      expected := "  expect(actual)._MockMatcher(expected)`n"
+      
+      this.m.printErrorHeader(this.matcher)
+      
+      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+    }
+    
+    print_error_header_two_expect_params() {
+      this.matcher.test_expectParams := ["second"]
+      expected := "  expect(actual)._MockMatcher(expected, second)`n"
+      
+      this.m.printErrorHeader(this.matcher)
+      
+      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+    }
+    
+    print_error_header_three_expect_params() {
+      this.matcher.test_expectParams := ["second", "third"]
+      expected := "  expect(actual)._MockMatcher(expected, second, third)`n"
+      
+      this.m.printErrorHeader(this.matcher)
+      
+      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+    }
+    
+    print_error_header_expect_comment() {
+      this.matcher.test_expectComment := "comment"
+      expected := "  expect(actual)._MockMatcher(expected) `; comment`n"
+      
+      this.m.printErrorHeader(this.matcher)
+      
+      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+    }
+    
+    print_error_header_expect_comment_second_param() {
+      this.matcher.test_expectParams := ["second"]
+      this.matcher.test_expectComment := "comment"
+      expected := "  expect(actual)._MockMatcher(expected, second) `; comment`n"
+      
+      this.m.printErrorHeader(this.matcher)
+      
+      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+    }
+  
+    print_error_header_with_optional_message() {
+      matcher := new ConsoleOutputTest._MockMatcher({message: "error message"})
+      expected := "  expect(actual)._MockMatcher(expected)`n`n  error message`n"
+      
+      this.m.printErrorHeader(matcher)
       
       Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
     }
