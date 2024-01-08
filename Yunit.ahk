@@ -410,6 +410,10 @@ class Yunit
   Class Matchers {
     ;; MatcherBase class
     Class MatcherBase {
+      
+      ; TODO: remove comment and fix tests with toContain matcher
+      ; message := ""
+      
       __New(options := "") {
         if (options.HasProp("message")) {
           this.message := options.message

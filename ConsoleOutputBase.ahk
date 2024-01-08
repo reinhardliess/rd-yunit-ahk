@@ -267,21 +267,21 @@ Class ConsoleOutputBase {
   * @returns {void} 
   */
   printErrorHeader(matcher) {
-    formatHeader := "{format.text}expect({format.error}actual{format.text}).{1}({format.ok}expected{2}{format.text}) {format.textDimmed}{3}"
+    formatHeader := "{format.text}expect({format.error}actual{format.text}).{1}({format.ok}expected{2}{format.text}){format.textDimmed}{3}"
     
     params := matcher.GetAdditionalExpectParams()
-    params := params.Length ? ", " Yunit.Util.Join(params) : ""  
+    params := params.Length ? ", " Yunit.Util.Join(params, ", ") : ""  
     
     comment := matcher.GetExpectComment()
     if (comment) {
-      comment := "; " comment
+      comment := " `; " comment
     }
     
     this.printLine(1, formatHeader
       , matcher.getMatcherType()
       , params
       , comment)
-    if (matcher.message) {
+    if (matcher.HasProp("message") && matcher.message) {
       this.printLine()
       this.printLine(1, matcher.message)
     }
