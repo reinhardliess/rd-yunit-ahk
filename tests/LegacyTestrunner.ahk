@@ -106,74 +106,75 @@ test_Yunit_TestClass() {
 }
 
 test_Yunit_Util() {
-  u := Yunit.Util
-  assert.label("should determine the correct type for numbers")
-  assert.true(u.isInteger(5))
-  assert.true(u.isNumber(5))
-  assert.true(u.isFloat(5.0))
-  assert.true(u.isNumber(5.0))
+  ; u := Yunit.Util
+  ; assert.label("should determine the correct type for numbers")
+  ; assert.true(u.isInteger(5))
+  ; assert.true(u.isNumber(5))
+  ; assert.true(u.isFloat(5.0))
+  ; assert.true(u.isNumber(5.0))
   
   ;; GetType()
-  assert.label("GetType() should return the correct variable type")
-  assert.test(u.GetType(5), "Integer")
-  assert.test(u.GetType(5.0), "Float")
-  assert.test(u.GetType("green"), "String")
-  assert.test(u.GetType({a:1}), "Object")
-  assert.test(u.GetType(new TestClass1()), "TestClass1")
-  assert.test(u.GetType(TestClass1), "Class")
+  ; assert.label("GetType() should return the correct variable type")
+  ; assert.test(u.GetType(5), "Integer")
+  ; assert.test(u.GetType(5.0), "Float")
+  ; assert.test(u.GetType("green"), "String")
+  ; assert.test(u.GetType({a:1}), "Object")
+  ; assert.test(u.GetType(new TestClass1()), "TestClass1")
+  ; assert.test(u.GetType(TestClass1), "Class")
 
-  ;; IsArray()
-  assert.label("IsArray() - true")
-  assert.true(u.IsArray([]))
-  assert.true(u.IsArray(["a", "b"]))
-  assert.label("IsArray() - false")
-  assert.false(u.IsArray(5))
-  assert.false(u.IsArray({a: 1}))
-  assert.false(u.IsArray({1a: 1}))
+  ; ;; IsArray()
+  ; assert.label("IsArray() - true")
+  ; assert.true(u.IsArray([]))
+  ; assert.true(u.IsArray(["a", "b"]))
+  ; assert.label("IsArray() - false")
+  ; assert.false(u.IsArray(5))
+  ; assert.false(u.IsArray({a: 1}))
+  ; assert.false(u.IsArray({1a: 1}))
   
   ;; IsFunction()
-  assert.label("IsFunction() should determine whether an object is callable")
-  assert.true(u.IsFunction(Func("Substr")))
-  assert.true(u.IsFunction(Func("Substr").bind()))
-  assert.false(u.IsFunction("Substr"))
+  ; assert.label("IsFunction() should determine whether an object is callable")
+  ; assert.true(u.IsFunction(Func("Substr")))
+  ; assert.true(u.IsFunction(Func("Substr").bind()))
+  ; assert.false(u.IsFunction("Substr"))
   
   ;; QPCInterval()
-  assert.label("QueryPerformanceCounter is working")
-  assert.test(u.GetType(u.QPCInterVal()), "Float")
+  ; assert.label("QueryPerformanceCounter is working")
+  ; assert.test(u.GetType(u.QPCInterVal()), "Float")
   
   ;; Includes()
-  strArray := ["a", "b", "c", "d"]
-  numArray := [1, 2, 3, 4]
-  assert.label("Includes() - true")
-  assert.true(u.Includes(numArray, 1))
-  assert.true(u.Includes(numArray, 4))
-  assert.true(u.Includes(strArray, "a"))
-  assert.true(u.Includes(strArray, "D"))
-  assert.label("Includes() - false")
-  assert.false(u.Includes(numArray, 5))
-  assert.false(u.Includes(strArray, "f"))
-  assert.false(u.Includes(strArray, "D", true))
-  assert.toThrow(ObjBindMethod(u, "includes", strArray, {a: 1}))
+  ; TODO: Includes() not used => unused modules later
+  ; strArray := ["a", "b", "c", "d"]
+  ; numArray := [1, 2, 3, 4]
+  ; assert.label("Includes() - true")
+  ; assert.true(u.Includes(numArray, 1))
+  ; assert.true(u.Includes(numArray, 4))
+  ; assert.true(u.Includes(strArray, "a"))
+  ; assert.true(u.Includes(strArray, "D"))
+  ; assert.label("Includes() - false")
+  ; assert.false(u.Includes(numArray, 5))
+  ; assert.false(u.Includes(strArray, "f"))
+  ; assert.false(u.Includes(strArray, "D", true))
+  ; assert.toThrow(ObjBindMethod(u, "includes", strArray, {a: 1}))
   
   ;; Print()
-  assert.label("Print() should stringify the contents of a variable correctly")
-  assert.test(u.Print(33), 33)
-  assert.test(u.Print([1, 2, 3]), "1:1, 2:2, 3:3")
+  ; assert.label("Print() should stringify the contents of a variable correctly")
+  ; assert.test(u.Print(33), 33)
+  ; assert.test(u.Print([1, 2, 3]), "1:1, 2:2, 3:3")
   
-  actualValue := {name: "Zoe", age: 20, address: { street: "Jardin des Roses"} }
-  expected =  
-  ( ltrim
-    "address":["street":"Jardin des Roses"], "age":20, "name":"Zoe"
-  )
-  assert.test(u.Print(actualValue), expected)
+  ; actualValue := {name: "Zoe", age: 20, address: { street: "Jardin des Roses"} }
+  ; expected =  
+  ; ( ltrim
+  ;   "address":["street":"Jardin des Roses"], "age":20, "name":"Zoe"
+  ; )
+  ; assert.test(u.Print(actualValue), expected)
   
-  actualValue := [{type: 1, value: "abc"}, {type: 2, value: "def"}]
-  expected = 
-  ( ltrim
-  1:["type":1, "value":"abc"], 2:["type":2, "value":"def"]
-  )
-  assert.test(u.Print(actualValue), expected)
-  assert.test(u.Print({ a: 1, fn: Func("Instr")}), """a"":1")
+  ; actualValue := [{type: 1, value: "abc"}, {type: 2, value: "def"}]
+  ; expected = 
+  ; ( ltrim
+  ; 1:["type":1, "value":"abc"], 2:["type":2, "value":"def"]
+  ; )
+  ; assert.test(u.Print(actualValue), expected)
+  ; assert.test(u.Print({ a: 1, fn: Func("Instr")}), """a"":1")
 }
 
 test_AssertionError() {

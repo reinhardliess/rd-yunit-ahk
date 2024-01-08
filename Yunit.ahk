@@ -208,6 +208,14 @@ class Yunit
       return false
     }
 
+    IsPureInteger(var) {
+      if var is integer
+      {
+        return (ObjGetCapacity([var], 1) == "") ? true : false
+      }
+      return false
+    }
+
     IsFloat(var) {
       if var is float
       {
@@ -238,20 +246,20 @@ class Yunit
 
     /**
     * Checks whether a variable is an array
-    * Empty objects/arrays will return true
+    * Empty objects/arrays will return false
     * @param {*} var - variable to check
     * @returns {boolean}
     */
     IsArray(var) {
-      switch {
-      case !IsObject(var):
+      if (!isObject(var) || ObjCount(var) == 0) {
         return false
-      case ObjCount(var) == 0:
-        return true
       }
-      enum := var._newEnum()
-      enum.next(key, value)
-      return this.IsInteger(key) && var.length()
+      for i, value in var {
+        if (!Yunit.Util.isInteger(i)) {
+          return false
+        }  
+      }
+      return true
     }
 
     /**

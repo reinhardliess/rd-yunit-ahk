@@ -227,7 +227,108 @@ Class YunitTest {
     }
   }
   
+  ;; Class Util
   Class Util {
+    ;; Class Types
+    Class Types {
+      ;; Class Numbers
+      Class Numbers {
+        isInteger_should_check_if_var_converts_to_integer() {
+          Yunit.expect(Yunit.Util.isInteger(5)).toBe(true)
+          Yunit.expect(Yunit.Util.isInteger("5")).toBe(true)
+        }
+        
+        isInteger_should_check_if_var_does_not_convert_to_integer() {
+          Yunit.expect(Yunit.Util.isInteger(5.0)).toBe(false)
+          Yunit.expect(Yunit.Util.isInteger("5.0")).toBe(false)
+        }
+        
+        isPureInteger_should_check_if_var_is_integer() {
+          Yunit.expect(Yunit.Util.isPureInteger(5)).toBe(true)
+        }
+        
+        isPureInteger_should_check_if_var_is_not_integer() {
+          Yunit.expect(Yunit.Util.isPureInteger("5")).toBe(false)
+          Yunit.expect(Yunit.Util.isPureInteger(5.0)).toBe(false)
+          Yunit.expect(Yunit.Util.isPureInteger("5.0")).toBe(false)
+        }
+      
+        should_determine_the_correct_type_for_numbers() {
+          Yunit.expect(Yunit.Util.isNumber(5)).toBe(true)
+          Yunit.expect(Yunit.Util.isNumber(5.0)).toBe(true)
+          Yunit.expect(Yunit.Util.isFloat(5.0)).toBe(true)
+        }
+      }  
+          
+      isArray_should_check_if_var_is_an_array() {
+        Yunit.expect(Yunit.Util.IsArray([])).toBe(false)
+        Yunit.expect(Yunit.Util.IsArray(["a", "b"])).toBe(true)
+      }
+      
+      isArray_should_check_if_var_is_not_an_array() {
+        Yunit.expect(Yunit.Util.IsArray(5)).toBe(false)
+        Yunit.expect(Yunit.Util.IsArray({a: 1})).toBe(false)
+        Yunit.expect(Yunit.Util.IsArray({1a: 1})).toBe(false)
+        Yunit.expect(Yunit.Util.IsArray({1: 1, a: 2})).toBe(false)
+      }
+      
+      getType_should_return_the_correct_variable_type() {
+        Yunit.expect(Yunit.Util.GetType(5)).toBe("Integer")
+        Yunit.expect(Yunit.Util.GetType(5.0)).toBe("Float")
+        Yunit.expect(Yunit.Util.GetType("green")).toBe("String")
+        Yunit.expect(Yunit.Util.GetType({a: 1})).toBe("Object")
+        Yunit.expect(Yunit.Util.GetType(new Yunit.Util)).toBe("Yunit.Util")
+        Yunit.expect(Yunit.Util.GetType(Yunit.Util), "Class")
+      }
+    
+      isFunction_should_determine_whether_an_object_is_callable() {
+        Yunit.expect(Yunit.Util.IsFunction(Func("Substr"))).toBe(true)
+        Yunit.expect(Yunit.Util.IsFunction(Func("Substr").bind())).toBe(true)
+        Yunit.expect(Yunit.Util.IsFunction("Substr")).toBe(false)
+      }
+    }
+    
+    ;; Class Print
+    Class Print {
+      print_a_primitive_type() {
+        Yunit.expect(Yunit.Util.Print(33)).toBe(33)
+        Yunit.expect(Yunit.Util.Print("33")).toBe("33")
+      }
+      
+      print_an_array() {
+        Yunit.expect(Yunit.Util.Print([1, 2, 3])).toEqual("1:1, 2:2, 3:3")
+        Yunit.expect(Yunit.Util.Print(["April", "Zoe", "Saga"])).toEqual("1:""April"", 2:""Zoe"", 3:""Saga""")
+      }
+      
+      print_an_object() {
+        actualValue := {name: "Zoe", age: 20, address: { street: "Jardin des Roses"} }
+        expected =  
+        ( ltrim
+          "address":["street":"Jardin des Roses"], "age":20, "name":"Zoe"
+        )
+        Yunit.expect(Yunit.Util.Print(actualValue)).toEqual(expected)
+      }
+      
+      print_an_array_of_objects() {
+        actualValue := [{type: 1, value: "abc"}, {type: 2, value: "def"}]
+        expected = 
+        ( ltrim
+        1:["type":1, "value":"abc"], 2:["type":2, "value":"def"]
+        )
+        Yunit.expect(Yunit.Util.Print(actualValue)).toEqual(expected)
+      }
+      
+      print_an_object_but_ignore_function_objects_as_props() {
+        obj := { a: 1, fn: Func("Instr")}
+        Yunit.expect(Yunit.Util.Print(obj)).toEqual("""a"":1")  
+      }
+    }
+    
+    should_test_if_QueryPerformanceCounter_is_working() {
+      timeCode := Yunit.Util.QPCInterVal()
+      Yunit.expect(Yunit.Util.GetType(timeCode)).toBe("Float")
+    }
+    
     join_should_join_array_elements_with_separator() {
       Yunit.expect(Yunit.Util.Join([])).toEqual("")
       Yunit.expect(Yunit.Util.Join([1])).toEqual("1")

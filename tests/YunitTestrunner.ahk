@@ -5,6 +5,7 @@ SetWorkingDir, %A_ScriptDir%
 #Include ../Yunit.ahk
 #Include ../Stdout.ahk
 #Include ../StdoutMin.ahk
+; #Include ../Window.ahk
 #Include ../ConsoleOutputBase.ahk
 #Include ./Test_ConsoleOutput.ahk
 #Include ./testclasses/ConsoleOutputTest.ahk
@@ -14,3 +15,4 @@ SetWorkingDir, %A_ScriptDir%
 Yunit.SetOptions({ outputRenderWhiteSpace: true })
 Yunit.Use(YunitStdoutMin).Test(YunitTest, YunitHookTest, ConsoleOutputTest)
 ; Yunit.Use(YunitStdout).Test(YunitTest, YunitHookTest, ConsoleOutputTest)
+; Yunit.Use(YunitWindow).Test(YunitTest, YunitHookTest, ConsoleOutputTest)
