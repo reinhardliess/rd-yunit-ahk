@@ -204,21 +204,38 @@ class Yunit
       return this.isInteger(var) || this.isFloat(var)
     }
 
+    static IsPureNumber(var) {
+      return this.isPureInteger(var) || this.isPureFloat(var)
+    }
+
     static IsInteger(var) {
-      if var is integer
-      {
+      if IsInteger(var) {
+        return true
+      }
+      return false
+    }
+
+    static IsPureInteger(var) {
+      if var is integer {
         return true
       }
       return false
     }
 
     static IsFloat(var) {
-      if var is float
-      {
+      if IsFloat(var) {
         return true
       }
       return false
     }
+    
+    static IsPureFloat(var) {
+      if var is float {
+        return true
+      }
+      return false
+    }
+    
 
     /**
     * Returns the type of the variable
@@ -249,19 +266,21 @@ class Yunit
 
     /**
     * Stringifies variable
-    * @param {*} value - variable to stringify
+    * @param {any} value - variable to stringify
+    * @param {boolean} usePureNumbers - no auto-conversion between
+    *   string and integer (V1) or all numbers (V2)
     * @returns {string}
     */
-    static Print(value) {
+    static Print(value, usePureNumbers := false) {
 
       if (!IsObject(value)) {
         return value
       }
   
-      return this._stringify(value)
+      return this._stringify(value, usePureNumbers)
     }
   
-    static _stringify(param_value) {
+    static _stringify(param_value, usePureNumbers) {
       if (!isObject(param_value)) {
         return '"' param_value '"'
       }
@@ -272,13 +291,13 @@ class Yunit
         : param_value.OwnProps()
   
       for key, value in iterator {
-        output .= this._stringifyGenerate(key, value)
+        output .= this._stringifyGenerate(key, value, usePureNumbers)
       }
       output := subStr(output, 1, -2)
       return output
     }
   
-    static _stringifyGenerate(key, value) {
+    static _stringifyGenerate(key, value, usePureNumbers) {
       output := ""
   
       switch {
@@ -296,9 +315,11 @@ class Yunit
           ; Skip callable objects
           return ""
         case IsObject(value):
-          output .= "[" . this._stringify(value) . "]"
-        case IsNumber(value):
-          output .= value
+          output .= "[" . this._stringify(value, usePureNumbers) . "]"
+        case !usePureNumbers && this.IsNumber(value):
+            output .= value
+        case usePureNumbers && this.IsPureNumber(value):
+            output .= value
         default:
           output .= '"' . value . '"'
       }
@@ -340,8 +361,8 @@ class Yunit
         throw TypeError(A_ThisFunc " - TypeError: 2nd parameter must be number or string", -2)
       }
       for _, value in arrayObj {
-        condition := caseSense ? searchValue == value : searchValue = value
-        if (condition) {
+        found := caseSense ? searchValue == value : searchValue = value
+        if (found) {
           return true
         }
       }
@@ -356,11 +377,11 @@ class Yunit
     */
     static Join(arr, separator := ",") {
       joinedStr := ""
-      for i, value in arr {
+      for i, item in arr {
         if (i > 1) {
           joinedStr .= separator
         }
-        joinedStr .= value
+        joinedStr .= item
       }
       return joinedStr
     }
@@ -370,10 +391,10 @@ class Yunit
   Class _ExpectBase {
 
     /**
-    * Meta function: routes matcher to Yunit.Matchers
+    * Meta function: routes method name to matcher
     * @param {string} methodName - method name of matcher
     * @param {any*} params - arguments passed to matcher
-    * @returns {object} matcher info
+    * @returns {any} return value from matcher
     */
     __Call(methodName, params) {
       try {
@@ -477,7 +498,8 @@ class Yunit
       /**
       * Renders white space characters
       * @param {string} string
-      * @param {string} textFormat - Ansi placeholder
+      * @param {string} textFormat - Ansi placeholder to set after
+      * rendering whitespace
       * @returns {string}
       */
       renderWhiteSpace(string, textFormat) {
@@ -495,7 +517,7 @@ class Yunit
       * Returns the names of additional expect matcher parameters
       * to be printed in the error details header
       * e.g. for expect(value).toBeCloseTo(expected, digits)
-      *   it would be ["digits"]
+      *   => ["digits"]
       * @virtual
       * @returns {string[]}
       */

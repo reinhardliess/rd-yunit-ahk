@@ -3,7 +3,6 @@
 
 ;; ConsoleOutputTest
 Class ConsoleOutputTest {
-  
   Class _MockMatcher extends Yunit.Matchers.MatcherBase {
     
     test_expectComment := ""
@@ -143,7 +142,7 @@ Class ConsoleOutputTest {
       {format.text}Expected: {format.ok}6
       )"
       
-      output := this.m.injectAnsiPlaceholdersIntoMatcherOutput(matcherOutput)
+      output := this.m.insertAnsiPlaceholdersIntoMatcherOutput(matcherOutput)
       
       Yunit.expect(output).toEqual(expected)
     
@@ -217,7 +216,7 @@ Class ConsoleOutputTest {
       
       Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
     }
-    
+
     print_error_header_no_additional_data() {
       expected := "  expect(actual)._MockMatcher(expected)`n"
       

@@ -298,7 +298,7 @@ Class ConsoleOutputBase {
       output := [output]
     }
     for i, errorBlock in output {
-      withAnsi := this.injectAnsiPlaceholdersIntoMatcherOutput(errorBlock)
+      withAnsi := this.insertAnsiPlaceholdersIntoMatcherOutput(errorBlock)
       if (i > 1) {
         this.printLine()
       }
@@ -311,7 +311,7 @@ Class ConsoleOutputBase {
   * @param {string} output
   * @returns {string} 
   */
-  injectAnsiPlaceholdersIntoMatcherOutput(output) {
+  insertAnsiPlaceholdersIntoMatcherOutput(output) {
     text := RegexReplace(output, "`aim)(^actual|^expected).*?:\s+", "{format.text}$0")
     text := RegexReplace(text, "`aim)^{format\.text}+actual.*?:\s+", "$0{format.error}")
     text := RegexReplace(text, "`aim)^{format\.text}+expected.*?:\s+", "$0{format.ok}")
