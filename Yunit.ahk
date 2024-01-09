@@ -291,10 +291,28 @@ class Yunit
         : param_value.OwnProps()
   
       for key, value in iterator {
+        if (param_value is Map && Type(key) = "String") {
+          switch param_value.CaseSense {
+            case "Off":
+              key := toLowerCaseAscii(key)
+            case "Locale":
+              key := StrLower(key)
+          }
+        }
         output .= this._stringifyGenerate(key, value, usePureNumbers)
       }
       output := subStr(output, 1, -2)
       return output
+      
+      toLowerCaseAscii(str) {
+        VarSetStrCapacity(&newStr, StrLen(str))
+        Loop StrLen(str) {
+          char := Substr(str, A_Index, 1)
+          code := Ord(char)
+          newStr .= (code >= 65 && code <= 90) ? Chr(code + 32) : char
+        }
+        return newStr
+      }
     }
   
     static _stringifyGenerate(key, value, usePureNumbers) {
