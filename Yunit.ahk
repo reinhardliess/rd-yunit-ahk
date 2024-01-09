@@ -231,23 +231,23 @@ class Yunit
     */
     GetType(var) {
       switch {
-      case isObject(var) && className := var.__class:
-        return (var.base.__class = className) ? className : "Class"
-      case isObject(var):
-        return "Object"
-      case this.IsInteger(var):
-        return "Integer"
-      case this.IsFloat(var):
-        return "Float"
-      default:
-        return "String"
+        case isObject(var) && className := var.__class:
+          return (var.base.__class = className) ? className : "Class"
+        case isObject(var):
+          return "Object"
+        case this.IsPureInteger(var):
+          return "Integer"
+        case this.IsFloat(var):
+          return "Float"
+        default:
+          return "String"
       }
     }
 
     /**
     * Checks whether a variable is an array
     * Empty objects/arrays will return false
-    * @param {*} var - variable to check
+    * @param {any} var - variable to check
     * @returns {boolean}
     */
     IsArray(var) {
@@ -255,7 +255,7 @@ class Yunit
         return false
       }
       for i, value in var {
-        if (!Yunit.Util.isInteger(i)) {
+        if (!Yunit.Util.isPureInteger(i)) {
           return false
         }  
       }
@@ -277,15 +277,17 @@ class Yunit
 
     /**
     * Stringifies variable
-    * @param {*} value - variable to stringify
+    * @param {any} value - variable to stringify
+    * @param {boolean} usePureNumbers - no auto-conversion between
+    *   string and integer (V1) or all numbers (V2)
     * @returns {string}
     */
-    Print(value) {
-      out := (isObject(value) ? this._stringify(value) : value)
+    Print(value, usePureNumbers := false) {
+      out := (isObject(value) ? this._stringify(value, usePureNumbers) : value)
       return out
     }
 
-    _stringify(param_value) {
+    _stringify(param_value, usePureNumbers) {
       output := ""
 
       for key, value in param_value {
@@ -296,19 +298,21 @@ class Yunit
         }
 
         switch {
-        case this.IsInteger(key):
-          output .= key . ":"
-        default:
-          output .= """" . key . """:"
+          case this.IsInteger(key):
+            output .= key . ":"
+          default:
+            output .= """" . key . """:"
         }
 
         switch {
-        case IsObject(value):
-          output .= "[" . this._stringify(value) . "]"
-        case this.IsNumber(value):
-          output .= value
-        default:
-          output .= """" . value . """"
+          case IsObject(value):
+            output .= "[" . this._stringify(value, usePureNumbers) . "]"
+          case !usePureNumbers && this.IsNumber(value):
+            output .= value
+          case usePureNumbers && (this.isPureInteger(value) || this.isFloat(value)):
+            output .= value
+          default:
+            output .= """" . value . """"
         }
         output .= ", "
       }
@@ -350,8 +354,8 @@ class Yunit
         throw Exception(A_ThisFunc " - TypeError: 2nd parameter must be number or string", -2)
       }
       for _, value in arrayObj {
-        condition := caseSense ? searchValue == value : searchValue = value
-        if (condition) {
+        found := caseSense ? searchValue == value : searchValue = value
+        if (found) {
           return true
         }
       }
@@ -366,11 +370,11 @@ class Yunit
     */
     Join(arr, separator := ",") {
       joinedStr := ""
-      for i, value in arr {
+      for i, item in arr {
         if (i > 1) {
           joinedStr .= separator
         }
-        joinedStr .= value
+        joinedStr .= item
       }
       return joinedStr
     }
@@ -380,10 +384,10 @@ class Yunit
   Class _ExpectBase {
 
     /**
-    * Meta function: routes matcher to Yunit.Matchers
+    * Meta function: routes method name to matcher
     * @param {string} methodName - method name of matcher
     * @param {any*} params - arguments passed to matcher
-    * @returns {object} matcher info
+    * @returns {any} return value from matcher
     */
     __Call(methodName, params*) {
       classMatcher := Yunit["Matchers"][methodName]
@@ -485,7 +489,8 @@ class Yunit
       /**
       * Renders white space characters
       * @param {string} string
-      * @param {string} textFormat - Ansi placeholder
+      * @param {string} textFormat - Ansi placeholder to set after
+      * rendering whitespace
       * @returns {string}
       */
       renderWhiteSpace(string, textFormat) {
@@ -503,7 +508,7 @@ class Yunit
       * Returns the names of additional expect matcher parameters
       * to be printed in the error details header
       * e.g. for expect(value).toBeCloseTo(expected, digits)
-      *   it would be ["digits"]
+      *   => ["digits"]
       * @virtual
       * @returns {string[]}
       */

@@ -1,4 +1,5 @@
 Class YunitTest {
+  ;; Class Matchers
   Class Matchers {
 
     ;; TODO: use SetOptions/RestoreOptions when available
@@ -261,24 +262,23 @@ Class YunitTest {
       }  
           
       isArray_should_check_if_var_is_an_array() {
-        Yunit.expect(Yunit.Util.IsArray([])).toBe(false)
         Yunit.expect(Yunit.Util.IsArray(["a", "b"])).toBe(true)
       }
       
       isArray_should_check_if_var_is_not_an_array() {
+        Yunit.expect(Yunit.Util.IsArray([])).toBe(false)
         Yunit.expect(Yunit.Util.IsArray(5)).toBe(false)
         Yunit.expect(Yunit.Util.IsArray({a: 1})).toBe(false)
         Yunit.expect(Yunit.Util.IsArray({1a: 1})).toBe(false)
         Yunit.expect(Yunit.Util.IsArray({1: 1, a: 2})).toBe(false)
       }
-      
       getType_should_return_the_correct_variable_type() {
         Yunit.expect(Yunit.Util.GetType(5)).toBe("Integer")
         Yunit.expect(Yunit.Util.GetType(5.0)).toBe("Float")
         Yunit.expect(Yunit.Util.GetType("green")).toBe("String")
         Yunit.expect(Yunit.Util.GetType({a: 1})).toBe("Object")
         Yunit.expect(Yunit.Util.GetType(new Yunit.Util)).toBe("Yunit.Util")
-        Yunit.expect(Yunit.Util.GetType(Yunit.Util), "Class")
+        Yunit.expect(Yunit.Util.GetType(Yunit.Util)).toBe("Class")
       }
     
       isFunction_should_determine_whether_an_object_is_callable() {
@@ -321,6 +321,71 @@ Class YunitTest {
       print_an_object_but_ignore_function_objects_as_props() {
         obj := { a: 1, fn: Func("Instr")}
         Yunit.expect(Yunit.Util.Print(obj)).toEqual("""a"":1")  
+      }
+      
+      print_an_object_with_integer_value_usePureNumbers_true() {
+        obj1 := {a: 1}
+        
+        printedObj1 := Yunit.Util.Print(obj1, true) 
+        
+        Yunit.expect(printedObj1).toEqual("""a"":1")  
+      }
+
+      print_an_object_with_integer_value_usePureNumbers_false() {
+        obj1 := {a: 1}
+        
+        printedObj1 := Yunit.Util.Print(obj1, false) 
+        
+        Yunit.expect(printedObj1).toEqual("""a"":1")  
+      }
+
+      print_an_object_with_a_string_integer_value_usePureNumbers_true() {
+        obj1 := {a: "1"}
+        
+        printedObj1 := Yunit.Util.Print(obj1, true) 
+        
+        Yunit.expect(printedObj1).toEqual("""a"":""1""")  
+      }
+
+      print_an_object_with_a_string_integer_value_usePureNumbers_false() {
+        obj1 := {a: "1"}
+        
+        printedObj1 := Yunit.Util.Print(obj1, false) 
+        
+        Yunit.expect(printedObj1).toEqual("""a"":1")  
+      }
+      
+      ; TODO: change for V2
+      print_an_object_with_a_float_value_usePureNumbers_true() {
+        obj1 := {a: 5.0}
+        
+        printedObj1 := Yunit.Util.Print(obj1, true) 
+        
+        Yunit.expect(printedObj1).toEqual("""a"":5.0")  
+      }
+
+      print_an_object_with_a_float_value_usePureNumbers_false() {
+        obj1 := {a: 5.0}
+        
+        printedObj1 := Yunit.Util.Print(obj1, false) 
+        
+        Yunit.expect(printedObj1).toEqual("""a"":5.0")  
+      }
+
+      print_an_object_with_a_string_float_value_usePureNumbers_true() {
+        obj1 := {a: "5.0"}
+        
+        printedObj1 := Yunit.Util.Print(obj1, true) 
+        
+        Yunit.expect(printedObj1).toEqual("""a"":5.0")  
+      }
+
+      print_an_object_with_a_string_float_value_usePureNumbers_false() {
+        obj1 := {a: "5.0"}
+        
+        printedObj1 := Yunit.Util.Print(obj1, false) 
+        
+        Yunit.expect(printedObj1).toEqual("""a"":5.0")  
       }
     }
     
