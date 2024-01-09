@@ -141,7 +141,7 @@ Class ConsoleOutputTest {
       {format.text}Expected: {format.ok}6
       )"
       
-      output := this.m.injectAnsiPlaceholdersIntoMatcherOutput(matcherOutput)
+      output := this.m.insertAnsiPlaceholdersIntoMatcherOutput(matcherOutput)
       
       Yunit.expect(output).toEqual(expected)
     
@@ -269,25 +269,6 @@ Class ConsoleOutputTest {
       
       Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
     }
-    
-    ; print_expect_header_with_additional_expect_parameter() {
-    ;   err := ConsoleOutputTest._runMatcher("toBeCloseTo", 0.3, 0.29)
-    ;   expected := "  expect(actual).ToEqual(expected)`n"
-      
-    ;   this.m.printErrorHeader(err.matcher)
-      
-    ;   Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
-    ; }
-  
-    ; print_expect_header_with_message() {
-    ;   err := ConsoleOutputTest._runMatcher("toEqual", 5, 6)
-    ;   err.matcher.message := "error message"
-    ;   expected := "  expect(actual).ToEqual(expected)`n`n  error message`n"
-      
-    ;   this.m.printErrorHeader(err.matcher)
-      
-    ;   Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
-    ; }
     
     print_file_path_error_info() {
       err := ConsoleOutputTest._runMatcher("toEqual", 5, 6)
