@@ -261,17 +261,16 @@ Class ConsoleOutputBase {
   
   /**
   * Prints header for matcher output
-  * @param {object} matcher - instance of Yunit.Matchers.MatcherBase
+  * @param {Yunit.Matchers.MatcherBase} matcher
   * @returns {void} 
   */
   printErrorHeader(matcher) {
     formatHeader := "{format.text}expect({format.error}actual{format.text}).{1}({format.ok}expected{2}{format.text}){format.textDimmed}{3}"
     
-    params := matcher.GetAdditionalExpectParams()
-    params := params.Length() ? ", " Yunit.Util.Join(params, ", ") : ""  
-    
-    comment := matcher.GetExpectComment()
-    if (comment) {
+    if (params := matcher.GetAdditionalExpectParams()) {
+      params := ", " Yunit.Util.Join(params, ", ")
+    }
+    if (comment := matcher.GetExpectComment()) {
       comment := " `; " comment
     }
     
@@ -279,6 +278,7 @@ Class ConsoleOutputBase {
       , matcher.getMatcherType()
       , params
       , comment)
+    
     if (matcher.message) {
       this.printLine()
       this.printLine(1, matcher.message)

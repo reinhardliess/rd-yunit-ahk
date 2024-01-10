@@ -5,7 +5,7 @@ Class ConsoleOutputTest {
   Class _MockMatcher extends Yunit.Matchers.MatcherBase {
     
     test_expectComment := ""
-    test_expectParams := []
+    test_expectParams := ""
     
     GetAdditionalExpectParams() {
       return this.test_expectParams

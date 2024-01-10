@@ -510,10 +510,10 @@ class Yunit
       * e.g. for expect(value).toBeCloseTo(expected, digits)
       *   => ["digits"]
       * @virtual
-      * @returns {string[]}
+      * @returns {string[] | ""}
       */
       GetAdditionalExpectParams() {
-        return []
+        return ""
       }
 
       /**
@@ -575,16 +575,17 @@ class Yunit
       */
       GetExpectComment() {
         switch {
-        case isObject(this.expected):
-          return "deep stringified equality, no type checking"
-        default:
-          return "compares with =="
+          case isObject(this.expected):
+            return "deep stringified equality, no type checking"
+          default:
+            return "compares with =="
         }
       }
     }
 
     ;; Class ToBeCloseTo
     Class ToBeCloseTo extends Yunit.Matchers.MatcherBase {
+      
       assert(actual, expected, digits := 2) {
         this.actual := {value: actual, difference: Abs(expected - actual)}
         this.expected := {value: expected, digits: digits, difference: 10 ** -digits / 2}
@@ -592,7 +593,6 @@ class Yunit
       }
 
       getErrorOutput() {
-        output := []
         formatBlock :="
         (Ltrim
           Actual:   {1}
@@ -606,7 +606,8 @@ class Yunit
         )"
         expected := this.expected
         actual := this.actual
-
+        
+        output := []
         output.Push(format(formatBlock
           , this.formatActualTestValue(actual.value)
           , this.formatExpectedTestValue(expected.value)))
@@ -616,7 +617,6 @@ class Yunit
           , this.formatActualTestValue(actual.difference)
           , expected.difference
           , expected.digits))
-
         return output
       }
       
