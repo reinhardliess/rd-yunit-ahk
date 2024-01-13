@@ -38,13 +38,13 @@ class OutputModuleTest {
     }
   }
   
-  Class toEqual {
+  Class toEql {
     objects_equal() {
-      Yunit.expect({b: 2, a: 1}).toEqual({a:1, b:2})
+      Yunit.expect({b: 2, a: 1}).toEql({a:1, b:2})
     }
 
     objects_not_equal() {
-      Yunit.expect({a:1}).toEqual({a:1, b:2})
+      Yunit.expect({a:1}).toEql({a:1, b:2})
     }
 
   }

@@ -52,7 +52,7 @@ Class YunitTest {
         ret := this.m.Assert(5, 5)
 
         Yunit.expect(ret).toBe(true)
-        Yunit.expect(this.m).toEqual({actual: 5, expected: 5, hasPassedTest: 1})
+        Yunit.expect(this.m).toEql({actual: 5, expected: 5, hasPassedTest: 1})
       }
 
       integer_comparison_false() {
@@ -66,15 +66,15 @@ Class YunitTest {
         output := this.m.GetErrorOutput()
 
         Yunit.expect(ret).toBe(false)
-        Yunit.expect(this.m).toEqual({actual: 5, expected: 6, hasPassedTest: 0})
-        Yunit.expect(output).toEqual(expected)
+        Yunit.expect(this.m).toEql({actual: 5, expected: 6, hasPassedTest: 0})
+        Yunit.expect(output).toEql(expected)
       }
 
       string_comparison_true() {
         ret := this.m.Assert("Zoe", "Zoe")
 
         Yunit.expect(ret).toBe(true)
-        Yunit.expect(this.m).toEqual({actual: "Zoe", expected: "Zoe", hasPassedTest: 1})
+        Yunit.expect(this.m).toEql({actual: "Zoe", expected: "Zoe", hasPassedTest: 1})
       }
 
       string_comparison_false() {
@@ -88,8 +88,8 @@ Class YunitTest {
         output := this.m.GetErrorOutput()
 
         Yunit.expect(ret).toBe(false)
-        Yunit.expect(this.m).toEqual({actual: "Zoi", expected: "Zoe", hasPassedTest: 0})
-        Yunit.expect(output).toEqual(expectedOutput)
+        Yunit.expect(this.m).toEql({actual: "Zoi", expected: "Zoe", hasPassedTest: 0})
+        Yunit.expect(output).toEql(expectedOutput)
       }
 
       object_comparison_true() {
@@ -114,13 +114,13 @@ Class YunitTest {
 
         Yunit.expect(ret).toBe(false)
         ; TODO: Yunit.expect(m.actual).not.toBe(m.expected)
-        Yunit.expect(output).toEqual(expectedOutput)
+        Yunit.expect(output).toEql(expectedOutput)
       }
     }
 
-    Class ToEqual {
+    Class toEql {
       beforeEach() {
-        this.m := new Yunit.Matchers.ToEqual()
+        this.m := new Yunit.Matchers.toEql()
       }
 
       object_comparison_true() {
@@ -149,7 +149,7 @@ Class YunitTest {
         Yunit.expect(ret).toBe(false)
         Yunit.expect(this.m.actual).toBe(actual)
         Yunit.expect(this.m.expected).toBe(expected)
-        Yunit.expect(output).toEqual(expectedOutput)
+        Yunit.expect(output).toEql(expectedOutput)
       }
     }
 
@@ -296,17 +296,17 @@ Class YunitTest {
       }
       
       print_an_array() {
-        Yunit.expect(Yunit.Util.Print([1, 2, 3])).toEqual("1:1, 2:2, 3:3")
-        Yunit.expect(Yunit.Util.Print(["April", "Zoe", "Saga"])).toEqual("1:""April"", 2:""Zoe"", 3:""Saga""")
+        Yunit.expect(Yunit.Util.Print([1, 2, 3])).toEql("1:1, 2:2, 3:3")
+        Yunit.expect(Yunit.Util.Print(["April", "Zoe", "Saga"])).toEql("1:""April"", 2:""Zoe"", 3:""Saga""")
       }
       
       print_an_object() {
-        actualValue := {name: "Zoe", age: 20, address: { street: "Jardin des Roses"} }
+        actualValue := { name: "Zoe", age: 20, address: { street: "Jardin des Roses"} }
         expected =  
         ( ltrim
           "address":["street":"Jardin des Roses"], "age":20, "name":"Zoe"
         )
-        Yunit.expect(Yunit.Util.Print(actualValue)).toEqual(expected)
+        Yunit.expect(Yunit.Util.Print(actualValue)).toEql(expected)
       }
       
       print_an_array_of_objects() {
@@ -315,12 +315,12 @@ Class YunitTest {
         ( ltrim
         1:["type":1, "value":"abc"], 2:["type":2, "value":"def"]
         )
-        Yunit.expect(Yunit.Util.Print(actualValue)).toEqual(expected)
+        Yunit.expect(Yunit.Util.Print(actualValue)).toEql(expected)
       }
       
       print_an_object_but_ignore_function_objects_as_props() {
         obj := { a: 1, fn: Func("Instr")}
-        Yunit.expect(Yunit.Util.Print(obj)).toEqual("""a"":1")  
+        Yunit.expect(Yunit.Util.Print(obj)).toEql("""a"":1")  
       }
       
       print_an_object_with_integer_value_usePureNumbers_true() {
@@ -328,7 +328,7 @@ Class YunitTest {
         
         printedObj1 := Yunit.Util.Print(obj1, true) 
         
-        Yunit.expect(printedObj1).toEqual("""a"":1")  
+        Yunit.expect(printedObj1).toEql("""a"":1")  
       }
 
       print_an_object_with_integer_value_usePureNumbers_false() {
@@ -336,7 +336,7 @@ Class YunitTest {
         
         printedObj1 := Yunit.Util.Print(obj1, false) 
         
-        Yunit.expect(printedObj1).toEqual("""a"":1")  
+        Yunit.expect(printedObj1).toEql("""a"":1")  
       }
 
       print_an_object_with_a_string_integer_value_usePureNumbers_true() {
@@ -344,7 +344,7 @@ Class YunitTest {
         
         printedObj1 := Yunit.Util.Print(obj1, true) 
         
-        Yunit.expect(printedObj1).toEqual("""a"":""1""")  
+        Yunit.expect(printedObj1).toEql("""a"":""1""")  
       }
 
       print_an_object_with_a_string_integer_value_usePureNumbers_false() {
@@ -352,16 +352,15 @@ Class YunitTest {
         
         printedObj1 := Yunit.Util.Print(obj1, false) 
         
-        Yunit.expect(printedObj1).toEqual("""a"":1")  
+        Yunit.expect(printedObj1).toEql("""a"":1")  
       }
       
-      ; TODO: change for V2
       print_an_object_with_a_float_value_usePureNumbers_true() {
         obj1 := {a: 5.0}
         
         printedObj1 := Yunit.Util.Print(obj1, true) 
         
-        Yunit.expect(printedObj1).toEqual("""a"":5.0")  
+        Yunit.expect(printedObj1).toEql("""a"":5.0")  
       }
 
       print_an_object_with_a_float_value_usePureNumbers_false() {
@@ -369,7 +368,7 @@ Class YunitTest {
         
         printedObj1 := Yunit.Util.Print(obj1, false) 
         
-        Yunit.expect(printedObj1).toEqual("""a"":5.0")  
+        Yunit.expect(printedObj1).toEql("""a"":5.0")  
       }
 
       print_an_object_with_a_string_float_value_usePureNumbers_true() {
@@ -377,7 +376,7 @@ Class YunitTest {
         
         printedObj1 := Yunit.Util.Print(obj1, true) 
         
-        Yunit.expect(printedObj1).toEqual("""a"":5.0")  
+        Yunit.expect(printedObj1).toEql("""a"":5.0")  
       }
 
       print_an_object_with_a_string_float_value_usePureNumbers_false() {
@@ -385,7 +384,7 @@ Class YunitTest {
         
         printedObj1 := Yunit.Util.Print(obj1, false) 
         
-        Yunit.expect(printedObj1).toEqual("""a"":5.0")  
+        Yunit.expect(printedObj1).toEql("""a"":5.0")  
       }
     }
     
@@ -394,12 +393,12 @@ Class YunitTest {
       Yunit.expect(Yunit.Util.GetType(timeCode)).toBe("Float")
     }
     
-    join_should_join_array_elements_with_separator() {
-      Yunit.expect(Yunit.Util.Join([])).toEqual("")
-      Yunit.expect(Yunit.Util.Join([1])).toEqual("1")
-      Yunit.expect(Yunit.Util.Join([1,2])).toEqual("1,2")
-      Yunit.expect(Yunit.Util.Join(["a","b"])).toEqual("a,b")
-      Yunit.expect(Yunit.Util.Join([1,2], ";")).toEqual("1;2")
+    join_should_join_array_elements_with_delimiter() {
+      Yunit.expect(Yunit.Util.Join([])).toEql("")
+      Yunit.expect(Yunit.Util.Join([1])).toEql("1")
+      Yunit.expect(Yunit.Util.Join([1,2])).toEql("1,2")
+      Yunit.expect(Yunit.Util.Join(["a","b"])).toEql("a,b")
+      Yunit.expect(Yunit.Util.Join([1,2], ";")).toEql("1;2")
     }
   }
 }

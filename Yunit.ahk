@@ -365,16 +365,13 @@ class Yunit
     /**
     * Joins elements of an array into a string, JavaScript like
     * @param {array} arr - Array to convert
-    * @param {string} [sep:=","] - separator e.g. ','
+    * @param {string} [sep:=","] - delimiter e.g. ','
     * @returns {string} separated list
     */
-    Join(arr, separator := ",") {
+    Join(arr, delimiter := ",") {
       joinedStr := ""
-      for i, item in arr {
-        if (i > 1) {
-          joinedStr .= separator
-        }
-        joinedStr .= item
+      for i, element in arr {
+        joinedStr .= (i > 1 ? delimiter : "") element
       }
       return joinedStr
     }
@@ -554,8 +551,9 @@ class Yunit
         }
     }
 
-    ;; ToEqual
-    Class ToEqual extends Yunit.Matchers.MatcherBase {
+    ;; toEql
+    Class toEql extends Yunit.Matchers.MatcherBase {
+      
       Assert(actual, expected) {
         base.Assert(actual, expected)
         if (isObject(actual)) {
