@@ -133,7 +133,7 @@ Class ConsoleOutputBase {
   * @returns {boolean} 
   */
   useAnsiEscapes() {
-    
+    return false
   }
   
   /**
@@ -263,24 +263,24 @@ Class ConsoleOutputBase {
   
   /**
   * Prints header for matcher output
+  * expect(actual).Matcher(expected, params) ; comment
   * @param {Yunit.Matchers.MatcherBase} matcher
   * @returns {void} 
   */
   printErrorHeader(matcher) {
-    formatHeader := "{format.text}expect({format.error}actual{format.text}).{1}({format.ok}expected{2}{format.text}){format.textDimmed}{3}"
-    
-    params := matcher.GetAdditionalExpectParams()
-    params := params.Length ? ", " Yunit.Util.Join(params, ", ") : ""  
-    
-    comment := matcher.GetExpectComment()
-    if (comment) {
+    if (params := matcher.GetAdditionalExpectParams()) {
+      params := ", " Yunit.Util.Join(params, ", ")
+    }
+    if (comment := matcher.GetExpectComment()) {
       comment := " `; " comment
     }
     
+    formatHeader := "{format.text}expect({format.error}actual{format.text}).{1}({format.ok}expected{2}{format.text}){format.textDimmed}{3}"
     this.printLine(1, formatHeader
       , matcher.getMatcherType()
       , params
       , comment)
+    
     if (matcher.HasProp("message") && matcher.message) {
       this.printLine()
       this.printLine(1, matcher.message)
@@ -308,6 +308,8 @@ Class ConsoleOutputBase {
   
   /**
   * Inserts Ansi placeholders into actual/expected output
+  * This heuristic will save lots of work in matcher output methods
+  * but in rare cases end up with wrong colors (That's OK)
   * @param {string} output
   * @returns {string} 
   */

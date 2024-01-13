@@ -390,16 +390,13 @@ class Yunit
     /**
     * Joins elements of an array into a string, JavaScript like
     * @param {array} arr - Array to convert
-    * @param {string} [sep:=","] - separator e.g. ','
+    * @param {string} [sep:=","] - delimiter e.g. ','
     * @returns {string} separated list
     */
-    static Join(arr, separator := ",") {
+    static Join(arr, delimiter := ",") {
       joinedStr := ""
-      for i, item in arr {
-        if (i > 1) {
-          joinedStr .= separator
-        }
-        joinedStr .= item
+      for i, element in arr {
+        joinedStr .= (i > 1 ? delimiter : "") element
       }
       return joinedStr
     }
@@ -537,10 +534,10 @@ class Yunit
       * e.g. for expect(value).toBeCloseTo(expected, digits)
       *   => ["digits"]
       * @virtual
-      * @returns {string[]}
+      * @returns {string[] | ""}
       */
       GetAdditionalExpectParams() {
-        return []
+        return ""
       }
 
       /**
@@ -581,8 +578,9 @@ class Yunit
         }
     }
 
-    ;; ToEqual
-    Class ToEqual extends Yunit.Matchers.MatcherBase {
+    ;; toEql
+    Class toEql extends Yunit.Matchers.MatcherBase {
+      
       Assert(actual, expected) {
         super.Assert(actual, expected)
         if (isObject(actual)) {
@@ -602,16 +600,17 @@ class Yunit
       */
       GetExpectComment() {
         switch {
-        case isObject(this.expected):
-          return "deep stringified equality, no type checking"
-        default:
-          return "compares with =="
+          case isObject(this.expected):
+            return "deep stringified equality, no type checking"
+          default:
+            return "compares with =="
         }
       }
     }
 
     ;; Class ToBeCloseTo
     Class ToBeCloseTo extends Yunit.Matchers.MatcherBase {
+      
       assert(actual, expected, digits := 2) {
         this.actual := {value: actual, difference: Abs(expected - actual)}
         this.expected := {value: expected, digits: digits, difference: 10 ** -digits / 2}
@@ -619,7 +618,6 @@ class Yunit
       }
 
       getErrorOutput() {
-        output := []
         formatBlock :="
         (Ltrim
           Actual:   {1}
@@ -633,7 +631,8 @@ class Yunit
         )"
         expected := this.expected
         actual := this.actual
-
+        
+        output := []
         output.Push(format(formatBlock
           , this.formatActualTestValue(actual.value)
           , this.formatExpectedTestValue(expected.value)))
@@ -643,7 +642,6 @@ class Yunit
           , this.formatActualTestValue(actual.difference)
           , expected.difference
           , expected.digits))
-
         return output
       }
       

@@ -6,7 +6,7 @@ Class ConsoleOutputTest {
   Class _MockMatcher extends Yunit.Matchers.MatcherBase {
     
     test_expectComment := ""
-    test_expectParams := []
+    test_expectParams := ""
     
     GetAdditionalExpectParams() {
       return this.test_expectParams
@@ -24,7 +24,7 @@ Class ConsoleOutputTest {
   * @param {string} matcherName
   * @param {any} actualValue
   * @param {any*} expectedValues 
-  * @returns {Yunit.AssertError | 0} 
+  * @returns {Yunit.AssertionError | 0} 
   */
   static _runMatcher(matcherName, actualValue, expectedValues*) {
     try {
@@ -53,7 +53,7 @@ Class ConsoleOutputTest {
   }
   
   /**
-  * Runs simplified, simulated test using ToEqual() matcher
+  * Runs simplified, simulated test using toEql() matcher
   * @param {string} testName 
   * @param {string} actual 
   * @param {string} expected 
@@ -61,7 +61,7 @@ Class ConsoleOutputTest {
   * @returns {outputInfo} 
   */
   static _runTest(category, testName, actual, expected, timeTaken) {
-    result := this._runMatcher("toEqual", actual, expected)
+    result := this._runMatcher("toEql", actual, expected)
     outputInfo := this._setOutputInfo(category, testName, result, timeTaken)
     return outputInfo
   }
@@ -117,7 +117,7 @@ Class ConsoleOutputTest {
       
       this.m.print(0, "{format.text}Test data{reset}")
       
-      Yunit.expect(this.m.test_printOutput).toEqual(formattedString)
+      Yunit.expect(this.m.test_printOutput).toEql(formattedString)
     }
     
     perform_an_ansi_reset_before_printing_an_lf() {
@@ -127,7 +127,7 @@ Class ConsoleOutputTest {
       
       this.m.printLine(0, "{format.text}Test data")
       
-      Yunit.expect(this.m.test_printOutput).toEqual(formattedString)
+      Yunit.expect(this.m.test_printOutput).toEql(formattedString)
     }
   
     inject_ansi_placeholders_into_matcher_output() {
@@ -144,7 +144,7 @@ Class ConsoleOutputTest {
       
       output := this.m.insertAnsiPlaceholdersIntoMatcherOutput(matcherOutput)
       
-      Yunit.expect(output).toEqual(expected)
+      Yunit.expect(output).toEql(expected)
     
     }
   }
@@ -157,14 +157,14 @@ Class ConsoleOutputTest {
       
       this.m.printNewCategories("Category1.sub1")
       
-      Yunit.expect(this.m.test_printOutput).toEqual(expected)
+      Yunit.expect(this.m.test_printOutput).toEql(expected)
     }
     
     dont_print_categories_that_are_already_printed() {
       this.m.printNewCategories("Category1.sub1")
       this.m.printNewCategories("Category1.sub1")
       
-      Yunit.expect(this.m.test_printOutput).toEqual("Category1`n  sub1`n")
+      Yunit.expect(this.m.test_printOutput).toEql("Category1`n  sub1`n")
     }
   
     print_new_categories_after_other_categories_already_printed() {
@@ -173,7 +173,7 @@ Class ConsoleOutputTest {
       this.m.printNewCategories("Category1.sub1")
       this.m.printNewCategories("Category2.sub2")
       
-      Yunit.expect(this.m.test_printOutput).toEqual(expected)
+      Yunit.expect(this.m.test_printOutput).toEql(expected)
     }
     
     _runPrintInfoTest(category, testName, actual, expected, timeTaken) {
@@ -214,7 +214,7 @@ Class ConsoleOutputTest {
       
       this.m.printErrorPath(outputInfo)
       
-      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+      Yunit.expect(this.m.test_PrintOutput).toEql(expected)
     }
 
     print_error_header_no_additional_data() {
@@ -222,7 +222,7 @@ Class ConsoleOutputTest {
       
       this.m.printErrorHeader(this.matcher)
       
-      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+      Yunit.expect(this.m.test_PrintOutput).toEql(expected)
     }
     
     print_error_header_two_expect_params() {
@@ -231,7 +231,7 @@ Class ConsoleOutputTest {
       
       this.m.printErrorHeader(this.matcher)
       
-      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+      Yunit.expect(this.m.test_PrintOutput).toEql(expected)
     }
     
     print_error_header_three_expect_params() {
@@ -240,7 +240,7 @@ Class ConsoleOutputTest {
       
       this.m.printErrorHeader(this.matcher)
       
-      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+      Yunit.expect(this.m.test_PrintOutput).toEql(expected)
     }
     
     print_error_header_expect_comment() {
@@ -249,7 +249,7 @@ Class ConsoleOutputTest {
       
       this.m.printErrorHeader(this.matcher)
       
-      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+      Yunit.expect(this.m.test_PrintOutput).toEql(expected)
     }
     
     print_error_header_expect_comment_second_param() {
@@ -259,7 +259,7 @@ Class ConsoleOutputTest {
       
       this.m.printErrorHeader(this.matcher)
       
-      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+      Yunit.expect(this.m.test_PrintOutput).toEql(expected)
     }
   
     print_error_header_with_optional_message() {
@@ -268,18 +268,18 @@ Class ConsoleOutputTest {
       
       this.m.printErrorHeader(matcher)
       
-      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+      Yunit.expect(this.m.test_PrintOutput).toEql(expected)
     }
         
     print_file_path_error_info() {
-      err := ConsoleOutputTest._runMatcher("toEqual", 5, 6)
+      err := ConsoleOutputTest._runMatcher("toEql", 5, 6)
       err.file := "d:\src\test.ahk"
       err.line := 25
   
       this.m.printErrorFilePath(err)
       
       expected := "  (d:\src\test.ahk:25)`n"
-      Yunit.expect(this.m.test_PrintOutput).toEqual(expected)
+      Yunit.expect(this.m.test_PrintOutput).toEql(expected)
     }
     
     update_summary_data_for_tests() {
@@ -298,8 +298,8 @@ Class ConsoleOutputTest {
       , failed: {count: 1}
       , slowTests: {count: 1, timeTaken: 21}
       , overall: {count: 3} }
-      Yunit.expect(this.m.test_thisValue.tests).toEqual(tests)
-      Yunit.expect(this.m.test_thisValue.summary).toEqual(expectedSummary)
+      Yunit.expect(this.m.test_thisValue.tests).toEql(tests)
+      Yunit.expect(this.m.test_thisValue.summary).toEql(expectedSummary)
     }
     
     print_test_summary() {
@@ -316,7 +316,7 @@ Class ConsoleOutputTest {
         
       this.m.printTestSummary()
       
-      Yunit.expect(this.m.test_PrintOutput).toEqual(printedSummary)
+      Yunit.expect(this.m.test_PrintOutput).toEql(printedSummary)
     }
   }
 }
