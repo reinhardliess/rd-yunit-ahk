@@ -30,7 +30,7 @@ class OutputModuleTest {
     }
 
     float_addition_error() {
-      Yunit.expect(0.1 + 0.2).toBe(0.3)
+      Yunit.expect(0.1 + 0.2, "calculate 0.1 + 0.2").toBe(0.3)
     }
 
     object_comparison_error() {
