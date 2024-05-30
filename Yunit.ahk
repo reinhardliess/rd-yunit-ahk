@@ -557,7 +557,7 @@ class Yunit
       */
       GetExpectComment() {
         switch {
-          case isObject(this.expected):
+          case isObject(this.expected), isObject(this.actual):
             return "deep stringified equality, no type checking"
           default:
             return "compares with =="
