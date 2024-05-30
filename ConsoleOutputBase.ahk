@@ -281,7 +281,7 @@ Class ConsoleOutputBase {
     
     if (matcher.message) {
       this.printLine()
-      this.printLine(1, matcher.message)
+      this.printLine(1, "{format.text}{1}", matcher.message )
     }
   }
   
@@ -307,7 +307,7 @@ Class ConsoleOutputBase {
   /**
   * Inserts Ansi placeholders into actual/expected output
   * This heuristic will save lots of work in matcher output methods
-  * but in rare cases end up with wrong colors (That's OK)
+  * but in rare cases might end up with wrong colors (That's OK)
   * @param {string} output
   * @returns {string} 
   */
