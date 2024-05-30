@@ -231,6 +231,10 @@ class Yunit
     */
     GetType(var) {
       switch {
+        case ComObjType(var) >= 0:
+          return (comClass := ComobjType(var, "Class"))
+            ? comClass
+            : "ComObject" 
         case isObject(var) && className := var.__class:
           return (var.base.__class = className) ? className : "Class"
         case isObject(var):
