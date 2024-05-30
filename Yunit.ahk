@@ -343,26 +343,6 @@ class Yunit
     }
 
     /**
-    * Checks whether a search value is included in an array
-    * @param {array} arrayObj - array
-    * @param {string | number} searchValue - value to search for
-    * @param {boolean} [caseSense:=false]
-    * @returns {boolean}
-    */
-    Includes(arrayObj, searchValue, caseSense := false) {
-      if (isObject(searchValue)) {
-        throw Exception(A_ThisFunc " - TypeError: 2nd parameter must be number or string", -2)
-      }
-      for _, value in arrayObj {
-        found := caseSense ? searchValue == value : searchValue = value
-        if (found) {
-          return true
-        }
-      }
-      return false
-    }
-    
-    /**
     * Joins elements of an array into a string, JavaScript like
     * @param {array} arr - Array to convert
     * @param {string} [sep:=","] - delimiter e.g. ','
