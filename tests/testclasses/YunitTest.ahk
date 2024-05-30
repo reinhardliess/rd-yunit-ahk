@@ -4,44 +4,44 @@ Class YunitTest {
 
     ;; TODO: use SetOptions/RestoreOptions when available
     ; beforeEach() {
-    ;   this.oldRenderWhiteSpace := Yunit.options.outputRenderWhitespace 
+    ;   this.oldRenderWhiteSpace := Yunit.options.outputRenderWhitespace
     ;   Yunit.options.outputRenderWhitespace := true
     ; }
-    
+
     ; afterEach() {
-    ;   Yunit.options.outputRenderWhitespace := this.oldRenderWhiteSpace 
+    ;   Yunit.options.outputRenderWhitespace := this.oldRenderWhiteSpace
     ; }
-    
+
     matcher_options_should_be_set_by_constructor() {
       matcher := new Yunit.Matchers.ToBe({message: "error"})
-      
+
       Yunit.expect(matcher.message).toBe("error")
     }
 
     getMatcherType_should_return_matcher_display_name() {
       matcher := new Yunit.Matchers.ToBe()
       matcherName := matcher.getMatcherType()
-      
+
       Yunit.expect(matcherName).toBe("ToBe")
     }
-    
+
     render_linefeeds_in_strings_if_option_set() {
       matcher := new Yunit.Matchers.ToBe()
       lineLf := matcher.formatActualTestValue("Hello World!`nHow are you?")
       lineCrlf := matcher.formatActualTestValue("Hello World!`r`nHow are you?")
-      
+
       Yunit.expect(lineLf).toBe("""Hello World!{format.textDimmed}``n{format.error}How are you?""")
       Yunit.expect(lineCrlf).toBe("""Hello World!{format.textDimmed}``r``n{format.error}How are you?""")
     }
-    
+
     render_esc_in_strings_if_option_set() {
       matcher := new Yunit.Matchers.ToBe()
       lineWithEsc := matcher.formatActualTestValue(chr(27) "[95m" "Hello World!")
-      
+
       expected := format("{1}{format.textDimmed}``e{format.error}[95mHello World!{1}", chr(34), chr(27))
       Yunit.expect(lineWithEsc).toBe(expected)
     }
-    
+
     Class ToBe {
 
       beforeEach() {
@@ -196,11 +196,11 @@ Class YunitTest {
       ;   Yunit.expect(this.m.expected.difference).toBe(0.005)
       ;   Yunit.expect(output).toBe(expectedOutput)
       ; }
-      
+
       proximate_equality_false() {
         actual   := 0.1 + 0.2
         expected := 0.29
-        
+
         errorBlock := "
         (Ltrim
         Actual:   0.30000000000000004
@@ -222,12 +222,11 @@ Class YunitTest {
         Yunit.expect(this.m.expected.value).toBe(expected)
         Yunit.expect(this.m.expected.digits).toBe(2)
         Yunit.expect(this.m.expected.difference).toBe(0.005)
-        Yunit.expect(output[1]).toBe(errorBlock)
-        Yunit.expect(output[2]).toBe(errorDetails)
+        Yunit.expect(output).toEql([errorBlock, errorDetails])
       }
     }
   }
-  
+
   ;; Class Util
   Class Util {
     ;; Class Types
@@ -238,33 +237,33 @@ Class YunitTest {
           Yunit.expect(Yunit.Util.isInteger(5)).toBe(true)
           Yunit.expect(Yunit.Util.isInteger("5")).toBe(true)
         }
-        
+
         isInteger_should_check_if_var_does_not_convert_to_integer() {
           Yunit.expect(Yunit.Util.isInteger(5.0)).toBe(false)
           Yunit.expect(Yunit.Util.isInteger("5.0")).toBe(false)
         }
-        
+
         isPureInteger_should_check_if_var_is_integer() {
           Yunit.expect(Yunit.Util.isPureInteger(5)).toBe(true)
         }
-        
+
         isPureInteger_should_check_if_var_is_not_integer() {
           Yunit.expect(Yunit.Util.isPureInteger("5")).toBe(false)
           Yunit.expect(Yunit.Util.isPureInteger(5.0)).toBe(false)
           Yunit.expect(Yunit.Util.isPureInteger("5.0")).toBe(false)
         }
-      
+
         should_determine_the_correct_type_for_numbers() {
           Yunit.expect(Yunit.Util.isNumber(5)).toBe(true)
           Yunit.expect(Yunit.Util.isNumber(5.0)).toBe(true)
           Yunit.expect(Yunit.Util.isFloat(5.0)).toBe(true)
         }
-      }  
-          
+      }
+
       isArray_should_check_if_var_is_an_array() {
         Yunit.expect(Yunit.Util.IsArray(["a", "b"])).toBe(true)
       }
-      
+
       isArray_should_check_if_var_is_not_an_array() {
         Yunit.expect(Yunit.Util.IsArray([])).toBe(false)
         Yunit.expect(Yunit.Util.IsArray(5)).toBe(false)
@@ -272,6 +271,7 @@ Class YunitTest {
         Yunit.expect(Yunit.Util.IsArray({1a: 1})).toBe(false)
         Yunit.expect(Yunit.Util.IsArray({1: 1, a: 2})).toBe(false)
       }
+      
       getType_should_return_the_correct_variable_type() {
         Yunit.expect(Yunit.Util.GetType(5)).toBe("Integer")
         Yunit.expect(Yunit.Util.GetType(5.0)).toBe("Float")
@@ -279,120 +279,127 @@ Class YunitTest {
         Yunit.expect(Yunit.Util.GetType({a: 1})).toBe("Object")
         Yunit.expect(Yunit.Util.GetType(new Yunit.Util)).toBe("Yunit.Util")
         Yunit.expect(Yunit.Util.GetType(Yunit.Util)).toBe("Class")
+        
+        ; COM objects
+        dict := ComObjCreate("Scripting.Dictionary")
+        Yunit.expect(Yunit.Util.GetType(dict)).toBe("Dictionary")
+        
+        vt_empty := ComObject(0, &empty := {})
+        Yunit.expect(Yunit.Util.GetType(vt_empty)).toBe("ComObject")
       }
-    
+
       isFunction_should_determine_whether_an_object_is_callable() {
         Yunit.expect(Yunit.Util.IsFunction(Func("Substr"))).toBe(true)
         Yunit.expect(Yunit.Util.IsFunction(Func("Substr").bind())).toBe(true)
         Yunit.expect(Yunit.Util.IsFunction("Substr")).toBe(false)
       }
     }
-    
+
     ;; Class Print
     Class Print {
       print_a_primitive_type() {
         Yunit.expect(Yunit.Util.Print(33)).toBe(33)
         Yunit.expect(Yunit.Util.Print("33")).toBe("33")
       }
-      
+
       print_an_array() {
         Yunit.expect(Yunit.Util.Print([1, 2, 3])).toEql("1:1, 2:2, 3:3")
         Yunit.expect(Yunit.Util.Print(["April", "Zoe", "Saga"])).toEql("1:""April"", 2:""Zoe"", 3:""Saga""")
       }
-      
+
       print_an_object() {
         actualValue := { name: "Zoe", age: 20, address: { street: "Jardin des Roses"} }
-        expected =  
+        expected =
         ( ltrim
           "address":["street":"Jardin des Roses"], "age":20, "name":"Zoe"
         )
         Yunit.expect(Yunit.Util.Print(actualValue)).toEql(expected)
       }
-      
+
       print_an_array_of_objects() {
         actualValue := [{type: 1, value: "abc"}, {type: 2, value: "def"}]
-        expected = 
+        expected =
         ( ltrim
         1:["type":1, "value":"abc"], 2:["type":2, "value":"def"]
         )
         Yunit.expect(Yunit.Util.Print(actualValue)).toEql(expected)
       }
-      
+
       print_an_object_but_ignore_function_objects_as_props() {
         obj := { a: 1, fn: Func("Instr")}
-        Yunit.expect(Yunit.Util.Print(obj)).toEql("""a"":1")  
+        Yunit.expect(Yunit.Util.Print(obj)).toEql("""a"":1")
       }
-      
+
       print_an_object_with_integer_value_usePureNumbers_true() {
         obj1 := {a: 1}
-        
-        printedObj1 := Yunit.Util.Print(obj1, true) 
-        
-        Yunit.expect(printedObj1).toEql("""a"":1")  
+
+        printedObj1 := Yunit.Util.Print(obj1, true)
+
+        Yunit.expect(printedObj1).toEql("""a"":1")
       }
 
       print_an_object_with_integer_value_usePureNumbers_false() {
         obj1 := {a: 1}
-        
-        printedObj1 := Yunit.Util.Print(obj1, false) 
-        
-        Yunit.expect(printedObj1).toEql("""a"":1")  
+
+        printedObj1 := Yunit.Util.Print(obj1, false)
+
+        Yunit.expect(printedObj1).toEql("""a"":1")
       }
 
       print_an_object_with_a_string_integer_value_usePureNumbers_true() {
         obj1 := {a: "1"}
-        
-        printedObj1 := Yunit.Util.Print(obj1, true) 
-        
-        Yunit.expect(printedObj1).toEql("""a"":""1""")  
+
+        printedObj1 := Yunit.Util.Print(obj1, true)
+
+        Yunit.expect(printedObj1).toEql("""a"":""1""")
       }
 
       print_an_object_with_a_string_integer_value_usePureNumbers_false() {
         obj1 := {a: "1"}
-        
-        printedObj1 := Yunit.Util.Print(obj1, false) 
-        
-        Yunit.expect(printedObj1).toEql("""a"":1")  
+
+        printedObj1 := Yunit.Util.Print(obj1, false)
+
+        Yunit.expect(printedObj1).toEql("""a"":1")
       }
-      
+
       print_an_object_with_a_float_value_usePureNumbers_true() {
         obj1 := {a: 5.0}
-        
-        printedObj1 := Yunit.Util.Print(obj1, true) 
-        
-        Yunit.expect(printedObj1).toEql("""a"":5.0")  
+
+        printedObj1 := Yunit.Util.Print(obj1, true)
+
+        Yunit.expect(printedObj1).toEql("""a"":5.0")
       }
 
       print_an_object_with_a_float_value_usePureNumbers_false() {
         obj1 := {a: 5.0}
-        
-        printedObj1 := Yunit.Util.Print(obj1, false) 
-        
-        Yunit.expect(printedObj1).toEql("""a"":5.0")  
+
+        printedObj1 := Yunit.Util.Print(obj1, false)
+
+        Yunit.expect(printedObj1).toEql("""a"":5.0")
       }
 
       print_an_object_with_a_string_float_value_usePureNumbers_true() {
         obj1 := {a: "5.0"}
-        
-        printedObj1 := Yunit.Util.Print(obj1, true) 
-        
-        Yunit.expect(printedObj1).toEql("""a"":5.0")  
+
+        printedObj1 := Yunit.Util.Print(obj1, true)
+
+        Yunit.expect(printedObj1).toEql("""a"":5.0")
       }
 
       print_an_object_with_a_string_float_value_usePureNumbers_false() {
         obj1 := {a: "5.0"}
-        
-        printedObj1 := Yunit.Util.Print(obj1, false) 
-        
-        Yunit.expect(printedObj1).toEql("""a"":5.0")  
+
+        printedObj1 := Yunit.Util.Print(obj1, false)
+
+        Yunit.expect(printedObj1).toEql("""a"":5.0")
       }
     }
-    
+
     should_test_if_QueryPerformanceCounter_is_working() {
       timeCode := Yunit.Util.QPCInterVal()
       Yunit.expect(Yunit.Util.GetType(timeCode)).toBe("Float")
     }
-    
+
     join_should_join_array_elements_with_delimiter() {
       Yunit.expect(Yunit.Util.Join([])).toEql("")
       Yunit.expect(Yunit.Util.Join([1])).toEql("1")
