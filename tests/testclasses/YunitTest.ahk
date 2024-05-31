@@ -35,6 +35,13 @@ Class YunitTest {
       Yunit.expect(lineCrlf).toBe("""Hello World!{format.textDimmed}``r{format.error}{format.textDimmed}``n{format.error}How are you?""")
     }
 
+    render_linefeed_in_an_object_string_property_if_option_set() {
+      matcher := new Yunit.Matchers.ToBe()
+      lineLf := matcher.formatActualTestValue({a: "line1`nline2"})
+      expected := """a"":""line1{format.textDimmed}``n{format.error}line2"""
+      Yunit.expect(lineLf).toBe(expected)
+    }
+    
     render_esc_in_strings_if_option_set() {
       matcher := new Yunit.Matchers.ToBe()
       lineWithEsc := matcher.formatActualTestValue(chr(27) "[95m" "Hello World!")
@@ -224,7 +231,6 @@ Class YunitTest {
 
         ret := this.m.Assert(actual, expected)
         output := this.m.GetErrorOutput()
-
         Yunit.expect(ret).toBe(false)
         ;; TODO: replace with ToContain matcher -> object
         Yunit.expect(this.m.actual.value).toBe(actual)
@@ -342,7 +348,7 @@ Class YunitTest {
       print_an_object_with_integer_value_usePureNumbers_true() {
         obj1 := {a: 1}
 
-        printedObj1 := Yunit.Util.Print(obj1, true)
+        printedObj1 := Yunit.Util.Print(obj1, {usePureNumbers: true})
 
         Yunit.expect(printedObj1).toEql("""a"":1")
       }
@@ -350,7 +356,7 @@ Class YunitTest {
       print_an_object_with_integer_value_usePureNumbers_false() {
         obj1 := {a: 1}
 
-        printedObj1 := Yunit.Util.Print(obj1, false)
+        printedObj1 := Yunit.Util.Print(obj1)
 
         Yunit.expect(printedObj1).toEql("""a"":1")
       }
@@ -358,7 +364,7 @@ Class YunitTest {
       print_an_object_with_a_string_integer_value_usePureNumbers_true() {
         obj1 := {a: "1"}
 
-        printedObj1 := Yunit.Util.Print(obj1, true)
+        printedObj1 := Yunit.Util.Print(obj1, {usePureNumbers: true})
 
         Yunit.expect(printedObj1).toEql("""a"":""1""")
       }
@@ -366,7 +372,7 @@ Class YunitTest {
       print_an_object_with_a_string_integer_value_usePureNumbers_false() {
         obj1 := {a: "1"}
 
-        printedObj1 := Yunit.Util.Print(obj1, false)
+        printedObj1 := Yunit.Util.Print(obj1)
 
         Yunit.expect(printedObj1).toEql("""a"":1")
       }
@@ -374,7 +380,7 @@ Class YunitTest {
       print_an_object_with_a_float_value_usePureNumbers_true() {
         obj1 := {a: 5.0}
 
-        printedObj1 := Yunit.Util.Print(obj1, true)
+        printedObj1 := Yunit.Util.Print(obj1, {usePureNumbers: true})
 
         Yunit.expect(printedObj1).toEql("""a"":5.0")
       }
@@ -382,7 +388,7 @@ Class YunitTest {
       print_an_object_with_a_float_value_usePureNumbers_false() {
         obj1 := {a: 5.0}
 
-        printedObj1 := Yunit.Util.Print(obj1, false)
+        printedObj1 := Yunit.Util.Print(obj1)
 
         Yunit.expect(printedObj1).toEql("""a"":5.0")
       }
@@ -390,7 +396,7 @@ Class YunitTest {
       print_an_object_with_a_string_float_value_usePureNumbers_true() {
         obj1 := {a: "5.0"}
 
-        printedObj1 := Yunit.Util.Print(obj1, true)
+        printedObj1 := Yunit.Util.Print(obj1, {usePureNumbers: true})
 
         Yunit.expect(printedObj1).toEql("""a"":5.0")
       }
@@ -398,10 +404,28 @@ Class YunitTest {
       print_an_object_with_a_string_float_value_usePureNumbers_false() {
         obj1 := {a: "5.0"}
 
-        printedObj1 := Yunit.Util.Print(obj1, false)
+        printedObj1 := Yunit.Util.Print(obj1)
 
         Yunit.expect(printedObj1).toEql("""a"":5.0")
       }
+      
+      print_an_object_with_a_multiline_string_useRenderWhiteSpace_false() {
+        obj1 := {a: "line1`nline2"}
+
+        printedObj1 := Yunit.Util.Print(obj1)
+
+        Yunit.expect(printedObj1).toEql("""a"":""line1`nline2""")
+      }
+      
+      print_an_object_with_a_multiline_string_useRenderWhiteSpace_true() {
+        obj1 := {a: "line1`nline2"}
+
+        printedObj1 := Yunit.Util.Print(obj1, {renderWhiteSpace: true})
+        expected := """a"":""line1{format.textDimmed}``n{format.text}line2"""
+        
+        Yunit.expect(printedObj1).toEql(expected)
+      }
+      
     }
 
     should_test_if_QueryPerformanceCounter_is_working() {

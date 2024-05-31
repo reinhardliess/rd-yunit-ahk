@@ -183,6 +183,25 @@ class Yunit
   }
 
   /**
+  * Renders white space characters
+  * @param {string} string
+  * @param {string} textFormat - Ansi placeholder to set after
+  * rendering whitespace
+  * @returns {string}
+  */
+  renderWhiteSpace(string, textFormat) {
+    if (!Yunit.options.outputRenderWhiteSpace) {
+      return string
+    }
+    buffer := StrReplace(string, "`r", "{format.textDimmed}``r" textFormat)
+    buffer := StrReplace(buffer, "`n", "{format.textDimmed}``n" textFormat)
+    buffer := StrReplace(buffer, "`t", "{format.textDimmed}``t" textFormat)
+    buffer := StrReplace(buffer, chr(27), "{format.textDimmed}``e" textFormat)
+
+    return buffer
+  }
+  
+  /**
   * Expect gives access to a number of matchers
   * @throws Yunit.AssertionError if expectation fails
   * @param {string} actualValue - the value to test
@@ -282,16 +301,23 @@ class Yunit
     /**
     * Stringifies variable
     * @param {any} value - variable to stringify
-    * @param {boolean} usePureNumbers - no auto-conversion between
+    * @param {object} options - options object
+    * @param {boolean} [options.usePureNumbers:=false] - no auto-conversion between
     *   string and integer (V1) or all numbers (V2)
+    * @param {boolean} [options.renderWhiteSpace:=false]
+    * @param {boolean} [options.textFormat:="{format.text}"]
     * @returns {string}
     */
-    Print(value, usePureNumbers := false) {
-      out := (isObject(value) ? this._stringify(value, usePureNumbers) : value)
+    Print(value, options := "") {
+      options.usePureNumbers := options.hasKey("usePureNumbers") ? options.usePureNumbers : false
+      options.renderWhiteSpace := options.hasKey("renderWhiteSpace") ? options.renderWhiteSpace : false
+      options.textFormat := options.hasKey("textFormat") ? options.textFormat : "{format.text}"
+      
+      out := (isObject(value) ? this._stringify(value, options) : value)
       return out
     }
 
-    _stringify(param_value, usePureNumbers) {
+    _stringify(param_value, options) {
       output := ""
 
       for key, value in param_value {
@@ -310,12 +336,15 @@ class Yunit
 
         switch {
           case IsObject(value):
-            output .= "[" . this._stringify(value, usePureNumbers) . "]"
-          case !usePureNumbers && this.IsNumber(value):
+            output .= "[" . this._stringify(value, options.usePureNumbers) . "]"
+          case !options.usePureNumbers && this.IsNumber(value):
             output .= value
-          case usePureNumbers && (this.isPureInteger(value) || this.isFloat(value)):
+          case options.usePureNumbers && (this.isPureInteger(value) || this.isFloat(value)):
             output .= value
           default:
+            if (options.renderWhiteSpace && Yunit.options.outputRenderWhiteSpace) {
+              value := Yunit.renderWhiteSpace(value, options.textFormat)
+            }
             output .= """" . value . """"
         }
         output .= ", "
@@ -442,18 +471,18 @@ class Yunit
       * @returns {string}
       */
       formatTestValue(type, value) {
+        textFormat := type = "actual" ? "{format.error}" : "{format.ok}"
         newValue := value
         switch {
         case isObject(value):
-          newValue := Yunit.Util.Print(value)
+          newValue := Yunit.Util.Print(value, {renderWhiteSpace: true, textFormat: (textFormat)})
           if (!newValue) {
             newValue := "{}"
           }
         case Yunit.Util.IsFloat(value):
           newValue := Format("{1:.17g}", value)
         case Yunit.Util.GetType(value) = "String":
-          textFormat := type = "actual" ? "{format.error}" : "{format.ok}"
-          newValue := this.renderWhiteSpace(value, textFormat)
+          newValue := Yunit.renderWhiteSpace(value, textFormat)
           newValue := """" newValue """"
         }
         return newValue
@@ -465,24 +494,6 @@ class Yunit
 
       formatExpectedTestValue(value) {
         return this.formatTestValue("expected", value)
-      }
-
-      /**
-      * Renders white space characters
-      * @param {string} string
-      * @param {string} textFormat - Ansi placeholder to set after
-      * rendering whitespace
-      * @returns {string}
-      */
-      renderWhiteSpace(string, textFormat) {
-        if (!Yunit.options.outputRenderWhiteSpace) {
-          return string
-        }
-        buffer := StrReplace(string, "`r`n", "{format.textDimmed}``r``n" textFormat)
-        buffer := StrReplace(buffer, "`n", "{format.textDimmed}``n" textFormat)
-        buffer := StrReplace(buffer, chr(27), "{format.textDimmed}``e" textFormat)
-
-        return buffer
       }
 
       /**
