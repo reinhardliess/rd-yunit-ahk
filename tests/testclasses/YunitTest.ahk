@@ -3,6 +3,7 @@ Class YunitTest {
   Class Matchers {
 
     ;; TODO: use SetOptions/RestoreOptions when available
+    ;  TODO: Evaluate: Move renderWhiteSpace tests to new class
     ; beforeEach() {
     ;   this.oldRenderWhiteSpace := Yunit.options.outputRenderWhitespace
     ;   Yunit.options.outputRenderWhitespace := true
@@ -31,7 +32,7 @@ Class YunitTest {
       lineCrlf := matcher.formatActualTestValue("Hello World!`r`nHow are you?")
 
       Yunit.expect(lineLf).toBe("""Hello World!{format.textDimmed}``n{format.error}How are you?""")
-      Yunit.expect(lineCrlf).toBe("""Hello World!{format.textDimmed}``r``n{format.error}How are you?""")
+      Yunit.expect(lineCrlf).toBe("""Hello World!{format.textDimmed}``r{format.error}{format.textDimmed}``n{format.error}How are you?""")
     }
 
     render_esc_in_strings_if_option_set() {
@@ -42,6 +43,14 @@ Class YunitTest {
       Yunit.expect(lineWithEsc).toBe(expected)
     }
 
+    render_tab_in_strings_if_option_set() {
+      matcher := new Yunit.Matchers.ToBe()
+      lineWithTab := matcher.formatActualTestValue("Hello`tWorld!")
+
+      expected := format("{1}Hello{format.textDimmed}``t{format.error}World!{1}", chr(34))
+      Yunit.expect(lineWithTab).toBe(expected)
+    }
+    
     Class ToBe {
 
       beforeEach() {
