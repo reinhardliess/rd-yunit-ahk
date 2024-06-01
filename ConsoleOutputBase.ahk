@@ -312,9 +312,11 @@ Class ConsoleOutputBase {
   * @returns {string} 
   */
   insertAnsiPlaceholdersIntoMatcherOutput(output) {
-    text := RegexReplace(output, "`aim)(^actual|^expected).*?:\s+", "{format.text}$0")
+    text := "{format.text}" output
+    text := RegexReplace(text, "`aim)(^actual|^expected).*?:\s+", "{format.text}$0")
     text := RegexReplace(text, "`aim)^{format\.text}+actual.*?:\s+", "$0{format.error}")
     text := RegexReplace(text, "`aim)^{format\.text}+expected.*?:\s+", "$0{format.ok}")
+    text := RegexReplace(text, "`am)$", "{format.text}$0")
     return text
   }
   
