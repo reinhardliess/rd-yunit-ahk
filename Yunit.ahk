@@ -585,6 +585,16 @@ class Yunit
         return this.hasPassedTest := this.actual.difference < this.expected.difference
       }
 
+      /**
+      * Returns the text of a dynamic comment for the expect matcher
+      * to be printed in the error details header
+      * @override
+      * @returns {string}
+      */
+      GetExpectComment() {
+        return "compares floating point numbers for approximate equality"
+      }
+      
       getErrorOutput() {
         formatBlock :="
         (Ltrim
