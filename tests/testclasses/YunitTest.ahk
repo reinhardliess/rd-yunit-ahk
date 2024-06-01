@@ -240,6 +240,89 @@ Class YunitTest {
         Yunit.expect(output).toEql([errorBlock, errorDetails])
       }
     }
+    
+    Class toThrow {
+      
+      Class _TypeError {
+        message := "TypeError"
+      }
+      
+      beforeEach() {
+        this.m := new Yunit.Matchers.ToThrow()
+      }
+      
+      _fn_does_not_throw() {
+        return true
+      }
+      
+      _fn_throws_a_string() {
+        throw "An error"
+      }
+      
+      _fn_throws_an_assertion_error() {
+        throw new Yunit.AssertionError("message", "what", "extra", {hasPassedTest: false})
+      }
+            
+      does_not_throw_an_error() {
+        actual   := ObjBindMethod(this, "_fn_does_not_throw")
+        expected := ""
+        expectedOutput := "Received function did not throw."
+
+        ret := this.m.Assert(actual, expected)
+        output := this.m.GetErrorOutput()
+        Yunit.expect(output).toEql(expectedOutput)
+        
+        Yunit.expect(this.m.actual.hasThrown).toBe(false)
+        Yunit.expect(ret).toBe(false)
+      }
+      
+      throws_an_error() {
+        actual   := ObjBindMethod(this, "_fn_throws_a_string")
+        expected := ""
+
+        ret := this.m.Assert(actual, expected)
+        
+        Yunit.expect(ret).toBe(true)
+        Yunit.expect(this.m.actual.hasThrown).toBe(true)
+        Yunit.expect(this.m.retVal).toBe("An error")
+        
+        err := Yunit.expect(actual).toThrow()
+        Yunit.expect(err).toBe("An error")
+      }
+      
+      throws_an_error_correct_errortype() {
+        actual   := ObjBindMethod(this, "_fn_throws_an_assertion_error")
+        expected := Yunit.AssertionError
+
+        ret := this.m.Assert(actual, expected)
+        
+        Yunit.expect(ret).toBe(true)
+        Yunit.expect(this.m.actual.hasThrown).toBe(true)
+        Yunit.expect(this.m.actual.errorType).toBe("Yunit.AssertionError")
+        Yunit.expect(this.m.expected.errorType).toBe("Yunit.AssertionError")
+      }
+      
+      throws_an_error_wrong_errortype() {
+        actual   := ObjBindMethod(this, "_fn_throws_an_assertion_error")
+        expected := YunitTest.Matchers.toThrow._TypeError
+        expectedOutput := "
+        (LTrim
+        Actual error type:   Yunit.AssertionError
+        Expected error type: YunitTest.Matchers.toThrow._TypeError
+        
+        Actual message:      message
+        )"
+
+        ret := this.m.Assert(actual, expected)
+        output := this.m.GetErrorOutput()
+        Yunit.expect(output).toEql(expectedOutput)
+        
+        Yunit.expect(ret).toBe(false)
+        Yunit.expect(this.m.actual.hasThrown).toBe(true)
+        Yunit.expect(this.m.actual.errorType).toBe("Yunit.AssertionError")
+        Yunit.expect(this.m.expected.errorType).toBe("YunitTest.Matchers.toThrow._TypeError")
+      }
+    }
   }
 
   ;; Class Util

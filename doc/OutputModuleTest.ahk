@@ -59,5 +59,34 @@ class OutputModuleTest {
       Yunit.expect(0.1 + 0.19).ToBeCloseTo(0.3)
     }
   }
+  
+  Class toThrow {
+    
+    Class _TypeError {
+      message := "TypeError"
+    }
+
+    _fn_does_not_throw() {
+      return true
+    }
+    
+    _fn_throws_an_assertion_error() {
+      throw new Yunit.AssertionError("message", "what", "extra", {hasPassedTest: false})
+    }
+
+    throws_wrong_errortype() {
+      actual   := ObjBindMethod(this, "_fn_throws_an_assertion_error")
+      expected := OutputModuleTest.toThrow._TypeError
+
+      err := Yunit.expect(actual).toThrow(expected)
+    }
+    
+    does_not_throw_an_error() {
+      actual   := ObjBindMethod(this, "_fn_does_not_throw")
+
+      err := Yunit.expect(actual).toThrow()
+    }
+
+  }
 
 }

@@ -409,6 +409,9 @@ class Yunit
       if (!ret) {
         throw new Yunit.AssertionError("Assertion error", -2, , matcher)
       }
+      if (matcher.retVal) {
+        return matcher.retVal
+      }
       return ret
     }
   }
@@ -625,6 +628,47 @@ class Yunit
       
       GetAdditionalExpectParams() {
         return ["precision"]
+      }
+    }
+    
+    Class ToThrow extends Yunit.Matchers.MatcherBase {
+      
+      assert(funcObj, expectedError :="") {
+        this.actual := {hasThrown: false, errorType: ""}
+        this.expected := {errorType: (expectedError.__Class)}
+        this.hasPassedTest := false
+        
+        try {
+          funcObj.call()
+        } catch err {
+          this.actual.hasThrown := true
+          this.actual.errorType := Yunit.Util.GetType(err)
+          this.hasPassedTest := true
+          ; TODO: V2 - is operator to compare errors?
+          if (expectedError && this.actual.errorType != this.expected.errorType) {
+            this.hasPassedTest := false
+          }
+          this.retVal := err
+        }
+        return this.hasPassedTest
+      }
+      
+      getErrorOutput() {
+        if (!this.actual.hasThrown) {
+          return "Received function did not throw."
+        }
+        outputFormat =
+        (LTrim
+        Actual error type:   {1}
+        Expected error type: {2}
+        
+        Actual message:      {3}
+        )
+        output := format(outputFormat
+          , this.actual.errorType
+          , this.expected.errorType
+          , this.retVal.message)
+        return output
       }
     }
   }
