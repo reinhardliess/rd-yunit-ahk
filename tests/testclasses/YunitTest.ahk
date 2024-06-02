@@ -1,17 +1,84 @@
 Class YunitTest {
+  
+  ;; Class YunitMain
+  Class YunitMain {
+    
+    set_and_restore_options() {
+      oldOptions := Yunit.options.Clone()
+      Yunit.SetOptions({TimingWarningThreshold: 0})
+      Yunit.RestoreOptions()
+      Yunit.expect(oldOptions).toEql(Yunit.Options)
+    }
+    
+    _fn_set_invalid_option() {
+      Yunit.SetOptions({invalid: true})
+    }
+    
+    throw_error_if_option_does_not_exist() {
+      boundFunc := ObjBindMethod(this, "_fn_set_invalid_option")
+      Yunit.expect(boundFunc).toThrow()
+    }
+    
+    should_check_whether_a_method_name_is_that_of_a_test_method() {
+      Yunit.expect(Yunit._isTestMethod("Begin")).toBe(false)
+      Yunit.expect(Yunit._isTestMethod("BeforeEach")).toBe(false)
+      Yunit.expect(Yunit._isTestMethod("AfterEachAll")).toBe(false)
+      Yunit.expect(Yunit._isTestMethod("_helperMethod")).toBe(false)
+      Yunit.expect(Yunit._isTestMethod("Test_Division")).toBe(true)
+    
+      Yunit.SetOptions({EnablePrivateProps: false})
+      Yunit.expect(Yunit._isTestMethod("_Test_Addition")).toBe(true)
+      Yunit.RestoreOptions()
+    }
+  
+    should_check_whether_a_class_name_belongs_to_a_test_category() {
+      Yunit.expect(Yunit._isTestCategory("MyClass._PrivateClass")).toBe(false)
+      Yunit.expect(Yunit._isTestCategory("Multiplication")).toBe(true)
+      
+      Yunit.SetOptions({EnablePrivateProps: false})
+      Yunit.expect(Yunit._isTestCategory("MyClass._Multiplication")).toBe(true)
+      Yunit.RestoreOptions()
+    }
+  }
+  
+  Class ExpectTest {
+    
+    should_create_an_assertion_error_with_all_necessary_properties() {
+      err := new Yunit.AssertionError("message", "what", "extra", {hasPassedTest: false})
+      
+      Yunit.expect(err.message).toBe("message")
+      Yunit.expect(err.what).toBe("what")
+      Yunit.expect(err.extra).toBe("extra")
+      Yunit.expect(err.matcher).toEql({hasPassedTest: false})
+    }
+    
+    _expect_assertion_error() {
+      Yunit.expect(5, "message").toBe(6)
+    }
+    
+    _expect_wrong_matcher() {
+      Yunit.expect(0).toBeZero()
+    }
+    
+    if_the_expectation_fails_throw_an_assertion_error() {
+      boundFunc := ObjBindMethod(this, "_expect_assertion_error")
+      err := Yunit.expect(boundFunc).toThrow(Yunit.AssertionError)
+      
+      err.matcher.matcherType := err.matcher.GetMatcherType()
+      Yunit.expect(err.matcher, "The error object should contain the correct matcher object")
+        .toEql({actual: 5, expected: 6, hasPassedTest: 0, matcherType: "ToBe", message: "message"})
+    }
+    
+    if_a_matcher_is_used_that_does_not_exist_throw_an_error() {
+      boundFunc := ObjBindMethod(this, "_expect_wrong_matcher")
+      Yunit.expect(boundFunc).toThrow()
+    }
+    
+  }
+  
   ;; Class Matchers
   Class Matchers {
 
-    ;; TODO: use SetOptions/RestoreOptions when available
-    ;  TODO: Evaluate: Move renderWhiteSpace tests to new class
-    ; beforeEach() {
-    ;   this.oldRenderWhiteSpace := Yunit.options.outputRenderWhitespace
-    ;   Yunit.options.outputRenderWhitespace := true
-    ; }
-
-    ; afterEach() {
-    ;   Yunit.options.outputRenderWhitespace := this.oldRenderWhiteSpace
-    ; }
 
     matcher_options_should_be_set_by_constructor() {
       matcher := new Yunit.Matchers.ToBe({message: "error"})
@@ -71,6 +138,7 @@ Class YunitTest {
     
     }
     
+    ;; Class ToBe
     Class ToBe {
 
       beforeEach() {
@@ -147,6 +215,7 @@ Class YunitTest {
       }
     }
 
+    ;; Class toEql
     Class toEql {
       beforeEach() {
         this.m := new Yunit.Matchers.toEql()
@@ -181,7 +250,8 @@ Class YunitTest {
         Yunit.expect(output).toEql(expectedOutput)
       }
     }
-
+    
+    ;; Class ToBeCloseTo
     Class ToBeCloseTo {
       beforeEach() {
         this.m := new Yunit.Matchers.ToBeCloseTo()
@@ -200,31 +270,6 @@ Class YunitTest {
         Yunit.expect(this.m.expected.digits).toBe(2)
         Yunit.expect(this.m.expected.difference).toBe(0.005)
       }
-
-      ; proximate_equality_false() {
-      ;   actual   := 0.1 + 0.2
-      ;   expected := 0.29
-      ;   expectedOutput := "
-      ;   (Ltrim
-      ;   Actual:   0.30000000000000004
-      ;   Expected: 0.28999999999999998
-
-      ;   Actual difference:     0.010000000000000064
-      ;   Expected difference: < 0.005
-      ;   Expected precision:    2
-      ;   )"
-
-      ;   ret := this.m.Assert(actual, expected)
-      ;   output := this.m.GetErrorOutput()
-
-      ;   Yunit.expect(ret).toBe(false)
-      ;   ;; TODO: replace with ToContain matcher -> object
-      ;   Yunit.expect(this.m.actual.value).toBe(actual)
-      ;   Yunit.expect(this.m.expected.value).toBe(expected)
-      ;   Yunit.expect(this.m.expected.digits).toBe(2)
-      ;   Yunit.expect(this.m.expected.difference).toBe(0.005)
-      ;   Yunit.expect(output).toBe(expectedOutput)
-      ; }
 
       proximate_equality_false() {
         actual   := 0.1 + 0.2
@@ -254,6 +299,7 @@ Class YunitTest {
       }
     }
     
+    ;; Class ToThrow
     Class toThrow {
       
       Class _TypeError {
@@ -514,12 +560,15 @@ Class YunitTest {
       }
       
       print_an_object_with_a_multiline_string_useRenderWhiteSpace_true() {
+        Yunit.SetOptions({ outputRenderWhiteSpace: true })
+        
         obj1 := {a: "line1`nline2"}
-
+        
         printedObj1 := Yunit.Util.Print(obj1, {renderWhiteSpace: true})
         expected := """a"":""line1{format.textDimmed}``n{format.text}line2"""
-        
         Yunit.expect(printedObj1).toEql(expected)
+        
+        Yunit.RestoreOptions()
       }
       
     }
