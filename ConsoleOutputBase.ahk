@@ -28,7 +28,7 @@ Class ConsoleOutputBase {
     this.tests.push(objOutputInfo)
     this.summary.overall.count++
     switch {
-      case this.isError(objOutputInfo.result):
+      case Yunit.Util.isError(objOutputInfo.result):
         this.summary.failed.count++
       default:
         this.summary.passed.count++
@@ -40,22 +40,6 @@ Class ConsoleOutputBase {
     }
   }
   
-  /**
-  * Tests whether a variable is an error object
-  * @param {any} var - variable to test 
-  * @returns {boolean} 
-  */
-  isError(var) {
-    if (IsObject(var) 
-      && var.hasKey("message")
-      && var.hasKey("what")
-      && var.hasKey("file")
-      && var.hasKey("line")) {
-      return true
-    }
-    return false
-  }
-
   /**
   * Prints test results with categories
   * @returns {void} 
@@ -202,7 +186,7 @@ Class ConsoleOutputBase {
     methodTime_ms := outputInfo.methodTime_ms
     formatStr := "{1}[{2}] {format.textDimmed}{3}"
     switch {
-      case this.isError(outputInfo.result):
+      case Yunit.Util.isError(outputInfo.result):
         status := "Fail"
         statusFormat := "{format.error}"
       default:
@@ -227,7 +211,7 @@ Class ConsoleOutputBase {
   printErrorOverview() {
     errorCount := 0
     for testNumber, test in this.tests {
-      if (!this.isError(test.result)) {
+      if (!Yunit.Util.isError(test.result)) {
         continue
       }
       errorCount++
