@@ -19,6 +19,22 @@ Class YunitTest {
       Yunit.expect(boundFunc).toThrow()
     }
     
+    should_convert_non_object_to_error_object_for_output() {
+      errString := "An error"
+      err := Yunit.processErrorForOutput(errString)
+      
+      Yunit.expect(Yunit.Util.IsError(err)).toBe(true)
+      Yunit.expect(err.message).toEql(errString)
+    }
+    
+    should_convert_non_error_object_to_error_object_for_output() {
+      obj := {errorNo: 5}
+      err := Yunit.processErrorForOutput(obj)
+      
+      Yunit.expect(Yunit.Util.IsError(err)).toBe(true)
+      Yunit.expect(err.message).toBe("A non-standard error occurred.")
+    }
+    
     should_check_whether_a_method_name_is_that_of_a_test_method() {
       Yunit.expect(Yunit._isTestMethod("Begin")).toBe(false)
       Yunit.expect(Yunit._isTestMethod("BeforeEach")).toBe(false)
@@ -41,7 +57,7 @@ Class YunitTest {
     }
   }
   
-  Class ExpectTest {
+  Class Expect {
     
     should_create_an_assertion_error_with_all_necessary_properties() {
       err := new Yunit.AssertionError("message", "what", "extra", {hasPassedTest: false})
@@ -210,7 +226,6 @@ Class YunitTest {
         output := this.m.GetErrorOutput()
 
         Yunit.expect(ret).toBe(false)
-        ; TODO: Yunit.expect(m.actual).not.toBe(m.expected)
         Yunit.expect(output).toEql(expectedOutput)
       }
     }
@@ -264,7 +279,7 @@ Class YunitTest {
         ret := this.m.Assert(actual, expected)
 
         Yunit.expect(ret).toBe(true)
-        ;; TODO: replace with ToContain matcher -> object
+        ;; TODO: replace with ToContain/ToMatchObject matcher -> future
         Yunit.expect(this.m.actual.value).toBe(actual)
         Yunit.expect(this.m.expected.value).toBe(expected)
         Yunit.expect(this.m.expected.digits).toBe(2)
@@ -290,7 +305,7 @@ Class YunitTest {
         ret := this.m.Assert(actual, expected)
         output := this.m.GetErrorOutput()
         Yunit.expect(ret).toBe(false)
-        ;; TODO: replace with ToContain matcher -> object
+        ;; TODO: replace with ToContain/ToMatchObject matcher -> future
         Yunit.expect(this.m.actual.value).toBe(actual)
         Yunit.expect(this.m.expected.value).toBe(expected)
         Yunit.expect(this.m.expected.digits).toBe(2)

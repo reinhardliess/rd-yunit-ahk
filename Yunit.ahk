@@ -97,8 +97,9 @@ class Yunit
         catch error
         {
           if !ObjHasKey(environment, "ExpectedException")
-            || !this.CompareValues(environment.ExpectedException, error)
-            result := error
+            || !this.CompareValues(environment.ExpectedException, error) {
+              result := Yunit.processErrorForOutput(error)
+            }
         }
         methodTime_ms := Round(Yunit.Util.QPCInterval())
         results[k] := result
@@ -117,6 +118,24 @@ class Yunit
     }
   }
 
+  /**
+  * Makes sure that a valid error object is returned for output module
+  * @param {any} err - variable return from try...catch
+  * @returns {object} error object 
+  */
+  processErrorForOutput(err) {
+    switch {
+      case !isObject(err):
+        return Exception(err)
+      case !Yunit.Util.IsError(err):
+        errObj := Exception("A non-standard error occurred.")
+        for key, value in errObj {
+          err[key] := value
+        }
+      }
+    return err
+  }
+  
   /**
   * Execute hook if it exists
   * @param {string} cls - class
@@ -229,6 +248,23 @@ class Yunit
 
   ;; Class Util
   Class Util {
+    
+    /**
+    * Tests whether a variable is an error object
+    * @param {any} var - variable to test 
+    * @returns {boolean} 
+    */
+    isError(var) {
+      if (IsObject(var) 
+        && var.hasKey("message")
+        && var.hasKey("what")
+        && var.hasKey("file")
+        && var.hasKey("line")) {
+        return true
+      }
+      return false
+    }
+    
     IsNumber(var) {
       return this.isInteger(var) || this.isFloat(var)
     }
@@ -373,6 +409,7 @@ class Yunit
     *
     * Retrieves the elapsed time in ms since the last call to QPC()
     * https://docs.microsoft.com/en-us/windows/win32/api/profileapi/nf-profileapi-queryperformancecounter
+    * @throws on winapi error
     * @returns {float}
     */
     QPCInterval(){
@@ -411,6 +448,7 @@ class Yunit
     * Meta function: routes method name to matcher
     * @param {string} methodName - method name of matcher
     * @param {any*} params - arguments passed to matcher
+    * @throws if matcher doesn't exist
     * @returns {any} return value from matcher
     */
     __Call(methodName, params*) {
