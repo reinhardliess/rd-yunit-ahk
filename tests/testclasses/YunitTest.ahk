@@ -25,37 +25,50 @@ Class YunitTest {
 
       Yunit.expect(matcherName).toBe("ToBe")
     }
-
-    render_linefeeds_in_strings_if_option_set() {
-      matcher := new Yunit.Matchers.ToBe()
-      lineLf := matcher.formatActualTestValue("Hello World!`nHow are you?")
-      lineCrlf := matcher.formatActualTestValue("Hello World!`r`nHow are you?")
-
-      Yunit.expect(lineLf).toBe("""Hello World!{format.textDimmed}``n{format.error}How are you?""")
-      Yunit.expect(lineCrlf).toBe("""Hello World!{format.textDimmed}``r{format.error}{format.textDimmed}``n{format.error}How are you?""")
-    }
-
-    render_linefeed_in_an_object_string_property_if_option_set() {
-      matcher := new Yunit.Matchers.ToBe()
-      lineLf := matcher.formatActualTestValue({a: "line1`nline2"})
-      expected := """a"":""line1{format.textDimmed}``n{format.error}line2"""
-      Yunit.expect(lineLf).toBe(expected)
-    }
     
-    render_esc_in_strings_if_option_set() {
-      matcher := new Yunit.Matchers.ToBe()
-      lineWithEsc := matcher.formatActualTestValue(chr(27) "[95m" "Hello World!")
+    ;; Class RenderWhiteSpace
+    Class RenderWhiteSpace {
+      
+      __New() {
+        Yunit.SetOptions({outputRenderWhitespace: true})
+      }
 
-      expected := format("{1}{format.textDimmed}``e{format.error}[95mHello World!{1}", chr(34), chr(27))
-      Yunit.expect(lineWithEsc).toBe(expected)
-    }
-
-    render_tab_in_strings_if_option_set() {
-      matcher := new Yunit.Matchers.ToBe()
-      lineWithTab := matcher.formatActualTestValue("Hello`tWorld!")
-
-      expected := format("{1}Hello{format.textDimmed}``t{format.error}World!{1}", chr(34))
-      Yunit.expect(lineWithTab).toBe(expected)
+      __Delete() {
+        Yunit.RestoreOptions()
+      }
+      
+      render_linefeeds_in_strings_if_option_set() {
+        matcher := new Yunit.Matchers.ToBe()
+        lineLf := matcher.formatActualTestValue("Hello World!`nHow are you?")
+        lineCrlf := matcher.formatActualTestValue("Hello World!`r`nHow are you?")
+  
+        Yunit.expect(lineLf).toBe("""Hello World!{format.textDimmed}``n{format.error}How are you?""")
+        Yunit.expect(lineCrlf).toBe("""Hello World!{format.textDimmed}``r{format.error}{format.textDimmed}``n{format.error}How are you?""")
+      }
+  
+      render_linefeed_in_an_object_string_property_if_option_set() {
+        matcher := new Yunit.Matchers.ToBe()
+        lineLf := matcher.formatActualTestValue({a: "line1`nline2"})
+        expected := """a"":""line1{format.textDimmed}``n{format.error}line2"""
+        Yunit.expect(lineLf).toBe(expected)
+      }
+      
+      render_esc_in_strings_if_option_set() {
+        matcher := new Yunit.Matchers.ToBe()
+        lineWithEsc := matcher.formatActualTestValue(chr(27) "[95m" "Hello World!")
+  
+        expected := format("{1}{format.textDimmed}``e{format.error}[95mHello World!{1}", chr(34), chr(27))
+        Yunit.expect(lineWithEsc).toBe(expected)
+      }
+  
+      render_tab_in_strings_if_option_set() {
+        matcher := new Yunit.Matchers.ToBe()
+        lineWithTab := matcher.formatActualTestValue("Hello`tWorld!")
+  
+        expected := format("{1}Hello{format.textDimmed}``t{format.error}World!{1}", chr(34))
+        Yunit.expect(lineWithTab).toBe(expected)
+      }
+    
     }
     
     Class ToBe {
