@@ -4,8 +4,9 @@
 class Yunit
 {
   static options := {EnablePrivateProps: true
-    , TimingWarningThreshold: 100
+    , TimingWarningThreshold: 25
     , OutputRenderWhiteSpace: false}
+  static lastOptions := ""
 
   class Tester extends Yunit
   {
@@ -23,14 +24,27 @@ class Yunit
   /**
   * Sets Yunit options
   * @param {object} options - object with options
+  * @throws Will throw an error if the option is invalid
   * @returns {void}
   */
   SetOptions(options) {
+    Yunit.lastOptions := Yunit.options.Clone()
     for key, value in options {
+      if (!Yunit.options.hasKey(key)) {
+        Throw Exception(format("'{1}' is an invalid Yunit option.", key))
+      }
       Yunit["options"][key] := value
     }
   }
 
+  /**
+  * Restores Yunit options from before last SetOptions()
+  * @returns {void}
+  */
+  RestoreOptions() {
+    Yunit.options := Yunit.lastOptions
+  }
+  
   Test(classes*) ; static method
   {
     instance := new this("")
@@ -657,13 +671,13 @@ class Yunit
         if (!this.actual.hasThrown) {
           return "Received function did not throw."
         }
-        outputFormat =
+        outputFormat := "
         (LTrim
         Actual error type:   {1}
         Expected error type: {2}
         
         Actual message:      {3}
-        )
+        )"
         output := format(outputFormat
           , this.actual.errorType
           , this.expected.errorType
