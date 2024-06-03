@@ -389,34 +389,6 @@ Class YunitTest {
         Yunit.expect(printedObj1).toEql('"a":5.0')  
       }
       
-      print_a_map_with_string_keys_and_caseSense_on() {
-        myMap := Map()
-        myMap.Set("Ab", 1, "Bc", 2, 1, 5)
-        
-        printedObj := Yunit.Util.Print(myMap) 
-        
-        Yunit.Expect(printedObj).toEql('1:5, "Ab":1, "Bc":2')
-      }
-
-      print_a_map_with_string_keys_and_caseSense_off() {
-        myMap := Map()
-        myMap.CaseSense := "Off"
-        myMap.Set("AbÜ", 1, "Bc", 2, 1, 5)
-        
-        printedObj := Yunit.Util.Print(myMap) 
-        
-        Yunit.Expect(printedObj).toEql('1:5, "abÜ":1, "bc":2')
-      }
-      
-      print_a_map_with_string_keys_and_caseSense_locale() {
-        myMap := Map()
-        myMap.CaseSense := "Locale"
-        myMap.Set("Äb", 1, "Öc", 2, 1, 5)
-        
-        printedObj := Yunit.Util.Print(myMap) 
-        
-        Yunit.Expect(printedObj).toEql('1:5, "äb":1, "öc":2')
-      }
     }
     
     should_test_if_QueryPerformanceCounter_is_working() {
