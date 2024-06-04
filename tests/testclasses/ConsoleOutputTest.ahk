@@ -138,8 +138,8 @@ Class ConsoleOutputTest {
       )"
       expected := "
       (LTrim
-      {format.text}Actual:   {format.error}5
-      {format.text}Expected: {format.ok}6
+      {format.text}Actual:   {format.error}5{format.text}
+      {format.text}Expected: {format.ok}6{format.text}
       )"
       
       output := this.m.insertAnsiPlaceholdersIntoMatcherOutput(matcherOutput)

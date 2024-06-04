@@ -30,7 +30,7 @@ Class ConsoleOutputBase {
     this.tests.push(objOutputInfo)
     this.summary.overall.count++
     switch {
-      case this.isError(objOutputInfo.result):
+      case Yunit.Util.isError(objOutputInfo.result):
         this.summary.failed.count++
       default:
         this.summary.passed.count++
@@ -42,22 +42,6 @@ Class ConsoleOutputBase {
     }
   }
   
-  /**
-  * Tests whether a variable is an error object
-  * @param {any} var - variable to test 
-  * @returns {boolean} 
-  */
-  isError(var) {
-    if (IsObject(var) 
-      && var.hasProp("message")
-      && var.hasProp("what")
-      && var.hasProp("file")
-      && var.hasProp("line")) {
-      return true
-    }
-    return false
-  }
-
   /**
   * Prints test results with categories
   * @returns {void} 
@@ -204,7 +188,7 @@ Class ConsoleOutputBase {
     methodTime_ms := outputInfo.methodTime_ms
     formatStr := "{1}[{2}] {format.textDimmed}{3}"
     switch {
-      case this.isError(outputInfo.result):
+      case Yunit.Util.isError(outputInfo.result):
         status := "Fail"
         statusFormat := "{format.error}"
       default:
@@ -229,7 +213,7 @@ Class ConsoleOutputBase {
   printErrorOverview() {
     errorCount := 0
     for testNumber, test in this.tests {
-      if (!this.isError(test.result)) {
+      if (!Yunit.Util.isError(test.result)) {
         continue
       }
       errorCount++
@@ -283,7 +267,7 @@ Class ConsoleOutputBase {
     
     if (matcher.HasProp("message") && matcher.message) {
       this.printLine()
-      this.printLine(1, matcher.message)
+      this.printLine(1, "{format.text}{1}", matcher.message )
     }
   }
   
@@ -309,14 +293,16 @@ Class ConsoleOutputBase {
   /**
   * Inserts Ansi placeholders into actual/expected output
   * This heuristic will save lots of work in matcher output methods
-  * but in rare cases end up with wrong colors (That's OK)
+  * but in rare cases might end up with wrong colors (That's OK)
   * @param {string} output
   * @returns {string} 
   */
   insertAnsiPlaceholdersIntoMatcherOutput(output) {
-    text := RegexReplace(output, "`aim)(^actual|^expected).*?:\s+", "{format.text}$0")
+    text := "{format.text}" output
+    text := RegexReplace(text, "`aim)(^actual|^expected).*?:\s+", "{format.text}$0")
     text := RegexReplace(text, "`aim)^{format\.text}+actual.*?:\s+", "$0{format.error}")
     text := RegexReplace(text, "`aim)^{format\.text}+expected.*?:\s+", "$0{format.ok}")
+    text := RegexReplace(text, "`am)$", "{format.text}$0")
     return text
   }
   

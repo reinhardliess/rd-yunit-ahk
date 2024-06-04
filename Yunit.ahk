@@ -4,8 +4,9 @@
 class Yunit
 {
   static options := {EnablePrivateProps: true
-    , TimingWarningThreshold: 100
+    , TimingWarningThreshold: 25
     , OutputRenderWhiteSpace: false}
+  static lastOptions := ""
 
   class Tester extends Yunit
   {
@@ -25,14 +26,27 @@ class Yunit
   /**
   * Sets Yunit options
   * @param {object} options - object with options
+  * @throws Will throw an error if the option is invalid
   * @returns {void}
   */
   static SetOptions(options) {
+    Yunit.lastOptions := Yunit.options.Clone()
     for key, value in options.OwnProps() {
+      if (!Yunit.options.HasProp(key)) {
+        Throw Error(format("'{1}' is an invalid Yunit option.", key))
+      }
       Yunit.options.%key% := value
     }
   }
 
+  /**
+  * Restores Yunit options from before last SetOptions()
+  * @returns {void}
+  */
+  static RestoreOptions() {
+    Yunit.options := Yunit.lastOptions
+  }
+  
   Test(classes*) ; static method
   {
     instance := this.new("")
@@ -81,12 +95,12 @@ class Yunit
         if ObjHasOwnProp(environment, "ExpectedException")
           throw Error("ExpectedException")
       }
-      catch Error as err
+      catch Any as err
       {
         if !ObjHasOwnProp(environment, "ExpectedException")
           || !this.CompareValues(environment.ExpectedException, err)
-          result := err
-      }
+          result := Yunit.processErrorForOutput(err)
+        }
       methodTime_ms := Round(Yunit.Util.QPCInterval())
       ; OutputDebug (k ": " methodTime_ms)
       results[k] := result
@@ -101,6 +115,24 @@ class Yunit
         this.classes.InsertAt(++this.current, v)
   }
 
+  /**
+  * Makes sure that a valid error object is returned for output module
+  * @param {any} err - variable return from try...catch
+  * @returns {object} error object 
+  */
+  static processErrorForOutput(err) {
+    switch {
+      case !isObject(err):
+        return Error(err)
+      case !Yunit.Util.IsError(err):
+        errObj := Error("A non-standard error occurred.")
+        for key, value in errObj.OwnProps() {
+          err.%key% := value
+        }
+      }
+    return err
+  }
+  
   /**
   * Execute hook if it exists
   * @param {string} cls - class
@@ -187,6 +219,25 @@ class Yunit
   }
 
   /**
+  * Renders white space characters
+  * @param {string} string
+  * @param {string} textFormat - Ansi placeholder to set after
+  * rendering whitespace
+  * @returns {string}
+  */
+  static renderWhiteSpace(string, textFormat) {
+    if (!Yunit.options.outputRenderWhiteSpace) {
+      return string
+    }
+    buffer := StrReplace(string, "`r", "{format.textDimmed}``r" textFormat)
+    buffer := StrReplace(buffer, "`n", "{format.textDimmed}``n" textFormat)
+    buffer := StrReplace(buffer, "`t", "{format.textDimmed}``t" textFormat)
+    buffer := StrReplace(buffer, chr(27), "{format.textDimmed}``e" textFormat)
+
+    return buffer
+  }
+  
+  /**
   * Expect gives access to a number of matchers
   * @throws Yunit.AssertionError if expectation fails
   * @param {string} actualValue - the value to test
@@ -200,6 +251,23 @@ class Yunit
 
   ;; Class Util
   Class Util {
+    
+    /**
+    * Tests whether a variable is an error object
+    * @param {any} var - variable to test 
+    * @returns {boolean} 
+    */
+    static isError(var) {
+      if (IsObject(var) 
+        && var.HasProp("message")
+        && var.HasProp("what")
+        && var.HasProp("file")
+        && var.HasProp("line")) {
+        return true
+      }
+      return false
+    }
+    
     static IsNumber(var) {
       return this.isInteger(var) || this.isFloat(var)
     }
@@ -267,20 +335,25 @@ class Yunit
     /**
     * Stringifies variable
     * @param {any} value - variable to stringify
-    * @param {boolean} usePureNumbers - no auto-conversion between
+    * @param {object} options - options object
+    * @param {boolean} [options.usePureNumbers:=false] - no auto-conversion between
     *   string and integer (V1) or all numbers (V2)
+    * @param {boolean} [options.renderWhiteSpace:=false]
+    * @param {boolean} [options.textFormat:="{format.text}"]
     * @returns {string}
     */
-    static Print(value, usePureNumbers := false) {
-
+    static Print(value, options := {}) {
       if (!IsObject(value)) {
         return value
       }
+      options.usePureNumbers   := options.HasProp("usePureNumbers") ? options.usePureNumbers : false
+      options.renderWhiteSpace := options.HasProp("renderWhiteSpace") ? options.renderWhiteSpace : false
+      options.textFormat := options.HasProp("textFormat") ? options.textFormat : "{format.text}"
   
-      return this._stringify(value, usePureNumbers)
+      return this._stringify(value, options)
     }
   
-    static _stringify(param_value, usePureNumbers) {
+    static _stringify(param_value, options) {
       if (!isObject(param_value)) {
         return '"' param_value '"'
       }
@@ -291,31 +364,13 @@ class Yunit
         : param_value.OwnProps()
   
       for key, value in iterator {
-        ; if (param_value is Map && Type(key) = "String") {
-        ;   switch param_value.CaseSense {
-        ;     case "Off":
-        ;       key := toLowerCaseAscii(key)
-        ;     case "Locale":
-        ;       key := StrLower(key)
-        ;   }
-        ; }
-        output .= this._stringifyGenerate(key, value, usePureNumbers)
+        output .= this._stringifyGenerate(key, value, options)
       }
       output := subStr(output, 1, -2)
       return output
-      
-      ; toLowerCaseAscii(str) {
-      ;   VarSetStrCapacity(&newStr, StrLen(str))
-      ;   Loop StrLen(str) {
-      ;     char := Substr(str, A_Index, 1)
-      ;     code := Ord(char)
-      ;     newStr .= (code >= 65 && code <= 90) ? Chr(code + 32) : char
-      ;   }
-      ;   return newStr
-      ; }
     }
   
-    static _stringifyGenerate(key, value, usePureNumbers) {
+    static _stringifyGenerate(key, value, options) {
       output := ""
   
       switch {
@@ -333,12 +388,15 @@ class Yunit
           ; Skip callable objects
           return ""
         case IsObject(value):
-          output .= "[" . this._stringify(value, usePureNumbers) . "]"
-        case !usePureNumbers && this.IsNumber(value):
+          output .= "[" . this._stringify(value, options) . "]"
+        case !options.usePureNumbers && this.IsNumber(value):
             output .= value
-        case usePureNumbers && this.IsPureNumber(value):
+        case options.usePureNumbers && this.IsPureNumber(value):
             output .= value
         default:
+          if (options.renderWhiteSpace && Yunit.options.outputRenderWhiteSpace) {
+            value := Yunit.renderWhiteSpace(value, options.textFormat)
+          }
           output .= '"' . value . '"'
       }
   
@@ -351,6 +409,7 @@ class Yunit
     *
     * Retrieves the elapsed time in ms since the last call to QPCInterval()
     * https://docs.microsoft.com/en-us/windows/win32/api/profileapi/nf-profileapi-queryperformancecounter
+    * @throws on winapi error
     * @returns {float}
     */
     static QPCInterval(){
@@ -368,26 +427,6 @@ class Yunit
     }
 
     /**
-    * Checks whether a search value is included in an array
-    * @param {array} arrayObj - array
-    * @param {string | number} searchValue - value to search for
-    * @param {boolean} [caseSense:=false]
-    * @returns {boolean}
-    */
-    static Includes(arrayObj, searchValue, caseSense := false) {
-      if (isObject(searchValue)) {
-        throw TypeError(A_ThisFunc " - TypeError: 2nd parameter must be number or string", -2)
-      }
-      for _, value in arrayObj {
-        found := caseSense ? searchValue == value : searchValue = value
-        if (found) {
-          return true
-        }
-      }
-      return false
-    }
-    
-    /**
     * Joins elements of an array into a string, JavaScript like
     * @param {array} arr - Array to convert
     * @param {string} [sep:=","] - delimiter e.g. ','
@@ -401,7 +440,7 @@ class Yunit
       return joinedStr
     }
   }
-
+  
   ;; Class _ExpectBase
   Class _ExpectBase {
 
@@ -409,6 +448,7 @@ class Yunit
     * Meta function: routes method name to matcher
     * @param {string} methodName - method name of matcher
     * @param {any*} params - arguments passed to matcher
+    * @throws if matcher doesn't exist
     * @returns {any} return value from matcher
     */
     __Call(methodName, params) {
@@ -421,6 +461,9 @@ class Yunit
       ret := matcher.assert(this.actualValue, params*)
       if (!ret) {
         throw Yunit.AssertionError("Assertion error", -2, , matcher)
+      }
+      if (matcher.HasProp("retVal")) {
+        return matcher.retVal
       }
       return ret
     }
@@ -446,10 +489,7 @@ class Yunit
   Class Matchers {
     ;; MatcherBase class
     Class MatcherBase {
-      
-      ; TODO: remove comment and fix tests with toContain matcher
-      ; message := ""
-      
+
       __New(options := "") {
         if (options.HasProp("message")) {
           this.message := options.message
@@ -477,7 +517,7 @@ class Yunit
         expected := this.formatExpectedTestValue(this.expected)
         return format("Actual:   {1}`nExpected: {2}", actual, expected)
       }
-
+      
       /**
       * Formats test value for output in actual/expected block
       * @param {string} type - "actual" or "expected"
@@ -485,10 +525,11 @@ class Yunit
       * @returns {string}
       */
       formatTestValue(type, value) {
+        textFormat := type = "actual" ? "{format.error}" : "{format.ok}"
         newValue := value
         switch {
         case isObject(value):
-          newValue := Yunit.Util.Print(value)
+          newValue := Yunit.Util.Print(value, {renderWhiteSpace: true, textFormat: (textFormat)})
           if (!newValue) {
             newValue := "{}"
           }
@@ -496,7 +537,7 @@ class Yunit
           newValue := Format("{1:.17g}", value)
         case Yunit.Util.GetType(value) = "String":
           textFormat := type = "actual" ? "{format.error}" : "{format.ok}"
-          newValue := this.renderWhiteSpace(value, textFormat)
+          newValue := Yunit.renderWhiteSpace(value, textFormat)
           newValue := '"' newValue '"'
         }
         return newValue
@@ -508,24 +549,6 @@ class Yunit
 
       formatExpectedTestValue(value) {
         return this.formatTestValue("expected", value)
-      }
-
-      /**
-      * Renders white space characters
-      * @param {string} string
-      * @param {string} textFormat - Ansi placeholder to set after
-      * rendering whitespace
-      * @returns {string}
-      */
-      renderWhiteSpace(string, textFormat) {
-        if (!Yunit.options.outputRenderWhiteSpace) {
-          return string
-        }
-        buffer := StrReplace(string, "`r`n", "{format.textDimmed}``r``n" textFormat)
-        buffer := StrReplace(buffer, "`n", "{format.textDimmed}``n" textFormat)
-        buffer := StrReplace(buffer, chr(27), "{format.textDimmed}``e" textFormat)
-
-        return buffer
       }
 
       /**
@@ -600,7 +623,7 @@ class Yunit
       */
       GetExpectComment() {
         switch {
-          case isObject(this.expected):
+          case isObject(this.expected), isObject(this.actual):
             return "deep stringified equality, no type checking"
           default:
             return "compares with =="
@@ -617,6 +640,16 @@ class Yunit
         return this.hasPassedTest := this.actual.difference < this.expected.difference
       }
 
+      /**
+      * Returns the text of a dynamic comment for the expect matcher
+      * to be printed in the error details header
+      * @override
+      * @returns {string}
+      */
+      GetExpectComment() {
+        return "compares floating point numbers for approximate equality"
+      }
+      
       getErrorOutput() {
         formatBlock :="
         (Ltrim
@@ -647,6 +680,50 @@ class Yunit
       
       GetAdditionalExpectParams() {
         return ["precision"]
+      }
+    }
+    
+    Class ToThrow extends Yunit.Matchers.MatcherBase {
+      
+      assert(funcObj, expectedError := "") {
+        this.actual := {hasThrown: false, errorType: ""}
+        ; this.expected := {errorType: (expectedError.__Class)}
+        if (expectedError) {
+          this.expected := {errorType: (expectedError.Prototype.__Class)}
+        }
+        this.hasPassedTest := false
+        
+        try {
+          funcObj.call()
+        } catch Any as err {
+          this.actual.hasThrown := true
+          this.actual.errorType := Yunit.Util.GetType(err)
+          this.hasPassedTest := true
+          ; TODO: V2 - is operator to compare errors?
+          if (expectedError && this.actual.errorType != this.expected.errorType) {
+            this.hasPassedTest := false
+          }
+          this.retVal := err
+        }
+        return this.hasPassedTest
+      }
+      
+      getErrorOutput() {
+        if (!this.actual.hasThrown) {
+          return "Received function did not throw."
+        }
+        outputFormat := "
+        (LTrim
+        Actual error type:   {1}
+        Expected error type: {2}
+        
+        Actual message:      {3}
+        )"
+        output := format(outputFormat
+          , this.actual.errorType
+          , this.expected.errorType
+          , this.retVal.message)
+        return output
       }
     }
   }

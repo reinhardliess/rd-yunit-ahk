@@ -1,3 +1,5 @@
+#Requires AutoHotkey 2.0
+
 SetWorkingDir(A_ScriptDir)
 
 #Include ../Yunit.ahk

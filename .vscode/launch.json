@@ -13,6 +13,7 @@
       "port": "9002-9010",
       "variableCategories": "recommend",
       "useDebugDirective": false,
+      "useAnnounce": "error",
       "useAutoJumpToError": true,
       "usePerfTips": "{{elapsedTime_ms}}ms elapsed.",
       "useOutputDebug": {
@@ -45,6 +46,7 @@
       "port": "9002-9010",
       "variableCategories": "recommend",
       "useDebugDirective": false,
+      "useAnnounce": "error",
       "useAutoJumpToError": true,
       "usePerfTips": "{{elapsedTime_ms}}ms elapsed.",
       "useOutputDebug": {
@@ -61,6 +63,7 @@
       "port": "9002-9010",
       "variableCategories": "recommend",
       "useDebugDirective": false,
+      "useAnnounce": "error",
       "useAutoJumpToError": true,
       "usePerfTips": "{{elapsedTime_ms}}ms elapsed.",
       "useOutputDebug": {

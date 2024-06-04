@@ -1,3 +1,5 @@
+#Include "../../Yunit.ahk"
+
 Class YunitHookTest {
   
   var1 := 0
@@ -16,6 +18,25 @@ Class YunitHookTest {
     
   }
   
+  Class _TestClass1 {
+    Begin() {
+      
+    }
+    
+    BeforeEach() {
+      
+    }
+    
+  }
+  
+  Class _TestClass1_1 {
+    
+    BeforeEach() {
+      
+    }
+    
+  }
+  
   static _beforeEachAll(thisArg) {
     thisArg.var1 := 1
   }
@@ -26,6 +47,11 @@ Class YunitHookTest {
   
   afterEach() {
     ; OutputDebug, % A_ThisFunc
+  }
+
+  beforeeach_and_begin_should_be_mutually_exclusive() {
+    Yunit.expect(Yunit._validateHooks(YunitHookTest._TestClass1)).toBe(false)
+    Yunit.expect(Yunit._validateHooks(YunitHookTest._TestClass1_1)).toBe(true)
   }
   
   executes_a_hook() {
