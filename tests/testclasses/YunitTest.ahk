@@ -430,6 +430,44 @@ Class YunitTest {
         Yunit.expect(this.m.expected.errorType).toBe("YunitTest.Matchers.toThrow._TypeError")
       }
     }
+    
+    ;; Class ToMatch
+    Class ToMatch {
+      
+      beforeEach() {
+        this.m := new Yunit.Matchers.ToMatch()
+      }
+      
+      matches_a_string_true() {
+        actual   := "ABC123456"
+        expected := "i)abc\d"
+
+        ret := this.m.Assert(actual, expected)
+        
+        Yunit.expect(ret).toBe(true)
+        Yunit.expect(this.m.hasPassedTest).toBe(true)
+        Yunit.expect(this.m.retVal[0]).toBe("ABC1")
+      }
+
+      matches_a_string_false() {
+        actual   := "ABC123456"
+        expected := "i)abd\d"
+        
+        expectedOutput =
+        (LTrim
+        Actual value:     "ABC123456"
+        Expected pattern: "i)abd\d"
+        )
+
+        ret := this.m.Assert(actual, expected)
+        output := this.m.GetErrorOutput()
+
+        Yunit.expect(ret).toBe(false)
+        Yunit.expect(this.m.hasPassedTest).toBe(false)
+        Yunit.expect(output).toEql(expectedOutput)
+      }
+
+    }
   }
 
   ;; Class Util

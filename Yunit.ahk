@@ -461,7 +461,7 @@ class Yunit
       if (!ret) {
         throw new Yunit.AssertionError("Assertion error", -2, , matcher)
       }
-      if (matcher.retVal) {
+      if (matcher.hasKey("retVal")) {
         return matcher.retVal
       }
       return ret
@@ -683,6 +683,7 @@ class Yunit
       }
     }
     
+    ;; Class ToThrow
     Class ToThrow extends Yunit.Matchers.MatcherBase {
       
       assert(funcObj, expectedError :="") {
@@ -696,7 +697,6 @@ class Yunit
           this.actual.hasThrown := true
           this.actual.errorType := Yunit.Util.GetType(err)
           this.hasPassedTest := true
-          ; TODO: V2 - is operator to compare errors?
           if (expectedError && this.actual.errorType != this.expected.errorType) {
             this.hasPassedTest := false
           }
@@ -722,6 +722,62 @@ class Yunit
           , this.retVal.message)
         return output
       }
+    }
+    
+    ;; Class ToMatch
+    Class ToMatch extends Yunit.Matchers.MatcherBase {
+      
+      assert(actual, expected) {
+        base.assert(actual, expected)
+        pattern := this._buildRegex(expected)
+        pos := RegExMatch(actual, pattern, match)
+        this.retVal := match
+        return (this.hasPassedTest := pos > 0)
+      }
+      
+      /**
+      * Builds regex pattern: sets "match object" mode, adds PCRE options
+      * @param {string} regex - RegEx pattern
+      * @returns {string} new RegEx pattern
+      */
+      _buildRegex(regex) {
+        split := this.splitRegex(regex)
+        return split.flags "O)" split.pattern
+      }
+
+      /**
+      * Splits RegEx pattern into flags/pattern
+      * @param {string} regex - RegEx pattern
+      * @returns {object} { flags, pattern }
+      */
+      splitRegex(regex) {
+        ; Group1: flags, group2: pattern
+        ; https://regex101.com/r/lFAmkV/1/
+        RegExMatch(regex, "O)^(?:([^(]*)\))?(.+)", match)
+        return { flags: (match[1]), pattern: (match[2]) }
+      }
+
+      /**
+      * Returns the text of a dynamic comment for the expect matcher
+      * to be printed in the error details header
+      * @override
+      * @returns {string}
+      */
+      GetExpectComment() {
+        return "RegExMatch"
+      }
+      
+      /**
+      * Returns the error output to print in the error details section
+      * @virtual
+      * @returns {string | string[]}
+      */
+      GetErrorOutput() {
+        actual := this.formatActualTestValue(this.actual)
+        expected := this.formatExpectedTestValue(this.expected)
+        return format("Actual value:     {1}`nExpected pattern: {2}", actual, expected)
+      }
+
     }
   }
 }
