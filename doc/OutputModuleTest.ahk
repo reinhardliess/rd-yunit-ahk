@@ -1,5 +1,13 @@
 class OutputModuleTest {
 
+  class strings {
+    
+    should_match_a_string() {
+      match := Yunit.expect("ABCDEF").toMatch("i)abcdef")
+    }
+    
+  }
+  
   class assert {
     integer_addition_correct_result() {
       Yunit.assert(1 + 3 == 4)

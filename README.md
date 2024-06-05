@@ -1,22 +1,32 @@
-Yunit
-=====
-Super simple unit testing framework for [AutoHotkey](http://www.autohotkey.com/).
+# rd-yunit
 
-Usage
------
+## Description
+
+rd-Yunit is a super simple unit testing framework for [AutoHotkey](http://www.autohotkey.com/), both 1.1.x and 2.x.
+It's a fork of Yunit, adding new features
+
+### List of New Features
+
+- Expect-like matchers
+- New or improved output modules
+- New hooks
+- Configuration options
+
+## Usage
+
 See [doc/Main.md](doc/Main.md)
 
-Branch Description
-------------------
-- Branch *master* covers usage of YUnit in AutoHotkey from 1.1.x up to 2.0.a77
-- Branch *v2* covers usage of Yunit in AutoHotkey from v2.0-beta.1 (where incompatible 
-changes in GUI-interface where introduced)  
+## Branch Description
 
-License
--------
-Copyright 2012 Anthony Zhang (Uberi) and Joe Taber (infogulch).
+- Branch *master* covers usage of YUnit in AutoHotkey for 1.1.x
+- Branch *v2* covers usage of Yunit in AutoHotkey for v2.x
 
-This file is part of Yunit. Source code is available at <https://github.com/Uberi/Yunit>.
+## License
+
+Copyright 2012 Anthony Zhang (Uberi) and Joe Taber (infogulch).  
+Copyright 2024 Reinhard Liess
+
+This file is part of rd-yunit. Source code is available at <https://github.com/reinhardliess/rd-yunit>.
 
 Yunit is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by

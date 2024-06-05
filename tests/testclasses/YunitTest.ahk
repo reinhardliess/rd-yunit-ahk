@@ -128,7 +128,6 @@ Class YunitTest {
   ;; Class Matchers
   Class Matchers {
 
-
     matcher_options_should_be_set_by_constructor() {
       matcher := new Yunit.Matchers.ToBe({message: "error"})
 
@@ -197,7 +196,7 @@ Class YunitTest {
       integer_comparison_true() {
         ret := this.m.Assert(5, 5)
 
-        Yunit.expect(ret).toBe(true)
+        Yunit.expect(ret).toEql(true)
         Yunit.expect(this.m).toEql({actual: 5, expected: 5, hasPassedTest: 1})
       }
 
@@ -211,7 +210,7 @@ Class YunitTest {
         ret := this.m.Assert(5, 6)
         output := this.m.GetErrorOutput()
 
-        Yunit.expect(ret).toBe(false)
+        Yunit.expect(ret).toEql(false)
         Yunit.expect(this.m).toEql({actual: 5, expected: 6, hasPassedTest: 0})
         Yunit.expect(output).toEql(expected)
       }
@@ -219,7 +218,7 @@ Class YunitTest {
       string_comparison_true() {
         ret := this.m.Assert("Zoe", "Zoe")
 
-        Yunit.expect(ret).toBe(true)
+        Yunit.expect(ret).toEql(true)
         Yunit.expect(this.m).toEql({actual: "Zoe", expected: "Zoe", hasPassedTest: 1})
       }
 
@@ -233,7 +232,7 @@ Class YunitTest {
         ret := this.m.Assert("Zoi", "Zoe")
         output := this.m.GetErrorOutput()
 
-        Yunit.expect(ret).toBe(false)
+        Yunit.expect(ret).toEql(false)
         Yunit.expect(this.m).toEql({actual: "Zoi", expected: "Zoe", hasPassedTest: 0})
         Yunit.expect(output).toEql(expectedOutput)
       }
@@ -243,8 +242,9 @@ Class YunitTest {
 
         ret := this.m.Assert(obj1, obj1ref)
 
-        Yunit.expect(ret).toBe(true)
-        Yunit.expect(m.actual).toBe(m.expected)
+        Yunit.expect(ret).toEql(true)
+        Yunit.expect(this.m.hasPassedTest).toEql(true)
+        Yunit.expect(m.actual = m.expected).toEql(true)
       }
 
       object_comparison_false() {
@@ -258,7 +258,8 @@ Class YunitTest {
         ret := this.m.Assert(obj1, obj2)
         output := this.m.GetErrorOutput()
 
-        Yunit.expect(ret).toBe(false)
+        Yunit.expect(ret).toEql(false)
+        Yunit.expect(this.m.hasPassedTest).toEql(false)
         Yunit.expect(output).toEql(expectedOutput)
       }
     }
@@ -268,7 +269,8 @@ Class YunitTest {
       beforeEach() {
         this.m := new Yunit.Matchers.toEql()
       }
-
+      
+      ; TODO: replace toEql -> toEqual/toStrictlyEqual when available
       object_comparison_true() {
         actual   := {a: 1}
         expected := {a: 1}
@@ -276,8 +278,10 @@ Class YunitTest {
         ret := this.m.Assert(actual, expected)
 
         Yunit.expect(ret).toBe(true)
-        Yunit.expect(this.m.actual).toBe(actual)
-        Yunit.expect(this.m.expected).toBe(expected)
+        Yunit.expect(this.m)
+          .toEql({hasPassedTest: true
+          , actual: (actual)
+          , expected: (expected)})
       }
 
       object_comparison_false() {
@@ -293,8 +297,10 @@ Class YunitTest {
         output := this.m.GetErrorOutput()
 
         Yunit.expect(ret).toBe(false)
-        Yunit.expect(this.m.actual).toBe(actual)
-        Yunit.expect(this.m.expected).toBe(expected)
+        Yunit.expect(this.m)
+          .toEql({hasPassedTest: false
+          , actual: (actual)
+          , expected: (expected)})
         Yunit.expect(output).toEql(expectedOutput)
       }
     }
@@ -312,6 +318,7 @@ Class YunitTest {
         ret := this.m.Assert(actual, expected)
 
         Yunit.expect(ret).toBe(true)
+        Yunit.expect(this.m.hasPassedTest).toBe(true)
         ;; TODO: replace with ToContain/ToMatchObject matcher -> future
         Yunit.expect(this.m.actual.value).toBe(actual)
         Yunit.expect(this.m.expected.value).toBe(expected)
@@ -338,6 +345,7 @@ Class YunitTest {
         ret := this.m.Assert(actual, expected)
         output := this.m.GetErrorOutput()
         Yunit.expect(ret).toBe(false)
+        Yunit.expect(this.m.hasPassedTest).toBe(false)
         ;; TODO: replace with ToContain/ToMatchObject matcher -> future
         Yunit.expect(this.m.actual.value).toBe(actual)
         Yunit.expect(this.m.expected.value).toBe(expected)
@@ -381,6 +389,7 @@ Class YunitTest {
         
         Yunit.expect(this.m.actual.hasThrown).toBe(false)
         Yunit.expect(ret).toBe(false)
+        Yunit.expect(this.m.hasPassedTest).toBe(false)
       }
       
       throws_an_error() {
@@ -390,6 +399,7 @@ Class YunitTest {
         ret := this.m.Assert(actual, expected)
         
         Yunit.expect(ret).toBe(true)
+        Yunit.expect(this.m.hasPassedTest).toBe(true)
         Yunit.expect(this.m.actual.hasThrown).toBe(true)
         Yunit.expect(this.m.retVal).toBe("An error")
         
@@ -404,6 +414,7 @@ Class YunitTest {
         ret := this.m.Assert(actual, expected)
         
         Yunit.expect(ret).toBe(true)
+        Yunit.expect(this.m.hasPassedTest).toBe(true)
         Yunit.expect(this.m.actual.hasThrown).toBe(true)
         Yunit.expect(this.m.actual.errorType).toBe("Yunit.AssertionError")
         Yunit.expect(this.m.expected.errorType).toBe("Yunit.AssertionError")
@@ -425,6 +436,7 @@ Class YunitTest {
         Yunit.expect(output).toEql(expectedOutput)
         
         Yunit.expect(ret).toBe(false)
+        Yunit.expect(this.m.hasPassedTest).toBe(false)
         Yunit.expect(this.m.actual.hasThrown).toBe(true)
         Yunit.expect(this.m.actual.errorType).toBe("Yunit.AssertionError")
         Yunit.expect(this.m.expected.errorType).toBe("YunitTest.Matchers.toThrow._TypeError")
