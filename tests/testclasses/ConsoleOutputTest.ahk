@@ -208,7 +208,7 @@ Class ConsoleOutputTest {
     }
 
     print_categories_and_testname_as_breadcrumbs_for_error() {
-      outputInfo := ConsoleOutputTest._runTest("Category1.sub1", "test3", "def", "ghi", 5)
+      outputInfo := ConsoleOutputTest._runTest("Category1.sub1", "test3", "def", "ghi", 50)
       expected := "* Category1 > sub1 > test3`n"
       
       this.m.printErrorPath(outputInfo)
@@ -216,6 +216,19 @@ Class ConsoleOutputTest {
       Yunit.expect(this.m.test_PrintOutput).toEql(expected)
     }
 
+    print_categories_and_testname_as_breadcrumbs_for_slow_tests() {
+      outputInfo := ConsoleOutputTest._runTest("Category1.sub1", "test3", "def", "ghi", 50)
+      expected := "* Category1 > sub1 > test3 (50 ms)`n"
+      
+      this.m.printSlowTestPath(outputInfo)
+      
+      Yunit.expect(this.m.test_PrintOutput).toEql(expected)
+    }
+
+    ; test_temp() {
+    ;   this.m.printSlowTestOverview()
+    ; }
+    
     print_error_header_no_additional_data() {
       expected := "  expect(actual)._MockMatcher(expected)`n"
       

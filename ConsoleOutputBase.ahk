@@ -33,7 +33,7 @@ Class ConsoleOutputBase {
       default:
         this.summary.passed.count++
         this.summary.passed.timeTaken += objOutputInfo.methodTime_ms
-        if (objOutputInfo.methodTime_ms > Yunit.options.TimingWarningThreshold) {
+        if (this.isSlowTest(objOutputInfo.methodTime_ms)) {
           this.summary.slowTests.count++
           this.summary.slowTests.timeTaken += objOutputInfo.methodTime_ms
         }
@@ -193,7 +193,7 @@ Class ConsoleOutputBase {
         status := "Pass"
         statusFormat := "{format.ok}"
         switch {
-          case methodTime_ms > Yunit.options.timingWarningThreshold:
+          case this.isSlowTest(methodTime_ms):
             formatStr .= " {format.slowTest}({4} ms)"
           case methodTime_ms > 0:
             formatStr .= " ({4} ms)"
@@ -204,6 +204,24 @@ Class ConsoleOutputBase {
       , outputInfo.testMethod, methodTime_ms)
   }
   
+  /**
+  * Prints all slow tests
+  * @returns {void} 
+  */
+  printSlowTestOverview() {
+    slowTests := 0
+    for testNumber, test in this.tests {
+      if (Yunit.Util.isError(test.result) || !this.isSlowTest(test.methodTime_ms)) {
+        continue
+      }
+      slowTests++
+      if (slowTests > 1) {
+        this.printLine()
+      }
+      this.printSlowTestPath(test)
+    }
+  }
+
   /**
   * Prints detailed info for each error
   * @returns {void} 
@@ -241,6 +259,28 @@ Class ConsoleOutputBase {
   printErrorPath(outputInfo) {
     formatHeading := "{format.errorPath}* {1}"
     this.printLine(0, formatHeading, StrReplace(outputInfo.category "." outputInfo.testMethod, "." , " > "))
+  }
+  
+  /**
+  * Prints categories and test name as breadcrumbs
+  * @param {outputInfo} outputInfo
+  * @returns {void} 
+  */
+  printSlowTestPath(outputInfo) {
+    formatHeading := "{format.slowTestPath}* {1} ({2} ms)"
+    this.printLine(0
+      , formatHeading
+      , StrReplace(outputInfo.category "." outputInfo.testMethod, "." , " > ")
+      , outputInfo.methodTime_ms)
+  }
+
+  /**
+  * Should a test be counted as a slow test
+  * @param {number} elapsed_ms - time for test 
+  * @returns {boolean} 
+  */
+  isSlowTest(elapsed_ms) {
+    return elapsed_ms > Yunit.options.TimingWarningThreshold
   }
   
   /**
