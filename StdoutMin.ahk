@@ -1,3 +1,5 @@
+#Include %A_LineFile%\..\Stdout.ahk
+
 class YunitStdOutMin extends YunitStdout
 {
   __Delete() {

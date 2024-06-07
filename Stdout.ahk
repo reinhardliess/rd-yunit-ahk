@@ -1,3 +1,5 @@
+#Include %A_LineFile%\..\ConsoleOutputBase.ahk
+
 class YunitStdOut extends ConsoleOutputBase {
   
   __Delete() {
