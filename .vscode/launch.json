@@ -22,22 +22,6 @@
       "internalConsoleOptions": "openOnSessionStart"
     },
     {
-      "name": "Legacy Tests (Yunit)",
-      "type": "autohotkey",
-      "request": "launch",
-      "program": "${workspaceFolder}\\tests\\LegacyTestrunner.ahk",
-      "args": [],
-      "port": "9002-9010",
-      "variableCategories": "recommend",
-      "useDebugDirective": false,
-      "useAutoJumpToError": true,
-      "usePerfTips": "{{elapsedTime_ms}}ms elapsed.",
-      "useOutputDebug": {
-        "useTrailingLinebreak": true
-      },
-      "internalConsoleOptions": "openOnSessionStart"
-    },
-    {
       "name": "Test Stdout",
       "type": "autohotkey",
       "request": "launch",

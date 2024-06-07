@@ -1,4 +1,4 @@
-;#NoEnv
+#Requires AutoHotkey v1.1.35+
 
 ;; Class Yunit
 class Yunit
@@ -579,7 +579,9 @@ class Yunit
       * @returns {string}
       */
       GetMatcherType() {
-        return StrSplit(this.__class, ".").Pop()
+        name := StrSplit(this.__class, ".").Pop()
+        ; change PascalCase to camelCase
+        return Format("{1:L}", Substr(name, 1, 1)) Substr(name, 2) 
       }
     }
 
@@ -602,7 +604,7 @@ class Yunit
     }
 
     ;; toEql
-    Class toEql extends Yunit.Matchers.MatcherBase {
+    Class ToEql extends Yunit.Matchers.MatcherBase {
       
       Assert(actual, expected) {
         base.Assert(actual, expected)
@@ -740,7 +742,7 @@ class Yunit
       }
       
       /**
-      * Builds regex pattern: sets "match object" mode, adds PCRE options
+      * Builds regex pattern: sets "match object" mode
       * @param {string} regex - RegEx pattern
       * @returns {string} new RegEx pattern
       */

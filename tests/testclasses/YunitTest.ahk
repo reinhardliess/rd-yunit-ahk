@@ -1,6 +1,7 @@
 Class YunitTest {
   
   ;; TODO: integrate when stubs are available ↓
+  ; also check update_summary_data_for_tests()
   
   /*  
   filterOutputInfo(listInfo) {
@@ -115,7 +116,7 @@ Class YunitTest {
       
       err.matcher.matcherType := err.matcher.GetMatcherType()
       Yunit.expect(err.matcher, "The error object should contain the correct matcher object")
-        .toEql({actual: 5, expected: 6, hasPassedTest: 0, matcherType: "ToBe", message: "message"})
+        .toEql({actual: 5, expected: 6, hasPassedTest: 0, matcherType: "toBe", message: "message"})
     }
     
     if_a_matcher_is_used_that_does_not_exist_throw_an_error() {
@@ -138,7 +139,7 @@ Class YunitTest {
       matcher := new Yunit.Matchers.ToBe()
       matcherName := matcher.getMatcherType()
 
-      Yunit.expect(matcherName).toBe("ToBe")
+      Yunit.expect(matcherName).toBe("toBe")
     }
     
     ;; Class RenderWhiteSpace
@@ -244,7 +245,7 @@ Class YunitTest {
 
         Yunit.expect(ret).toEql(true)
         Yunit.expect(this.m.hasPassedTest).toEql(true)
-        Yunit.expect(m.actual = m.expected).toEql(true)
+        Yunit.expect(this.m.actual = this.m.expected).toEql(true)
       }
 
       object_comparison_false() {
