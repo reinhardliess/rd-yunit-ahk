@@ -429,6 +429,8 @@ Class YunitTest {
         Expected error type: YunitTest.Matchers.toThrow._TypeError
         
         Actual message:      message
+        Actual what:         what
+        Actual extra:        extra
         )"
 
         ret := this.m.Assert(actual, expected)

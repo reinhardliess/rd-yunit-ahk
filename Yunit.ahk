@@ -715,11 +715,15 @@ class Yunit
         Expected error type: {2}
         
         Actual message:      {3}
+        Actual what:         {4}
+        Actual extra:        {5}
         )"
         output := format(outputFormat
           , this.actual.errorType
           , this.expected.errorType
-          , this.retVal.message)
+          , this.retVal.message
+          , this.retVal.what
+          , this.retVal.extra)
         return output
       }
     }
