@@ -66,7 +66,7 @@ Class ConsoleOutputTest {
   }
 
   beforeEachAll(thisArg) {
-    thisArg.m := new Test_ConsoleOutput("")
+    thisArg.m := new Test_ConsoleOutput()
   }
   
   ;; Printing
@@ -225,10 +225,6 @@ Class ConsoleOutputTest {
       Yunit.expect(this.m.test_PrintOutput).toEql(expected)
     }
 
-    ; test_temp() {
-    ;   this.m.printSlowTestOverview()
-    ; }
-    
     print_error_header_no_additional_data() {
       expected := "  expect(actual)._MockMatcher(expected)`n"
       
