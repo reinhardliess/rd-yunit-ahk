@@ -2,6 +2,40 @@
 
 Class YunitTest {
   
+  ;; TODO: integrate when stubs are available ↓
+  ; also check update_summary_data_for_tests()
+  
+  /*  
+  filterOutputInfo(listInfo) {
+    newList := []
+    for _, value in listInfo {
+      newList.push({category: (value.category), testMethod: (value.testMethod)})
+    }
+    return newList
+  }
+
+  test_Yunit_TestClass() {
+    global test_listOutputInfo
+    
+    Yunit.Use(TestOutput).Test(TestClass2)
+    
+    assert.label("should throw the correct error type when using expect()")
+    errType := Yunit.Util.GetType(test_listOutputInfo[1].result)
+    assert.test(errType, "Yunit.AssertionError")
+    
+    assert.label("should retrieve timing information for tests")
+    timeType := Yunit.Util.GetType(test_listOutputInfo[1].methodTime_ms)
+    assert.test(timeType, "Integer")
+    
+    assert.label("should execute all test methods")
+    actual := filterOutputInfo(test_listOutputInfo)
+    expected := [{category: "TestClass2", testMethod: "Test_Fails"}
+      , {category: "TestClass2", testMethod: "Test_Passes"}
+      , {category: "TestClass2.CategoryOne", testMethod: "Test1"}]
+    assert.test(actual, expected)
+  }
+  */
+    
   ;; Class YunitMain
   Class YunitMain {
     
@@ -84,7 +118,7 @@ Class YunitTest {
       
       err.matcher.matcherType := err.matcher.GetMatcherType()
       Yunit.expect(err.matcher, "The error object should contain the correct matcher object")
-        .toEql({actual: 5, expected: 6, hasPassedTest: 0, matcherType: "ToBe", message: "message"})
+        .toEql({actual: 5, expected: 6, hasPassedTest: 0, matcherType: "toBe", message: "message"})
     }
     
     if_a_matcher_is_used_that_does_not_exist_throw_an_error() {
@@ -97,7 +131,6 @@ Class YunitTest {
   ;; Class Matchers
   Class Matchers {
 
-
     matcher_options_should_be_set_by_constructor() {
       matcher := Yunit.Matchers.ToBe({message: "error"})
       
@@ -108,7 +141,7 @@ Class YunitTest {
       matcher := Yunit.Matchers.ToBe()
       matcherName := matcher.getMatcherType()
 
-      Yunit.expect(matcherName).toBe("ToBe")
+      Yunit.expect(matcherName).toBe("toBe")
     }
     
     Class RenderWhiteSpace {
@@ -168,7 +201,7 @@ Class YunitTest {
       integer_comparison_true() {
         ret := this.m.Assert(5, 5)
 
-        Yunit.expect(ret).toBe(true)
+        Yunit.expect(ret).toEql(true)
         Yunit.expect(this.m).toEql({actual: 5, expected: 5, hasPassedTest: 1})
       }
 
@@ -182,7 +215,7 @@ Class YunitTest {
         ret := this.m.Assert(5, 6)
         output := this.m.GetErrorOutput()
 
-        Yunit.expect(ret).toBe(false)
+        Yunit.expect(ret).toEql(false)
         Yunit.expect(this.m).toEql({actual: 5, expected: 6, hasPassedTest: 0})
         Yunit.expect(output).toEql(expected)
       }
@@ -190,7 +223,7 @@ Class YunitTest {
       string_comparison_true() {
         ret := this.m.Assert("Zoe", "Zoe")
 
-        Yunit.expect(ret).toBe(true)
+        Yunit.expect(ret).toEql(true)
         Yunit.expect(this.m).toEql({actual: "Zoe", expected: "Zoe", hasPassedTest: 1})
       }
 
@@ -204,7 +237,7 @@ Class YunitTest {
         ret := this.m.Assert("Zoi", "Zoe")
         output := this.m.GetErrorOutput()
 
-        Yunit.expect(ret).toBe(false)
+        Yunit.expect(ret).toEql(false)
         Yunit.expect(this.m).toEql({actual: "Zoi", expected: "Zoe", hasPassedTest: 0})
         Yunit.expect(output).toEql(expectedOutput)
       }
@@ -214,8 +247,9 @@ Class YunitTest {
 
         ret := this.m.Assert(obj1, obj1ref)
 
-        Yunit.expect(ret).toBe(true)
-        Yunit.expect(this.m.actual).toBe(this.m.expected)
+        Yunit.expect(ret).toEql(true)
+        Yunit.expect(this.m.hasPassedTest).toEql(true)
+        Yunit.expect(this.m.actual = this.m.expected).toEql(true)
       }
 
       object_comparison_false() {
@@ -229,7 +263,8 @@ Class YunitTest {
         ret := this.m.Assert(obj1, obj2)
         output := this.m.GetErrorOutput()
 
-        Yunit.expect(ret).toBe(false)
+        Yunit.expect(ret).toEql(false)
+        Yunit.expect(this.m.hasPassedTest).toEql(false)
         Yunit.expect(output).toEql(expectedOutput)
       }
     }
@@ -239,7 +274,8 @@ Class YunitTest {
       beforeEach() {
         this.m := Yunit.Matchers.toEql()
       }
-
+      
+      ; TODO: replace toEql -> toEqual/toStrictlyEqual when available
       object_comparison_true() {
         actual   := {a: 1}
         expected := {a: 1}
@@ -247,8 +283,10 @@ Class YunitTest {
         ret := this.m.Assert(actual, expected)
 
         Yunit.expect(ret).toBe(true)
-        Yunit.expect(this.m.actual).toBe(actual)
-        Yunit.expect(this.m.expected).toBe(expected)
+        Yunit.expect(this.m)
+          .toEql({hasPassedTest: true
+          , actual: (actual)
+          , expected: (expected)})
       }
 
       object_comparison_false() {
@@ -264,8 +302,10 @@ Class YunitTest {
         output := this.m.GetErrorOutput()
 
         Yunit.expect(ret).toBe(false)
-        Yunit.expect(this.m.actual).toBe(actual)
-        Yunit.expect(this.m.expected).toBe(expected)
+        Yunit.expect(this.m)
+          .toEql({hasPassedTest: false
+          , actual: (actual)
+          , expected: (expected)})
         Yunit.expect(output).toEql(expectedOutput)
       }
     }
@@ -283,6 +323,7 @@ Class YunitTest {
         ret := this.m.Assert(actual, expected)
 
         Yunit.expect(ret).toBe(true)
+        Yunit.expect(this.m.hasPassedTest).toBe(true)
         ;; TODO: replace with ToContain/ToMatchObject matcher -> future
         Yunit.expect(this.m.actual.value).toBe(actual)
         Yunit.expect(this.m.expected.value).toBe(expected)
@@ -309,6 +350,7 @@ Class YunitTest {
         ret := this.m.Assert(actual, expected)
         output := this.m.GetErrorOutput()
         Yunit.expect(ret).toBe(false)
+        Yunit.expect(this.m.hasPassedTest).toBe(false)
         ;; TODO: replace with ToContain/ToMatchObject matcher -> future
         Yunit.expect(this.m.actual.value).toBe(actual)
         Yunit.expect(this.m.expected.value).toBe(expected)
@@ -357,6 +399,7 @@ Class YunitTest {
         
         Yunit.expect(this.m.actual.hasThrown).toBe(false)
         Yunit.expect(ret).toBe(false)
+        Yunit.expect(this.m.hasPassedTest).toBe(false)
       }
       
       throws_an_error() {
@@ -366,6 +409,7 @@ Class YunitTest {
         ret := this.m.Assert(actual, expected)
         
         Yunit.expect(ret).toBe(true)
+        Yunit.expect(this.m.hasPassedTest).toBe(true)
         Yunit.expect(this.m.actual.hasThrown).toBe(true)
         Yunit.expect(this.m.retVal).toBe("An error")
         
@@ -380,6 +424,7 @@ Class YunitTest {
         ret := this.m.Assert(actual, expected)
         
         Yunit.expect(ret).toBe(true)
+        Yunit.expect(this.m.hasPassedTest).toBe(true)
         Yunit.expect(this.m.actual.hasThrown).toBe(true)
         Yunit.expect(this.m.actual.errorType).toBe("Yunit.AssertionError")
         Yunit.expect(this.m.expected.errorType).toBe("Yunit.AssertionError")
@@ -405,6 +450,8 @@ Class YunitTest {
         Expected error type: TypeError
         
         Actual message:      message
+        Actual what:         what
+        Actual extra:        extra
         )"
 
         ret := this.m.Assert(actual, expected)
@@ -412,10 +459,49 @@ Class YunitTest {
         Yunit.expect(output).toEql(expectedOutput)
         
         Yunit.expect(ret).toBe(false)
+        Yunit.expect(this.m.hasPassedTest).toBe(false)
         Yunit.expect(this.m.actual.hasThrown).toBe(true)
         Yunit.expect(this.m.actual.errorType).toBe("Yunit.AssertionError")
         Yunit.expect(this.m.expected.errorType).toBe("TypeError")
       }
+    }
+    
+    ;; Class ToMatch
+    Class ToMatch {
+      
+      beforeEach() {
+        this.m := Yunit.Matchers.ToMatch()
+      }
+      
+      matches_a_string_true() {
+        actual   := "ABC123456"
+        expected := "i)abc\d"
+
+        ret := this.m.Assert(actual, expected)
+        
+        Yunit.expect(ret).toBe(true)
+        Yunit.expect(this.m.hasPassedTest).toBe(true)
+        Yunit.expect(this.m.retVal[0]).toBe("ABC1")
+      }
+
+      matches_a_string_false() {
+        actual   := "ABC123456"
+        expected := "i)abd\d"
+        
+        expectedOutput := "
+        (LTrim
+        Actual value:     "ABC123456"
+        Expected pattern: "i)abd\d"
+        )"
+
+        ret := this.m.Assert(actual, expected)
+        output := this.m.GetErrorOutput()
+
+        Yunit.expect(ret).toBe(false)
+        Yunit.expect(this.m.hasPassedTest).toBe(false)
+        Yunit.expect(output).toEql(expectedOutput)
+      }
+
     }
   }
 

@@ -1,4 +1,4 @@
-#Requires AutoHotkey v2.0-beta.1
+#Requires AutoHotkey v2.0
 
 ;; Class Yunit
 class Yunit
@@ -579,7 +579,9 @@ class Yunit
       * @returns {string}
       */
       GetMatcherType() {
-        return StrSplit(this.__class, ".").Pop()
+        name := StrSplit(this.__class, ".").Pop()
+        ; change PascalCase to camelCase
+        return Format("{1:L}", Substr(name, 1, 1)) Substr(name, 2) 
       }
     }
 
@@ -602,7 +604,7 @@ class Yunit
     }
 
     ;; toEql
-    Class toEql extends Yunit.Matchers.MatcherBase {
+    Class ToEql extends Yunit.Matchers.MatcherBase {
       
       Assert(actual, expected) {
         super.Assert(actual, expected)
@@ -683,6 +685,7 @@ class Yunit
       }
     }
     
+    ;; Class ToThrow
     Class ToThrow extends Yunit.Matchers.MatcherBase {
       
       assert(funcObj, expectedError := "") {
@@ -716,13 +719,73 @@ class Yunit
         Expected error type: {2}
         
         Actual message:      {3}
+        Actual what:         {4}
+        Actual extra:        {5}
         )"
         output := format(outputFormat
           , this.actual.errorType
           , this.expected.errorType
-          , this.retVal.message)
+          , this.retVal.message
+          , this.retVal.what
+          , this.retVal.extra)
         return output
       }
+    }
+    
+    ;; Class ToMatch
+    Class ToMatch extends Yunit.Matchers.MatcherBase {
+      
+      assert(actual, expected) {
+        super.assert(actual, expected)
+        ; pattern := this._buildRegex(expected)
+        pos := RegExMatch(actual, expected, &match)
+        this.retVal := match
+        return (this.hasPassedTest := pos > 0)
+      }
+      
+      /**
+      * Builds regex pattern: sets "match object" mode
+      * @param {string} regex - RegEx pattern
+      * @returns {string} new RegEx pattern
+      */
+      _buildRegex(regex) {
+        split := this.splitRegex(regex)
+        return split.flags split.pattern
+      }
+
+      /**
+      * Splits RegEx pattern into flags/pattern
+      * @param {string} regex - RegEx pattern
+      * @returns {object} { flags, pattern }
+      */
+      splitRegex(regex) {
+        ; Group1: flags, group2: pattern
+        ; https://regex101.com/r/lFAmkV/1/
+        RegExMatch(regex, "^(?:([^(]*)\))?(.+)", &match)
+        return { flags: (match[1]), pattern: (match[2]) }
+      }
+
+      /**
+      * Returns the text of a dynamic comment for the expect matcher
+      * to be printed in the error details header
+      * @override
+      * @returns {string}
+      */
+      GetExpectComment() {
+        return "RegExMatch"
+      }
+      
+      /**
+      * Returns the error output to print in the error details section
+      * @virtual
+      * @returns {string | string[]}
+      */
+      GetErrorOutput() {
+        actual := this.formatActualTestValue(this.actual)
+        expected := this.formatExpectedTestValue(this.expected)
+        return format("Actual value:     {1}`nExpected pattern: {2}", actual, expected)
+      }
+
     }
   }
 }

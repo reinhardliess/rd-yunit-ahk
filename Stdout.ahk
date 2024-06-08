@@ -4,6 +4,10 @@ class YunitStdOut extends ConsoleOutputBase {
   
   __Delete() {
     this.printTestResults()
+    if (this.summary.slowTests.count > 0) {
+      this.printLine()
+      this.printSlowTestOverview()
+    }
     if (this.summary.failed.count > 0) {
       this.printLine()
       this.printErrorOverview()
