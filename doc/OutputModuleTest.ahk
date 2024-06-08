@@ -1,64 +1,18 @@
 class OutputModuleTest {
 
-  class strings {
-    
-    should_match_a_string() {
-      match := Yunit.expect("ABCDEF").toMatch("i)abcdef")
-    }
-    
-  }
-  
-  class assert {
-    integer_addition_correct_result() {
-      Yunit.assert(1 + 3 == 4)
-    }
-
-    integer_addition_error() {
-      Yunit.assert(1 + 3 == 5)
-    }
-
-    integer_addition_error_message() {
-      Yunit.assert(1 + 3 == 5, "An error happened")
-    }
-  }
-
-  class toBe {
-
-    integer_addition_correct_result() {
-      Sleep 30
+  Class Numbers {
+    integer_addition_true() {
       Yunit.expect(1 + 4).toBe(5)
     }
 
-    integer_addition_error() {
+    integer_addition_false() {
       Yunit.expect(1 + 4).toBe(6)
     }
     
-    string_comparison_error() {
-      Yunit.expect("Zoi").toBe("Zoe")
-    }
-
-    float_addition_error() {
+    float_addition_false() {
       Yunit.expect(0.1 + 0.2, "calculate 0.1 + 0.2").toBe(0.3)
     }
 
-    object_comparison_error() {
-      Yunit.expect({a:1}).toBe({a:1})
-    }
-  }
-  
-  Class toEql {
-    objects_equal() {
-      Yunit.expect({b: 2, a: 1}).toEql({a:1, b:2})
-    }
-
-    objects_not_equal() {
-      Yunit.expect({a:1}).toEql({a:1, b:2})
-    }
-
-  }
-  
-  Class toBeCloseTo {
-      
     floats_proximate_equal() {
       Yunit.expect(0.1 + 0.2).ToBeCloseTo(0.3)
     }
@@ -68,8 +22,39 @@ class OutputModuleTest {
     }
   }
   
-  Class toThrow {
+  class Strings {
+    match_a_string_true() {
+      match := Yunit.expect("abcXYZ123").toMatch("abc(.*)123")
+      Yunit.expect(match[1]).toBe("XYZ")
+    }
     
+    match_a_string_false() {
+      Yunit.expect("abcdef").toMatch("BC")
+    }
+    
+    string_comparison_false() {
+      Yunit.expect("Zoi").toBe("Zoe")
+    }
+  }
+  
+  Class Objects {
+
+    object_comparison_false() {
+      Yunit.expect({a:1}).toBe({a:1})
+    }
+    
+    objects_equal() {
+      ; force a slow test
+      Sleep 30
+      Yunit.expect({b: 2, a: 1}).toEql({a:1, b:2})
+    }
+  
+    objects_not_equal() {
+      Yunit.expect({a:1}).toEql({a:1, b:2})
+    }
+  }
+  
+  Class toThrow {
     Class _TypeError {
       message := "TypeError"
     }
@@ -79,14 +64,22 @@ class OutputModuleTest {
     }
     
     _fn_throws_an_assertion_error() {
-      throw new Yunit.AssertionError("message", "what", "extra", {hasPassedTest: false})
+      throw new Yunit.AssertionError("message", , "extra", {hasPassedTest: false})
     }
 
-    throws_wrong_errortype() {
+    throws_wrong_error_type() {
       actual   := ObjBindMethod(this, "_fn_throws_an_assertion_error")
       expected := OutputModuleTest.toThrow._TypeError
 
+      Yunit.expect(actual).toThrow(expected)
+    }
+    
+    throws_correct_error_type() {
+      actual   := ObjBindMethod(this, "_fn_throws_an_assertion_error")
+      expected := Yunit.AssertionError
+
       err := Yunit.expect(actual).toThrow(expected)
+      Yunit.expect(err.message).toBe("message")
     }
     
     does_not_throw_an_error() {
@@ -94,7 +87,5 @@ class OutputModuleTest {
 
       err := Yunit.expect(actual).toThrow()
     }
-
   }
-
 }
