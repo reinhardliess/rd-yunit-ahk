@@ -341,6 +341,11 @@ Class YunitTest {
         throw Yunit.AssertionError("message", "what", "extra", {hasPassedTest: false})
       }
             
+      ; _fn_throws_an_index_error() {
+      ;   arr := []
+      ;   arr[1] := 1
+      ; }
+            
       does_not_throw_an_error() {
         actual   := ObjBindMethod(this, "_fn_does_not_throw")
         expected := ""
@@ -380,13 +385,24 @@ Class YunitTest {
         Yunit.expect(this.m.expected.errorType).toBe("Yunit.AssertionError")
       }
       
+      throws_an_error_correct_error_instance() {
+        expected := ValueError
+        
+        ; throw an index error
+        ret := this.m.Assert((*) => (arr := [], arr[1] := 1), expected)
+        
+        Yunit.expect(ret).toBe(true)
+        Yunit.expect(this.m.hasPassedTest).toBe(true)
+        Yunit.expect(this.m.actual.hasThrown).toBe(true)
+      }
+      
       throws_an_error_wrong_errortype() {
         actual   := ObjBindMethod(this, "_fn_throws_an_assertion_error")
-        expected := YunitTest.Matchers.toThrow._TypeError
+        expected := TypeError
         expectedOutput := "
         (LTrim
         Actual error type:   Yunit.AssertionError
-        Expected error type: YunitTest.Matchers.toThrow._TypeError
+        Expected error type: TypeError
         
         Actual message:      message
         )"
@@ -398,7 +414,7 @@ Class YunitTest {
         Yunit.expect(ret).toBe(false)
         Yunit.expect(this.m.actual.hasThrown).toBe(true)
         Yunit.expect(this.m.actual.errorType).toBe("Yunit.AssertionError")
-        Yunit.expect(this.m.expected.errorType).toBe("YunitTest.Matchers.toThrow._TypeError")
+        Yunit.expect(this.m.expected.errorType).toBe("TypeError")
       }
     }
   }

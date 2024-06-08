@@ -687,7 +687,6 @@ class Yunit
       
       assert(funcObj, expectedError := "") {
         this.actual := {hasThrown: false, errorType: ""}
-        ; this.expected := {errorType: (expectedError.__Class)}
         if (expectedError) {
           this.expected := {errorType: (expectedError.Prototype.__Class)}
         }
@@ -699,8 +698,7 @@ class Yunit
           this.actual.hasThrown := true
           this.actual.errorType := Yunit.Util.GetType(err)
           this.hasPassedTest := true
-          ; TODO: V2 - is operator to compare errors?
-          if (expectedError && this.actual.errorType != this.expected.errorType) {
+          if (expectedError && !(err is expectedError)) {
             this.hasPassedTest := false
           }
           this.retVal := err
