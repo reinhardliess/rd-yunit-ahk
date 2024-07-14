@@ -339,7 +339,7 @@ class Yunit
     * @param {boolean} [options.usePureNumbers:=false] - no auto-conversion between
     *   string and integer (V1) or all numbers (V2)
     * @param {boolean} [options.renderWhiteSpace:=false]
-    * @param {boolean} [options.textFormat:="{format.text}"]
+    * @param {string} [options.textFormat:="{format.text}"]
     * @returns {string}
     */
     static Print(value, options := {}) {
@@ -737,34 +737,11 @@ class Yunit
       
       assert(actual, expected) {
         super.assert(actual, expected)
-        ; pattern := this._buildRegex(expected)
         pos := RegExMatch(actual, expected, &match)
         this.retVal := match
         return (this.hasPassedTest := pos > 0)
       }
       
-      /**
-      * Builds regex pattern: sets "match object" mode
-      * @param {string} regex - RegEx pattern
-      * @returns {string} new RegEx pattern
-      */
-      _buildRegex(regex) {
-        split := this.splitRegex(regex)
-        return split.flags split.pattern
-      }
-
-      /**
-      * Splits RegEx pattern into flags/pattern
-      * @param {string} regex - RegEx pattern
-      * @returns {object} { flags, pattern }
-      */
-      splitRegex(regex) {
-        ; Group1: flags, group2: pattern
-        ; https://regex101.com/r/lFAmkV/1/
-        RegExMatch(regex, "^(?:([^(]*)\))?(.+)", &match)
-        return { flags: (match[1]), pattern: (match[2]) }
-      }
-
       /**
       * Returns the text of a dynamic comment for the expect matcher
       * to be printed in the error details header
